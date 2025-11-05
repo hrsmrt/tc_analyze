@@ -1,0 +1,53 @@
+&sim_info_param
+  in_folderpath = "../convert/",
+  out_folderpath = "./data/",
+  glevel      = 7,
+  triangle_size     = 256000.0,
+  nt          = 101,
+  nz          = 74,
+/
+
+&slp_center_param
+  ite_n       = 100,
+  calc_radius = 100d3
+/
+
+&ms_pres_center_param
+  ite_n       = 100,
+  calc_radius = 100d3
+/
+
+&vor_center_param
+  ite_n       = 100,
+  calc_radius = 100d3
+/
+
+&pv_center_param
+  calc_radius = 500d3
+/
+
+&analyze_param
+  foldername    = "../",
+  output_folder = "./data/",
+  glevel      = 7,
+  triangle_size     = 4096000.0,
+  nt          = 6,
+  nz          = 74,
+  output_ss_slp_min_flag = .true.,
+  output_maxu10m_flag = .true.,
+  calcu_mass_center = .true.,
+  input_mass_center_flag = .false.,
+  u_xmean_flag = .true.,
+/
+
+&mass_center_param
+  ite_n       = 1000,
+  mass_center_circle_radius   = 100d3
+/
+
+&shear_param
+  z_lower             = 12,
+  z_upper             = 41,
+  outer_shear_r_in    = 200d3,
+  outer_shear_r_out   = 800d3
+/

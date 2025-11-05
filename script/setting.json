@@ -1,0 +1,8 @@
+{
+    "nt": 101,
+    "triangle_size": 256000.0,
+    "glevel": 7,
+    "nz": 74,
+    "dt_output": 86400,
+    "input_folder": "../convert/"
+}
