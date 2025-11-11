@@ -8,18 +8,13 @@ from utils.config import AnalysisConfig
 from utils.plotting import parse_style_argument
 
 varname = sys.argv[1]
-mpl_style_sheet = parse_style_argument(arg_index=2)
+mpl_style_sheet = parse_style_argument()
 
 config = AnalysisConfig()
 
 time_list = config.time_list
 
 vgrid = np.loadtxt(config.vgrid_filepath)
-
-nr = 1000e3/config.dx
-xgrid = np.arange(nr) * config.dx
-
-X, Y = np.meshgrid(xgrid,vgrid)
 
 folder = f"./fig/azim/{varname}/"
 
@@ -28,6 +23,10 @@ os.makedirs(folder,exist_ok=True)
 def process_t(t):
     # データの読み込み
     data = np.load(f"./data/azim/{varname}/t{str(t).zfill(3)}.npy")
+    # データの形状から半径方向のグリッドを作成
+    nr = data.shape[1]
+    xgrid = np.arange(nr) * config.dx
+    X, Y = np.meshgrid(xgrid, vgrid)
 
     # プロット
     plt.style.use(mpl_style_sheet)
@@ -68,4 +67,4 @@ def process_t(t):
     fig.savefig(f"{folder}t{str(t).zfill(3)}.png")
     plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

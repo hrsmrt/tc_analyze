@@ -1,13 +1,9 @@
 # python $WORK/tc_analyze/center/find_lows.py
 import os
-import sys
 import numpy as np
 from scipy.ndimage import gaussian_filter
 from skimage.feature import peak_local_max
 import pickle
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(script_dir, ".."))
 
 # P: 2D SLP [Pa] or [hPa], lat x lon (or y x x)
 # land_sea_mask: 1=ocean, 0=land (任意)
@@ -28,7 +24,7 @@ data_memmap = np.memmap(
 
 def main():
     lows_all = []
-    for t in range(config.nt):
+    for t in range(config.t_start, config.t_end):
         P = data_memmap[t]
         lows = find_lows_peakmax(P,thr_Pa=100500,dx_km=config.dx*1e-3,dy_km=config.dy*1e-3,min_sep_km=200)
         print(f"Time {t}: Found {len(lows)} low pressure centers")

@@ -13,17 +13,9 @@ from utils.plotting import parse_style_argument
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-mpl_style_sheet = parse_style_argument(arg_index=1)
-
-radius = 1000e3
-
-nr = int(radius / config.dx)
+mpl_style_sheet = parse_style_argument()
 
 vgrid = grid.create_vertical_grid()
-
-# rgrid generated via grid.create_radial_vertical_meshgrid
-
-X, Y = grid.create_radial_vertical_meshgrid(1000e3)
 
 folder = "./fig/azim_core/wind_radial/"
 
@@ -31,6 +23,10 @@ os.makedirs(folder,exist_ok=True)
 
 def process_t(t):
   data = np.load(f"./data/azim/wind_radial/t{str(t).zfill(3)}.npy")
+  # データの形状から半径方向のグリッドを作成
+  nr = data.shape[1]
+  rgrid = (np.arange(nr) + 0.5) * config.dx
+  X, Y = np.meshgrid(rgrid, vgrid)
 
   plt.style.use(mpl_style_sheet)
   fig, ax = plt.subplots(figsize=(5,2))
@@ -49,4 +45,4 @@ def process_t(t):
   plt.savefig(f"{folder}t{str(t).zfill(3)}.png")
   plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

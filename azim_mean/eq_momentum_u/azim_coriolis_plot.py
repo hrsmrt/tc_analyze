@@ -10,15 +10,12 @@ from utils.plotting import parse_style_argument
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-mpl_style_sheet = parse_style_argument(arg_index=1)
+mpl_style_sheet = parse_style_argument()
 
 radius = 1000e3
 
 nr = int(radius / config.dx)
 
-vgrid = np.loadtxt(f"{script_dir}/../../../database/vgrid/vgrid_c74.txt")
-vgrid = vgrid*1e-3
-rgrid = np.array([ r * config.dx + config.dx/2 for r in range(int(nr))]) * 1e-3
 
 X, Y = grid.create_radial_vertical_meshgrid(1000e3)
 
@@ -42,4 +39,4 @@ def process_t(t):
   plt.savefig(f"{output_folder}t{str(t).zfill(3)}.png")
   plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

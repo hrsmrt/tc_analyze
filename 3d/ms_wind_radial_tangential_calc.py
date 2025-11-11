@@ -22,8 +22,8 @@ os.makedirs(folder1, exist_ok=True)
 os.makedirs(folder2, exist_ok=True)
 
 # 中心座標の読み込み
-center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
-center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
+center_x_list = config.center_x
+center_y_list = config.center_y
 
 # データのメモリマップ
 data_all_u = np.memmap(
@@ -64,4 +64,4 @@ def process_t(t):
     print(f"t: {t} done")
 
 # 並列処理で全時刻を処理
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

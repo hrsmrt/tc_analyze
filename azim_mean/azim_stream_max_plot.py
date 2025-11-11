@@ -12,13 +12,13 @@ from utils.plotting import parse_style_argument
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-mpl_style_sheet = parse_style_argument(arg_index=1)
+mpl_style_sheet = parse_style_argument()
 
 output_folder = "./fig/azim/stream/"
 os.makedirs(output_folder, exist_ok=True)
 
 max_phi = []
-for t in range(config.nt):
+for t in range(config.t_start, config.t_end):
     data = np.load(f"./data/azim/stream/t{str(t).zfill(3)}.npy")
     print(f"t={t} max: {np.nanmax(data)}")
     max_phi.append(np.nanmax(data))

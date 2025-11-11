@@ -9,8 +9,14 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from joblib import Parallel, delayed
+from utils.config import AnalysisConfig
+from utils.grid import GridHandler
+from utils.plotting import parse_style_argument
 
-mpl_style_sheet = parse_style_argument(arg_index=1)
+config = AnalysisConfig()
+grid = GridHandler(config)
+
+mpl_style_sheet = parse_style_argument()
 
 radius = 1000e3
 
@@ -41,4 +47,4 @@ def process_t(t):
   plt.savefig(f"{folder}t{str(t).zfill(3)}.png")
   plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

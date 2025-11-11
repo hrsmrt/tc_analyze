@@ -15,18 +15,23 @@ grid = GridHandler(config)
 output_folder = "./data/azim/stream2/"
 os.makedirs(output_folder, exist_ok=True)
 
+vgrid = grid.create_vertical_grid()
+
 def process_t(t):
     rho = np.load(f"./data/azim/ms_rho/t{str(t).zfill(3)}.npy")
     u = np.load(f"./data/azim/wind_relative_radial/t{str(t).zfill(3)}.npy")
     w = np.load(f"./data/azim/ms_w/t{str(t).zfill(3)}.npy")
+    # データの形状から半径方向のビン数を取得
+    nr = rho.shape[1]
+    R = (np.arange(nr) + 0.5) * config.dx
     phi = np.zeros_like(rho)
     for r in range(1,nr):
         phi[0,r] = phi[0,r-1] + 0.5 * (rho[0,r]*w[0,r]*R[r] + rho[0,r-1]*w[0,r-1]*R[r-1]) * (R[r] - R[r-1])
     for z in range(1,config.nz):
         for r in range(nr):
-            phi[z,r] = phi[z-1,r] - 0.5 * (rho[z,r] + rho[z-1,r]) * 0.5 * (u[z,r] + u[z-1,r]) * 0.5 * R[z] * (vgrid[z] - vgrid[z-1])
+            phi[z,r] = phi[z-1,r] - 0.5 * (rho[z,r] + rho[z-1,r]) * 0.5 * (u[z,r] + u[z-1,r]) * 0.5 * R[r] * (vgrid[z] - vgrid[z-1])
             
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", phi)
     print(f"t={t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

@@ -16,8 +16,6 @@ from utils.config import AnalysisConfig
 # 設定読み込み
 config = AnalysisConfig()
 
-config.time_list = [t * config.dt_hour for t in range(config.nt)]
-
 r_max = 1000e3
 
 nr = int(r_max / config.dx)
@@ -48,4 +46,4 @@ def process_t(t):
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", theta_e)
     print(f"t={t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

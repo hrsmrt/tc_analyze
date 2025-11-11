@@ -33,23 +33,77 @@ def create_custom_colormap(
     return ListedColormap(colors)
 
 
-def parse_style_argument(arg_index: int = 2) -> Optional[str]:
+def parse_style_argument() -> str:
     """
-    コマンドライン引数からmatplotlibスタイルシートを解析
+    Matplotlibスタイルシートを取得
 
-    Args:
-        arg_index (int): スタイル引数のインデックス (デフォルト: 2)
+    優先順位:
+    1. 環境変数 MPLSTYLE
+    2. コマンドライン引数から自動検出:
+       - 既知のスタイル名 (dark_background, ggplot, 等)
+       - .mplstyle または .style 拡張子を持つファイル
+       - 存在するファイルパス（絶対パス・相対パス）
+    3. デフォルト値 "default"
 
     Returns:
-        str or None: スタイルシート名、またはNone
+        str: スタイルシート名またはパス
+
+    Examples:
+        # 環境変数で設定
+        $ export MPLSTYLE=dark_background
+        $ python script.py
+
+        # コマンドライン引数（順序自由）
+        $ python script.py dark_background
+        $ python script.py varname dark_background
+        $ python script.py dark_background varname
+
+        # カスタムスタイルファイル
+        $ python script.py /path/to/custom.style
+        $ python script.py /path/to/custom.mplstyle
+        $ python script.py ./mystyle.style
+
+    Notes:
+        - 引数の順序を気にする必要はありません
+        - 環境変数で一括設定可能です
+        - .style および .mplstyle 拡張子をサポート
+        - 相対パス・絶対パスの両方に対応
     """
-    if len(sys.argv) > arg_index:
-        mpl_style_sheet = sys.argv[arg_index]
-        print(f"Using style: {mpl_style_sheet}")
-        return mpl_style_sheet
-    else:
-        print("No style sheet specified, using default.")
-        return None
+    import os
+
+    # 1. 環境変数をチェック（最優先）
+    if "MPLSTYLE" in os.environ:
+        style = os.environ["MPLSTYLE"]
+        if style:  # 空文字列でない
+            return style
+
+    # 2. コマンドライン引数から検出
+    # 既知のmatplotlibスタイル名
+    known_styles = {
+        "default", "dark_background", "ggplot", "seaborn", "bmh",
+        "fivethirtyeight", "grayscale", "seaborn-darkgrid",
+        "seaborn-whitegrid", "seaborn-dark", "seaborn-white",
+        "seaborn-pastel", "seaborn-bright", "seaborn-muted",
+        "seaborn-colorblind", "seaborn-deep", "seaborn-paper",
+        "seaborn-poster", "seaborn-talk", "seaborn-notebook",
+        "classic", "Solarize_Light2", "fast", "tableau-colorblind10"
+    }
+
+    for arg in sys.argv[1:]:
+        # 既知のスタイル名
+        if arg in known_styles:
+            return arg
+
+        # スタイルファイル (.mplstyle, .style)
+        if arg.endswith('.mplstyle') or arg.endswith('.style'):
+            return arg
+
+        # ファイルとして存在するパス（絶対パス・相対パス）
+        if os.path.isfile(arg):
+            return arg
+
+    # 3. デフォルト
+    return "default"
 
 
 # カスタムカラーマップのプリセット

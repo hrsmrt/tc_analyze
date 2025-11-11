@@ -3,9 +3,6 @@
 import os
 import sys
 # 実行ファイル（この.pyファイル）を基準に相対パスを指定
-script_dir = os.path.dirname(os.path.abspath(__file__))
-target_path = os.path.join(script_dir, '../../module')
-sys.path.append(target_path)
 import numpy as np
 import matplotlib.pyplot as plt
 from joblib import Parallel, delayed
@@ -18,7 +15,7 @@ from utils.plotting import parse_style_argument
 
 config = AnalysisConfig()
 
-time_list = [t * config.dt_hour for t in range(config.nt)]
+time_list = [t * config.dt_hour for t in range(config.t_start, config.t_end)]
 
 vgrid = np.loadtxt(f"{setting['vgrid_filepath']}")
 
@@ -46,7 +43,7 @@ for q in range(4):
     plt.close()
 
 for q in range(4):
-    for t in range(config.nt):
+    for t in range(config.t_start, config.t_end):
         data = data_all[t, :, q]
         plt.style.use(mpl_style_sheet)
         fig, ax = plt.subplots(figsize=(5,3))

@@ -13,7 +13,7 @@ from utils.plotting import parse_style_argument
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-mpl_style_sheet = parse_style_argument(arg_index=1)
+mpl_style_sheet = parse_style_argument()
 
 output_folder = "./fig/azim/eliassen/xi/"
 os.makedirs(output_folder, exist_ok=True)
@@ -33,4 +33,4 @@ def process_t(t):
     plt.close()
     print(f"t={t} done(max:{data.max()},min:{data.min()})")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

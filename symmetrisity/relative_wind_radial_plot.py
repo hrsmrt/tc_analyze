@@ -1,12 +1,9 @@
 # python $WORK/tc_analyze/symmetrisity/relative_wind_radial_plot.py $style
 import os
-import sys
 # 実行ファイル（この.pyファイル）を基準に相対パスを指定
-script_dir = os.path.dirname(os.path.abspath(__file__))
 import numpy as np
 import matplotlib.pyplot as plt
 from joblib import Parallel, delayed
-sys.path.append(os.path.normpath(os.path.join(script_dir, "..", "module")))
 
 mpl_style_sheet = parse_style_argument()
 
@@ -39,4 +36,4 @@ def process_t(t):
     fig.savefig(f"{output_folder}t{str(t).zfill(3)}.png")
     plt.close()
 
-Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

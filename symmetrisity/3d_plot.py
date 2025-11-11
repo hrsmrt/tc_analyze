@@ -2,19 +2,16 @@
 import os
 import sys
 # 実行ファイル（この.pyファイル）を基準に相対パスを指定
-script_dir = os.path.dirname(os.path.abspath(__file__))
 import numpy as np
 import matplotlib.pyplot as plt
 from joblib import Parallel, delayed
-sys.path.append(os.path.normpath(os.path.join(script_dir, "..", "module")))
+
+from utils.config import AnalysisConfig
+from utils.plotting import parse_style_argument
 
 varname = sys.argv[1]
 
 mpl_style_sheet = parse_style_argument()
-
-# ファイルを開いてJSONを読み込む
-from utils.config import AnalysisConfig
-from utils.plotting import parse_style_argument
 
 config = AnalysisConfig()
 
@@ -41,4 +38,4 @@ def process_t(t):
     fig.savefig(f"{output_folder}t{str(t).zfill(3)}.png")
     plt.close()
 
-Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

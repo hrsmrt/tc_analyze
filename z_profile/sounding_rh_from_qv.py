@@ -1,11 +1,6 @@
 # シミュレーションの最後の24hの平均のsounding
 # python $PNICAM/analyze/python/z_profile/calc_sounding_pres.py
-import sys
 import os
-script_dir = os.path.dirname(os.path.abspath(__file__))
-module_path = os.path.normpath(os.path.join(script_dir, "..", "..", "module"))
-sys.path.append(module_path)
-sys.path.append(os.path.join(script_dir, "../../../database"))
 import basic
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,7 +9,7 @@ from utils.config import AnalysisConfig
 
 config = AnalysisConfig()
 
-vgrid = np.loadtxt(f"{setting['vgrid_filepath']}")
+vgrid = np.loadtxt(config.vgrid_filepath)
 
 sounding = np.zeros(config.nz)
 sounding_T = np.zeros(config.nz)
@@ -28,14 +23,14 @@ if not os.path.exists(outfig_dir):
     os.makedirs(outfig_dir)
 
 c = 0
-for t in range(config.nt-int(24/config.dt_hour),config.nt):
+for t in range(config.t_end-int(24/config.dt_hour),config.nt):
   c += 1
   for z in range(config.nz):
     count = config.nx * config.ny
     offset = count * (z + t * config.nz) * 4
-    data = np.fromfile("../model/convert/ms_qv.grd",dtype=">f4",count=count,offset=offset)
-    data_T = np.fromfile("../model/convert/ms_tem.grd",dtype=">f4",count=count,offset=offset)
-    data_p = np.fromfile("../model/convert/ms_pres.grd",dtype=">f4",count=count,offset=offset)
+    data = np.fromfile(f"{config.input_folder}ms_qv.grd",dtype=">f4",count=count,offset=offset)
+    data_T = np.fromfile(f"{config.input_folder}ms_tem.grd",dtype=">f4",count=count,offset=offset)
+    data_p = np.fromfile(f"{config.input_folder}ms_pres.grd",dtype=">f4",count=count,offset=offset)
     sounding[z] += np.mean(data)
     sounding_T[z] += np.mean(data_T)
     sounding_p[z] += np.mean(data_p)

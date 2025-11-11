@@ -3,27 +3,34 @@ import numpy as np
 import numpy.ma as ma
 from joblib import Parallel, delayed
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(script_dir, ".."))
-
 r_max_ite = 100e3
 
 from utils.config import AnalysisConfig
 
 config = AnalysisConfig()
 
+x = np.arange(config.dx*0.5, config.x_width, config.dx)
+y = np.arange(config.dy*0.5, config.y_width, config.dy)
+X, Y = np.meshgrid(x, y)
+
+x_c_evo = []
+y_c_evo = []
+
+data_memmap = np.memmap(
+    f"{config.input_folder}ss_slp.grd",
+    dtype=">f4",
     mode="r",
     shape=(config.nt, config.ny, config.nx)
 )
 
 def main():
     # 並列実行して結果をリストで受け取る
-    results = Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+    results = Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))
 
     # 結果をそれぞれ x, y に分解
-    for t, (x, y) in zip(range(config.nt), results):
-        x_c_evo[t] = x
-        y_c_evo[t] = y
+    for t, (x, y) in zip(range(config.t_start, config.t_end), results):
+        x_c_evo.append(x)
+        y_c_evo.append(y)
 
     # 保存
     np.savetxt("data/ss_slp_center_x.txt", x_c_evo)
@@ -45,12 +52,12 @@ def process_t(t):
     return x_c, y_c
 
 def iteration(X, Y, data, x_c, y_c, r_max_ite, data_max):
-    config.dx = (X-x_c)
-    config.dx[config.dx > config.x_width*0.5] -= config.x_width
-    config.dx[config.dx < -config.x_width*0.5] += config.x_width
-    config.dy = Y-y_c
+    dx = (X-x_c)
+    dx[dx > config.x_width*0.5] -= config.x_width
+    dx[dx < -config.x_width*0.5] += config.x_width
+    dy = Y-y_c
 
-    dist = np.hypot(config.dx, config.dy)
+    dist = np.hypot(dx, dy)
     mask = dist <= r_max_ite
 
     # 重み（例：最大値からの差）。マスク外は 0 に
@@ -61,12 +68,12 @@ def iteration(X, Y, data, x_c, y_c, r_max_ite, data_max):
         return x_c, y_c
 
     # 変位の重み付き平均を中心に足す（周期で折り返し）
-    x_c_new = (x_c + (w * config.dx).sum() / w_sum)
+    x_c_new = (x_c + (w * dx).sum() / w_sum)
     if x_c_new < 0:
         x_c_new += config.x_width
     elif x_c_new >= config.x_width:
         x_c_new -= config.x_width
-    y_c_new = (y_c + (w * config.dy).sum() / w_sum)
+    y_c_new = (y_c + (w * dy).sum() / w_sum)
     if y_c_new < 0:
         y_c_new += config.y_width
     elif y_c_new >= config.y_width:

@@ -11,7 +11,7 @@ from utils.plotting import parse_style_argument
 
 #from joblib import Parallel, delayed
 varname = sys.argv[1]
-mpl_style_sheet = parse_style_argument(arg_index=2)
+mpl_style_sheet = parse_style_argument()
 
 original_cmap = plt.cm.rainbow
 colors = original_cmap(np.linspace(0, 1, 256))  # 元のカラーマップの色を取得
@@ -29,7 +29,7 @@ data_all = np.memmap(
     f"{config.input_folder}{varname}.grd", dtype=">f4", mode="r", shape=(config.nt, config.ny, config.nx)
 )
 
-for t in range(config.nt):
+for t in range(config.t_start, config.t_end):
     data = data_all[t].mean(axis=1)
 
     plt.style.use(mpl_style_sheet)
@@ -43,4 +43,4 @@ for t in range(config.nt):
     fig.savefig(f"{dir}t{str(config.time_list[t]).zfill(4)}.png")
     plt.close()
 
-#Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+#Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

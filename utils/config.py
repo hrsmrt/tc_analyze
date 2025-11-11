@@ -44,18 +44,13 @@ class AnalysisConfig:
             base_dir (str, optional): 設定ファイルを探す基準ディレクトリ
         """
         if base_dir is None:
-            # スクリプトの場所から相対的にsetting.jsonを探す
-            # カレントディレクトリから探し、なければscript/ディレクトリを試す
+            # カレントディレクトリのみ
             if os.path.exists(config_file):
                 config_path = config_file
-            elif os.path.exists(f"script/{config_file}"):
-                config_path = f"script/{config_file}"
-            elif os.path.exists(f"../{config_file}"):
-                config_path = f"../{config_file}"
             else:
                 raise FileNotFoundError(
-                    f"設定ファイル '{config_file}' が見つかりません。"
-                    "カレントディレクトリ、script/、または親ディレクトリに配置してください。"
+                    f"設定ファイル '{config_file}' が見つかりません。\n"
+                    f"カレントディレクトリ ({os.getcwd()}) に配置してください。"
                 )
         else:
             config_path = os.path.join(base_dir, config_file)
@@ -76,6 +71,16 @@ class AnalysisConfig:
     def nt(self) -> int:
         """時間ステップ数"""
         return self._data["nt"]
+
+    @property
+    def t_start(self) -> int:
+        """解析開始時刻のインデックス"""
+        return self._data.get("t_start", 0)
+
+    @property
+    def t_end(self) -> int:
+        """解析終了時刻のインデックス（この値は含まない）"""
+        return self._data.get("t_end", self.nt)
 
     @property
     def dt_output(self) -> int:
@@ -118,6 +123,11 @@ class AnalysisConfig:
         return self._data["vgrid_filepath"]
 
     @property
+    def time_tick_step(self) -> int:
+        """時間軸の目盛り間隔（秒）"""
+        return self._data["time_tick_step"]
+
+    @property
     def n_jobs(self) -> int:
         """並列処理のジョブ数"""
         return self._data.get("n_jobs", 1)
@@ -158,6 +168,27 @@ class AnalysisConfig:
     def time_list(self) -> list:
         """時間リスト（時間単位）"""
         return [t * self.dt_hour for t in range(self.nt)]
+    
+    @property
+    def time_ticks(self) -> list:
+        """時間メモリ（時間単位）"""
+        return [t * self.dt_hour for t in range(0, self.nt, self.time_tick_step)]
+
+    @property
+    def center_x(self):
+        """TC中心のx座標リスト（キャッシュ付き）"""
+        if not hasattr(self, '_center_x'):
+            import numpy as np
+            self._center_x = np.loadtxt("./data/ss_slp_center_x.txt", ndmin=1)
+        return self._center_x
+
+    @property
+    def center_y(self):
+        """TC中心のy座標リスト（キャッシュ付き）"""
+        if not hasattr(self, '_center_y'):
+            import numpy as np
+            self._center_y = np.loadtxt("./data/ss_slp_center_y.txt", ndmin=1)
+        return self._center_y
 
     # === 領域計算用のヘルパーメソッド ===
 

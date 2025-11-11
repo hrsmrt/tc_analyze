@@ -59,4 +59,4 @@ def process_t(t):
         plt.close()
     print(f"t: {t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(0,config.nt,int(24/config.dt_hour)))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end,int(24/config.dt_hour)))

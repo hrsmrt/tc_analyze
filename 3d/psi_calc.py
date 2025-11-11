@@ -2,12 +2,8 @@
 # 流線関数の計算
 
 import os
-import sys
 import numpy as np
 from joblib import Parallel, delayed
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(script_dir, ".."))
 
 from utils.config import AnalysisConfig
 
@@ -15,8 +11,6 @@ config = AnalysisConfig()
 
 folder = f"./data/3d/psi/"
 os.makedirs(folder, exist_ok=True)
-
-
 
 def process_t(t):
     data = np.load(f"./data/3d/vorticity_z/vor_t{str(t).zfill(3)}.npy")
@@ -76,4 +70,4 @@ def streamfunction_twisted(zeta, dx, dy):
     psi = poisson_periodic_fft(-zeta, Lx, Ly)
     return psi
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

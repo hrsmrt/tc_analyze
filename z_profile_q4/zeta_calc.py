@@ -1,11 +1,7 @@
 # python $WORK/tc_analyze/z_profile_q4/zeta_calc.py
 
 import os
-import sys
 # 実行ファイル（この.pyファイル）を基準に相対パスを指定
-script_dir = os.path.dirname(os.path.abspath(__file__))
-module_path = os.path.normpath(os.path.join(script_dir, "..", "module"))
-sys.path.append(module_path)
 from input_data import read_fortran_unformatted
 import numpy as np
 from joblib import Parallel, delayed
@@ -15,8 +11,8 @@ from utils.config import AnalysisConfig
 
 config = AnalysisConfig()
 
-center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
-center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
+center_x_list = config.center_x
+center_y_list = config.center_y
 
 x  = np.arange(0,config.x_width,config.dx) + config.dx/2
 y  = np.arange(0,config.y_width,config.dy) + config.dy/2
@@ -27,7 +23,7 @@ R_max = 300e3
 # --- 出力配列 (config.nt, config.nz, 4象限) ---
 z_profile_q = np.zeros((config.nt, config.nz, 4))
 
-for t in range(config.nt):
+for t in range(config.t_start, config.t_end):
     cx = center_x_list[t]
     cy = center_y_list[t]
 

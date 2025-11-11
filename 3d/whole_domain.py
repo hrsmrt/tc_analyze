@@ -25,8 +25,6 @@ mpl_style_sheet = parse_style_argument()
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-config.time_list = [t * config.dt_hour for t in range(config.nt)]
-
 os.makedirs(str(f"./fig/3d/whole_domain/{varname}"),exist_ok=True)
 
 z_list = [0,9,17,23,29,36,42,48,54,60]
@@ -88,4 +86,4 @@ def process_t(t):
     fig.savefig(f"./fig/3d/whole_domain/{varname}/z{str(z).zfill(2)}/t{str(t).zfill(3)}.png")
     plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(0,config.nt,int(24/config.dt_hour)))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end,int(24/config.dt_hour)))

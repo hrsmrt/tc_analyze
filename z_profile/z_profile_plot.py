@@ -2,34 +2,39 @@
 
 import os
 import sys
-# 実行ファイル（この.pyファイル）を基準に相対パスを指定
-script_dir = os.path.dirname(os.path.abspath(__file__))
-target_path = os.path.join(script_dir, '../../module')
-sys.path.append(target_path)
 import numpy as np
 import matplotlib.pyplot as plt
 from joblib import Parallel, delayed
 
-varname = sys.argv[1]
-
-if len(sys.argv) > 1:
-    mpl_style_sheet = sys.argv[2]
-
-# ファイルを開いてJSONを読み込む
 from utils.config import AnalysisConfig
 from utils.plotting import parse_style_argument
 
 config = AnalysisConfig()
 
+varname = sys.argv[1]
+
+# スタイルシートの設定
+mpl_style_sheet = parse_style_argument()
+
+# 出力ディレクトリ
+output_dir = f"./fig/z_profile/whole_domain/{varname}/"
+os.makedirs(output_dir, exist_ok=True)
+
+# データの読み込み
+data_all = np.load(f"./data/z_profile/z_{varname}.npy")
+vgrid = np.loadtxt(config.vgrid_filepath)
+
 def process_t(t):
     data = data_all[t, :]
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(data,vgrid*1e-3)
+    ax.plot(data, vgrid*1e-3)
     ax.set_ylabel('z [km]')
     ax.set_xlabel('')
-    ax.set_title(f't = {time_list[t]} hour')
-    fig.savefig(os.path.join(out_dir, f't{time_list[t]:04d}h.png'))
+    ax.set_title(f't = {config.time_list[t]} hour')
+    fig.savefig(os.path.join(output_dir, f't{config.time_list[t]:04d}h.png'))
     plt.close()
 
-Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))
+
+print(f"✅ Saved plots to {output_dir}")

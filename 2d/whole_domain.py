@@ -6,7 +6,6 @@
 """
 import os
 import sys
-sys.path.append(os.path.join(script_dir, ".."))
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -21,7 +20,7 @@ if len(sys.argv) < 2:
     sys.exit(1)
 
 varname = sys.argv[1]
-mpl_style_sheet = parse_style_argument(arg_index=2)
+mpl_style_sheet = parse_style_argument()
 
 # 設定とグリッドの初期化
 config = AnalysisConfig()
@@ -121,7 +120,7 @@ for var, cfg in additional_configs.items():
         )
 
 # 各時刻のデータをプロット
-for t in range(config.nt):
+for t in range(config.t_start, config.t_end):
     data = data_all[t]
 
     # スタイル適用

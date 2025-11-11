@@ -29,8 +29,8 @@ extent_x = int(radial_max / config.dx)
 extent_y = int(radial_max / config.dy)
 
 # 中心座標と鉛直グリッドの読み込み
-center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
-center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
+center_x_list = config.center_x
+center_y_list = config.center_y
 vgrid = np.loadtxt(config.vgrid_filepath)
 
 # 切り出し領域のメッシュグリッド
@@ -105,4 +105,4 @@ def process_t(t):
         plt.close()
 
 # 並列処理で全時刻を処理（24時間ごと）
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(0, config.nt, int(24 / config.dt_hour)))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end, int(24 / config.dt_hour)))

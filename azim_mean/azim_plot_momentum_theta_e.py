@@ -12,13 +12,16 @@ from utils.plotting import parse_style_argument
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-mpl_style_sheet = parse_style_argument(arg_index=1)
+mpl_style_sheet = parse_style_argument()
 
 r_max = 1000e3
 
 nr = int(r_max / config.dx)
-R = (np.arange(nr) + 0.5) * config.dx
+R = (np.arange(nr) + 0.5) * config.dx * 1e-3
 f = 3.77468e-5
+
+vgrid = np.loadtxt(config.vgrid_filepath)
+vgrid = vgrid * 1e-3
 
 X, Y = np.meshgrid(R, vgrid)
 
@@ -33,7 +36,7 @@ def process_t(t):
     fig.colorbar(c,ax=ax)
     data = np.load(f"./data/azim/theta_e/t{str(t).zfill(3)}.npy")
     ax.contour(X, Y, data, levels=np.arange(330,375,5), colors="black", linewidths=0.5)
-    ax.set_ylim([0,20e3])
+    ax.set_ylim([0, 20])
     ax.set_title(f"t = {config.time_list[t]} hour")
     ax.set_xlabel("半径 [km]")
     ax.set_ylabel("高度 [km]")
@@ -41,4 +44,4 @@ def process_t(t):
     plt.close()
     print(f"t={t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

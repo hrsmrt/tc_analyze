@@ -32,8 +32,6 @@ g = 9.81   # m/s^2, 重力定数
 # 設定とグリッドの初期化
 config = AnalysisConfig()
 
-config.time_list = [t * config.dt_hour for t in range(config.nt)]
-
 vgrid = np.loadtxt(config.vgrid_filepath)
 
 out_dir = f"./fig/cape/"
@@ -49,7 +47,7 @@ rh_env = np.zeros(config.nz)
 
 def main():
     cape_evol = np.zeros(config.nt)
-    for t in range(config.nt):
+    for t in range(config.t_start, config.t_end):
         count = config.nx * config.ny * config.nz
         offset = count * t * 4
         data = np.fromfile(f"{config.input_folder}ms_tem.grd",dtype=">f4",count=count,offset=offset)

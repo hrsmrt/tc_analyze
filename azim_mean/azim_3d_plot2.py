@@ -22,7 +22,8 @@ time_list = config.time_list
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
-nr = 1000e3/config.dx
+r_max = 1000e3
+nr = int(np.floor(r_max / config.dx))
 xgrid = np.arange(nr) * config.dx
 
 X, Y = np.meshgrid(xgrid,vgrid)
@@ -74,4 +75,4 @@ def process_t(t):
     fig.savefig(f"{output_folder}t{str(t).zfill(3)}.png")
     plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

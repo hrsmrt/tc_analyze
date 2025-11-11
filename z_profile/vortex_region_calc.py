@@ -3,9 +3,6 @@
 import os
 import sys
 # 実行ファイル（この.pyファイル）を基準に相対パスを指定
-script_dir = os.path.dirname(os.path.abspath(__file__))
-target_path = os.path.join(script_dir, '../../module')
-sys.path.append(target_path)
 import numpy as np
 from joblib import Parallel, delayed
 
@@ -18,8 +15,8 @@ config = AnalysisConfig()
 output_dir = f"./data/z_profile/vortex_region/"
 os.makedirs(output_dir,exist_ok=True)
 
-center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
-center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
+center_x_list = config.center_x
+center_y_list = config.center_y
 
 x  = np.arange(0, config.x_width, config.dx) + config.dx/2
 y  = np.arange(0, config.y_width, config.dy) + config.dy/2
@@ -54,7 +51,7 @@ def process_t(t):
     return profile
 
 # === 並列実行 ===
-results = Parallel(n_jobs=config.n_jobs, verbose=5)(delayed(process_t)(t) for t in range(config.nt))
+results = Parallel(n_jobs=config.n_jobs, verbose=5)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))
 
 # === 結果をまとめる ===
 z_profile_all = np.stack(results, axis=0)

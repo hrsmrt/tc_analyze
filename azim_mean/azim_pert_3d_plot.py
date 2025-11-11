@@ -8,22 +8,17 @@ from joblib import Parallel, delayed
 
 varname = sys.argv[1]
 
-if len(sys.argv) > 2:
-    mpl_style_sheet = sys.argv[2]
-    print(f"Using style: {mpl_style_sheet}")
-else:
-    print("No style sheet specified, using default.")
-
 from utils.config import AnalysisConfig
 from utils.plotting import parse_style_argument
-
+mpl_style_sheet = parse_style_argument()
 config = AnalysisConfig()
 
 time_list = config.time_list
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
-nr = 1000e3/config.dx
+r_max = 1000e3
+nr = int(np.floor(r_max / config.dx))
 xgrid = np.arange(nr) * config.dx * 1e-3
 
 X, Y = np.meshgrid(xgrid,vgrid*1e-3)
@@ -69,4 +64,4 @@ def process_t(t):
     fig.savefig(f"{folder}t{str(t).zfill(3)}.png")
     plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

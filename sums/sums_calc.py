@@ -36,8 +36,8 @@ extent_y = int(extent / dy)
 
 z_max = 60
 
-center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
-center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
+center_x_list = config.center_x
+center_y_list = config.center_y
 
 os.makedirs(str(f"./data/sums/"),exist_ok=True)
 

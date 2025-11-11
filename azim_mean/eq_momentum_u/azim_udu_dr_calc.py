@@ -21,4 +21,4 @@ def process_t(t):
     udu_dr = (data[:,1:] + data[:,:-1]) * 0.5 * (data[:,1:] - data[:,:-1]) / config.dx
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", udu_dr)
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

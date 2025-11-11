@@ -16,8 +16,8 @@ folder2 = f"./data/2d/wind10m_tangential/"
 os.makedirs(folder1, exist_ok=True)
 os.makedirs(folder2, exist_ok=True)
 
-center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
-center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
+center_x_list = config.center_x
+center_y_list = config.center_y
 
 data_all_u = np.memmap(f"{config.input_folder}ss_u10m.grd", dtype=">f4", mode="r",
                     shape=(config.nt, config.ny, config.nx))
@@ -41,4 +41,4 @@ def process_t(t):
     np.save(f"{folder2}t{str(t).zfill(3)}.npy", v_tangential)
     print(f"t: {t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

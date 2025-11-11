@@ -12,7 +12,7 @@ from utils.plotting import parse_style_argument
 
 from joblib import Parallel, delayed
 varname = sys.argv[1]
-mpl_style_sheet = parse_style_argument(arg_index=2)
+mpl_style_sheet = parse_style_argument()
 
 original_cmap = plt.cm.rainbow
 colors = original_cmap(np.linspace(0, 1, 256))  # 元のカラーマップの色を取得
@@ -70,7 +70,7 @@ def process_t(t):
                 levels=np.arange(0, 10, 0.1),
                 cmap=custom_rainbow,
             )
-            title = "鉛直積算雲氷量 [$\mathrm{kg/m^2}$]" + title
+            title = r"鉛直積算雲氷量 [$\mathrm{kg/m^2}$]" + title
         case "ss_cldi":
             c = ax.contourf(
                 X * 1e-3,
@@ -80,7 +80,7 @@ def process_t(t):
                 levels=np.arange(0, 10, 0.1),
                 cmap=custom_rainbow,
             )
-            title = "鉛直積算雲氷量 [$\mathrm{kg/m^2}$]" + title
+            title = r"鉛直積算雲氷量 [$\mathrm{kg/m^2}$]" + title
         case "sa_cldw":
             c = ax.contourf(
                 X * 1e-3,
@@ -90,7 +90,7 @@ def process_t(t):
                 levels=np.arange(0, 10, 0.1),
                 cmap=custom_rainbow,
             )
-            title = "鉛直積算雲水量 [$\mathrm{kg/m^2}$]" + title
+            title = r"鉛直積算雲水量 [$\mathrm{kg/m^2}$]" + title
         case "ss_cldw":
             c = ax.contourf(
                 X * 1e-3,
@@ -100,7 +100,7 @@ def process_t(t):
                 levels=np.arange(0, 10, 0.1),
                 cmap=custom_rainbow,
             )
-            title = "鉛直積算雲水量 [$\mathrm{kg/m^2}$]" + title
+            title = r"鉛直積算雲水量 [$\mathrm{kg/m^2}$]" + title
         case "sa_evap":
             c = ax.contourf(
                 X * 1e-3,
@@ -110,7 +110,7 @@ def process_t(t):
                 levels=np.arange(0, 1, 0.1),
                 cmap=custom_rainbow,
             )
-            title = "海面蒸発量 [$\mathrm{kg/m^2/h}$]" + title
+            title = r"海面蒸発量 [$\mathrm{kg/m^2/h}$]" + title
         case "sa_lh_sfc":
             c = ax.contourf(
                 X * 1e-3,
@@ -120,7 +120,7 @@ def process_t(t):
                 levels=np.arange(0, 500, 10),
                 cmap=custom_rainbow,
             )
-            title = "潜熱流束 [$\mathrm{W/m^2}$]" + title
+            title = r"潜熱流束 [$\mathrm{W/m^2}$]" + title
         case "sa_sh_sfc":
             c = ax.contourf(
                 X * 1e-3,
@@ -130,7 +130,7 @@ def process_t(t):
                 levels=np.arange(0, 100, 5),
                 cmap=custom_rainbow,
             )
-            title = "顕熱流束 [$\mathrm{W/m^2}$]" + title
+            title = r"顕熱流束 [$\mathrm{W/m^2}$]" + title
         case "sa_u10m":
             c = ax.contourf(
                 X * 1e-3,
@@ -140,7 +140,7 @@ def process_t(t):
                 levels=np.arange(-50, 55, 5),
                 cmap="bwr",
             )
-            title = "西風 [$\mathrm{m/s}$]" + title
+            title = r"西風 [$\mathrm{m/s}$]" + title
         case "ss_u10m":
             c = ax.contourf(
                 X * 1e-3,
@@ -150,7 +150,7 @@ def process_t(t):
                 levels=np.arange(-50, 55, 5),
                 cmap="bwr",
             )
-            title = "西風 [$\mathrm{m/s}$]" + title
+            title = r"西風 [$\mathrm{m/s}$]" + title
         case "sa_v10m":
             c = ax.contourf(
                 X * 1e-3,
@@ -160,7 +160,7 @@ def process_t(t):
                 levels=np.arange(-50, 55, 5),
                 cmap="bwr",
             )
-            title = "南風 [$\mathrm{m/s}$]" + title
+            title = r"南風 [$\mathrm{m/s}$]" + title
         case "ss_v10m":
             c = ax.contourf(
                 X * 1e-3,
@@ -170,7 +170,7 @@ def process_t(t):
                 levels=np.arange(-50, 55, 5),
                 cmap="bwr",
             )
-            title = "南風 [$\mathrm{m/s}$]" + title
+            title = r"南風 [$\mathrm{m/s}$]" + title
         case "sa_t2m":
             c = ax.contourf(
                 X * 1e-3,
@@ -180,7 +180,7 @@ def process_t(t):
                 levels=np.arange(297, 303.1, 0.5),
                 cmap="rainbow",
             )
-            title = "2m温度 [$\mathrm{K}$]" + title
+            title = r"2m温度 [$\mathrm{K}$]" + title
         case "ss_t2m":
             c = ax.contourf(
                 X * 1e-3,
@@ -190,7 +190,7 @@ def process_t(t):
                 levels=np.arange(297, 303.1, 0.5),
                 cmap="rainbow",
             )
-            title = "2m温度 [$\mathrm{K}$]" + title
+            title = r"2m温度 [$\mathrm{K}$]" + title
         case "sa_q2m":
             c = ax.contourf(
                 X * 1e-3,
@@ -200,7 +200,7 @@ def process_t(t):
                 levels=np.arange(0.015, 0.026, 0.001),
                 cmap="rainbow",
             )
-            title = "2m比湿 [$\mathrm{kg/kg}$]" + title
+            title = r"2m比湿 [$\mathrm{kg/kg}$]" + title
         case "ss_q2m":
             c = ax.contourf(
                 X * 1e-3,
@@ -210,7 +210,7 @@ def process_t(t):
                 levels=np.arange(0.015, 0.026, 0.001),
                 cmap="rainbow",
             )
-            title = "2m比湿 [$\mathrm{kg/kg}$]" + title 
+            title = r"2m比湿 [$\mathrm{kg/kg}$]" + title 
         case "sa_vap_atm":
             c = ax.contourf(
                 X * 1e-3,
@@ -220,7 +220,7 @@ def process_t(t):
                 levels=np.arange(50, 81, 5),
                 cmap="rainbow",
             )
-            title = "可降水量 [$\mathrm{kg/m^2}$]" + title
+            title = r"可降水量 [$\mathrm{kg/m^2}$]" + title
         case "ss_vap_atm":
             c = ax.contourf(
                 X * 1e-3,
@@ -230,7 +230,7 @@ def process_t(t):
                 levels=np.arange(50, 81, 5),
                 cmap="rainbow",
             )
-            title = "可降水量 [$\mathrm{kg/m^2}$]" + title
+            title = r"可降水量 [$\mathrm{kg/m^2}$]" + title
         case "sa_lwu_toa":
             c = ax.contourf(
                 X * 1e-3,
@@ -240,7 +240,7 @@ def process_t(t):
                 levels=np.arange(50, 301, 10),
                 cmap="rainbow",
             )
-            title = "TOA up. LW flux(all) [$\mathrm{W/m^2}$]" + title
+            title = r"TOA up. LW flux(all) [$\mathrm{W/m^2}$]" + title
         case "sa_lwu_toa_c":
             c = ax.contourf(
                 X * 1e-3,
@@ -250,7 +250,7 @@ def process_t(t):
                 levels=np.arange(50, 301, 10),
                 cmap="rainbow",
             )
-            title = "TOA up. LW flux(clear) [$\mathrm{W/m^2}$]" + title
+            title = r"TOA up. LW flux(clear) [$\mathrm{W/m^2}$]" + title
         case "sa_lwd_sfc":
             c = ax.contourf(
                 X * 1e-3,
@@ -260,7 +260,7 @@ def process_t(t):
                 levels=np.arange(400, 455, 5),
                 cmap="rainbow",
             )
-            title = "SFC dn. LW flux(all) [$\mathrm{W/m^2}$]" + title
+            title = r"SFC dn. LW flux(all) [$\mathrm{W/m^2}$]" + title
         case "sa_lwu_sfc":
             c = ax.contourf(
                 X * 1e-3,
@@ -270,7 +270,7 @@ def process_t(t):
                 levels=np.arange(462, 467.1, 0.5),
                 cmap="rainbow",
             )
-            title = "SFC dn. LW flux(all) [$\mathrm{W/m^2}$]" + title
+            title = r"SFC dn. LW flux(all) [$\mathrm{W/m^2}$]" + title
         case "sa_swu_toa":
             c = ax.contourf(
                 X * 1e-3,
@@ -280,7 +280,7 @@ def process_t(t):
                 levels=np.arange(50, 301, 10),
                 cmap="rainbow",
             )
-            title = "TOA up. SW flux(all) [$\mathrm{W/m^2}$]" + title
+            title = r"TOA up. SW flux(all) [$\mathrm{W/m^2}$]" + title
         case "sa_swd_sfc":
             c = ax.contourf(
                 X * 1e-3,
@@ -290,7 +290,7 @@ def process_t(t):
                 levels=np.arange(0, 321, 10),
                 cmap="rainbow",
             )
-            title = "SFC dn. SW flux(all) [$\mathrm{W/m^2}$]" + title
+            title = r"SFC dn. SW flux(all) [$\mathrm{W/m^2}$]" + title
         case "sa_swu_sfc":
             c = ax.contourf(
                 X * 1e-3,
@@ -300,7 +300,7 @@ def process_t(t):
                 levels=np.arange(0, 15, 1),
                 cmap="rainbow",
             )
-            title = "SFC up. SW flux(all) [$\mathrm{W/m^2}$]" + title
+            title = r"SFC up. SW flux(all) [$\mathrm{W/m^2}$]" + title
         case "sa_slp":
             c = ax.contour(
                 X * 1e-3,
@@ -384,4 +384,4 @@ def process_t(t):
     fig.savefig(f"{output_dir}t{str(config.time_list[t]).zfill(4)}.png")
     plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

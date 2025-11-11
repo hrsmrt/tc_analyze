@@ -13,7 +13,7 @@ radius = 1000e3
 nr = int(radius / config.dx)
 
 # rgrid generated via grid.create_radial_vertical_meshgrid * 1e-3
-vgrid = np.loadtxt(f"{script_dir}/../../../database/vgrid/vgrid_c74.txt")
+vgrid = np.loadtxt(config.vgrid_filepath)
 
 output_folder = "./data/azim/eq_momentum_w/grad_p/"
 
@@ -28,4 +28,4 @@ def process_t(t):
     
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", grad_p)
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

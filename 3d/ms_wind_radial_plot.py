@@ -20,12 +20,11 @@ mpl_style_sheet = parse_style_argument()
 # 設定とグリッドの初期化
 config = AnalysisConfig()
 grid = GridHandler(config)
-config.time_list = [t * config.dt_hour for t in range(config.nt)]
 
 extent = 500e3
 
-center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
-center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
+center_x_list = config.center_x
+center_y_list = config.center_y
 
 os.makedirs(str(f"./fig/3d/vortex_region/wind_radial/"),exist_ok=True)
 
@@ -56,4 +55,4 @@ def process_t(t):
         fig.savefig(f"./fig/3d/vortex_region/wind_radial/z{str(z).zfill(2)}/t{str(config.time_list[t]).zfill(3)}.png")
         plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(0,config.nt,int(24/config.dt_hour)))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end,int(24/config.dt_hour)))

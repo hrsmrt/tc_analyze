@@ -1,12 +1,15 @@
 {
     "nt": 101,
+    "t_start": 0,
+    "t_end": 101,
     "triangle_size": 256000.0,
     "glevel": 7,
     "nz": 74,
     "dt_output": 86400,
+    "time_tick_step": 6,
     "f": 3.77468e-05,
     "n_jobs": 1,
     "input_folder": "../convert/",
-    "work_dir": "/dataB/murata/",
-    "vgrid_filepath": "/dataB/murata/p-nicam/database/vgrid/vgrid_c74.txt"
+    "work_dir": "/hogehoge/work",
+    "vgrid_filepath": "/hogehoge/work/p-nicam/database/vgrid/vgrid_c74.txt"
 }

@@ -11,7 +11,7 @@ from utils.grid import GridHandler
 from utils.plotting import parse_style_argument, set_vortex_region_ticks_km_empty
 from joblib import Parallel, delayed
 
-mpl_style_sheet = parse_style_argument(arg_index=1)
+mpl_style_sheet = parse_style_argument()
 
 original_cmap = plt.cm.rainbow
 colors = original_cmap(np.linspace(0, 1, 256))  # 元のカラーマップの色を取得
@@ -70,4 +70,4 @@ def process_t(t):
     fig.savefig(f"{output_dir}t{str(t).zfill(3)}.png")
     plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

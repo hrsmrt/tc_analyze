@@ -23,4 +23,4 @@ def process_t(t):
     gradient_wind_eq = centrifugal[:,1:-1] + coriolis[:,1:-1] - grad_p
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", gradient_wind_eq)
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

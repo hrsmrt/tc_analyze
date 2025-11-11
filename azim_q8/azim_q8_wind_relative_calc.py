@@ -39,8 +39,8 @@ output_folder2 = f"./data/azim_q8/wind_relative_tangential/"
 os.makedirs(output_folder1, exist_ok=True)
 os.makedirs(output_folder2, exist_ok=True)
 
-center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
-center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
+center_x_list = config.center_x
+center_y_list = config.center_y
 
 # メインループ
 def process_t(t):

@@ -11,7 +11,7 @@ from utils.grid import GridHandler
 from utils.plotting import parse_style_argument, set_vortex_region_ticks_km_empty
 from joblib import Parallel, delayed
 
-mpl_style_sheet = parse_style_argument(arg_index=1)
+mpl_style_sheet = parse_style_argument()
 
 original_cmap = plt.cm.rainbow
 colors = original_cmap(np.linspace(0, 1, 256))  # 元のカラーマップの色を取得
@@ -27,8 +27,8 @@ config = AnalysisConfig()
 grid = GridHandler(config)
 extent = 500e3
 
-center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
-center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
+center_x_list = config.center_x
+center_y_list = config.center_y
 
 # GridHandlerから切り出し領域のメッシュグリッドを取得
 X_cut, Y_cut = grid.get_vortex_region_meshgrid(extent)
@@ -55,4 +55,4 @@ def process_t(t):
     fig.savefig(f"{output_dir}t{str(t).zfill(3)}.png")
     plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

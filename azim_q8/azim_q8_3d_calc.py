@@ -37,8 +37,8 @@ folder = f"./data/azim_q8/{varname}/"
 
 os.makedirs(folder,exist_ok=True)
 
-center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
-center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
+center_x_list = config.center_x
+center_y_list = config.center_y
 
 # データの読み込み
 data_all = np.memmap(f"{input_folder}{varname}.grd", dtype=">f4", mode="r",

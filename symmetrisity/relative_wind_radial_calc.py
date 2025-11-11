@@ -1,11 +1,7 @@
 # python $WORK/tc_analyze/symmetrisity/relative_wind_radial_calc.py
 import os
-import sys
-script_dir = os.path.dirname(os.path.abspath(__file__))
 import numpy as np
 from joblib import Parallel, delayed
-script_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(script_dir, ".."))
 
 from utils.config import AnalysisConfig
 
@@ -24,8 +20,8 @@ os.makedirs(output_folder,exist_ok=True)
 
 rgrid = np.array([ r * config.dx + config.dx/2 for r in range(int(r_max/config.dx))])
 
-center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
-center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
+center_x_list = config.center_x
+center_y_list = config.center_y
 
 # メインループ
 def process_t(t):
@@ -60,4 +56,4 @@ def process_t(t):
     print(f"azim mean data t: {t}, max: {symmetrisity.max()}, min: {symmetrisity.min()}")
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", symmetrisity)
 
-Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

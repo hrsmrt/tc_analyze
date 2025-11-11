@@ -4,34 +4,27 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-script_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.normpath(os.path.join(script_dir, "..", "module")))
 from joblib import Parallel, delayed
 
-# コマンドライン引数が3つ以上あるかを確認
-if len(sys.argv) > 1:
-    mpl_style_sheet = sys.argv[1]
-    print(f"Using style: {mpl_style_sheet}")
-else:
-    print("No style sheet specified, using default.")
-
 from utils.config import AnalysisConfig
+from utils.plotting import parse_style_argument
+
+# スタイルシートの解析
+mpl_style_sheet = parse_style_argument()
 
 config = AnalysisConfig()
 
 output_folder = "./fig/center/"
 os.makedirs(output_folder, exist_ok=True)
 
-time_list = [t * config.dt_hour for t in range(config.nt)]
-
-center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
-center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
+center_x_list = config.center_x
+center_y_list = config.center_y
 
 x  = np.arange(0,config.x_width,config.dx)
 y  = np.arange(0,config.y_width,config.dy)
 X,Y = np.meshgrid(x,y)
 
-vgrid = np.loadtxt(f"{setting['vgrid_filepath']}")
+vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
 data_all = np.memmap(f"{config.input_folder}ms_rho.grd", dtype=">f4", mode="r", shape=(config.nt,config.nz,config.ny,config.nx))
 
@@ -56,8 +49,7 @@ for t in range(config.nt):
 plt.style.use(mpl_style_sheet)
 fig, ax = plt.subplots(figsize=(4,3))
 
-time_h = np.arange(config.nt) * dt/3600.0   # dt を秒で与えていると仮定して時間[h]に変換
-ax.plot(time_h[1:], np.array(mass_list)[1:]/1e14)  # [kg] → [10^14 kg] スケーリング
+ax.plot(config.time_list[1:], np.array(mass_list)[1:]/1e14)  # [kg] → [10^14 kg] スケーリング
 
 ax.set_title("Mass whole region")
 ax.set_xlabel("Time [h]")

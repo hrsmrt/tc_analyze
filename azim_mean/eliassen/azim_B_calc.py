@@ -33,4 +33,4 @@ def process_t(t):
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", db_dr)
     print(f"t={t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

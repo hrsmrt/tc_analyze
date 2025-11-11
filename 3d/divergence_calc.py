@@ -40,4 +40,4 @@ def process_t(t):
     np.save(f"{folder}div_t{str(t).zfill(3)}.npy", div)
     print(f"t: {t} divergence calc done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

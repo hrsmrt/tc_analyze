@@ -29,8 +29,8 @@ os.makedirs(output_folder, exist_ok=True)
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
-center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
-center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
+center_x_list = config.center_x
+center_y_list = config.center_y
 
 def process_t(t):
     # 中心座標（m単位）
@@ -54,4 +54,4 @@ def process_t(t):
 
     print(f"t: {t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

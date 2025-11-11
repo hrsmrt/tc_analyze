@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from utils.config import AnalysisConfig
 from utils.plotting import parse_style_argument
 
-mpl_style_sheet = parse_style_argument(arg_index=1)
+mpl_style_sheet = parse_style_argument()
 
 # 設定の初期化
 config = AnalysisConfig()

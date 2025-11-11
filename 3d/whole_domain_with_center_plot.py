@@ -25,8 +25,6 @@ mpl_style_sheet = parse_style_argument()
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-config.time_list = [t * config.dt_hour for t in range(config.nt)]
-
 output_dir = "./fig/3d/whole_domain_with_center/"
 os.makedirs(str(f"{output_dir}{varname}"),exist_ok=True)
 
@@ -42,8 +40,8 @@ grid.X, grid.Y = np.meshgrid(x_axis,y_axis)
 
 data_memmap = np.memmap(f"{config.input_folder}{varname}.grd",dtype=">f4",mode="r",shape=(config.nt,config.nz,config.ny,config.nx))
 
-center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
-center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
+center_x_list = config.center_x
+center_y_list = config.center_y
 
 def process_t(t):
   for z in z_list:
@@ -95,4 +93,4 @@ def process_t(t):
     fig.savefig(f"{output_dir}{varname}/z{str(z).zfill(2)}/t{str(t).zfill(3)}.png")
     plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(0,config.nt,int(24/config.dt_hour)))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end,int(24/config.dt_hour)))

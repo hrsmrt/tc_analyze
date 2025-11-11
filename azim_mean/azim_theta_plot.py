@@ -12,13 +12,19 @@ from utils.plotting import parse_style_argument
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-mpl_style_sheet = parse_style_argument(arg_index=1)
+mpl_style_sheet = parse_style_argument()
+
+vgrid = np.loadtxt(config.vgrid_filepath)
 
 output_folder = "./fig/azim/theta/"
 os.makedirs(output_folder, exist_ok=True)
 
 def process_t(t):
     data = np.load(f"./data/azim/theta/t{str(t).zfill(3)}.npy")
+    # データの形状から半径方向のグリッドを作成
+    nr = data.shape[1]
+    xgrid = np.arange(nr) * config.dx
+    X, Y = np.meshgrid(xgrid, vgrid)
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(5,2))
     c = ax.contourf(X, Y, data, levels=np.arange(300,405,10), cmap="rainbow", extend="both")
@@ -32,4 +38,4 @@ def process_t(t):
     plt.close()
     print(f"t={t} done(max:{data.max()},min:{data.min()})")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))

@@ -23,8 +23,6 @@ config = AnalysisConfig()
 grid = GridHandler(config)
 f = config.f
 
-config.time_list = [t * config.dt_hour for t in range(config.nt)]
-
 output_dir = f"./fig/3d/whole_domain/vorticity_z_absolute/"
 os.makedirs(output_dir,exist_ok=True)
 
@@ -53,4 +51,4 @@ def process_t(t):
     fig.savefig(f"{output_dir}z{str(z).zfill(2)}/t{str(t).zfill(3)}.png")
     plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(0,config.nt,int(24/config.dt_hour)))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end,int(24/config.dt_hour)))
