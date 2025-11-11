@@ -3,27 +3,15 @@
 
 import os
 import sys
-script_dir = os.path.dirname(os.path.abspath(__file__))
 import numpy as np
-import json
 from joblib import Parallel, delayed
 
-# ファイルを開いてJSONを読み込む
-with open('setting.json', 'r', encoding='utf-8') as f:
-    setting = json.load(f)
-glevel = setting['glevel']
-nt = setting['nt']
-dt = setting['dt_output']
-dt_hour = int(dt / 3600)
-triangle_size = setting['triangle_size']
-nx = 2 ** glevel
-ny = 2 ** glevel
-nz = setting['nz']
-x_width = triangle_size
-y_width = triangle_size * 0.5 * 3.0 ** 0.5
-dx = x_width / nx
-dy = y_width / ny
-input_folder = setting['input_folder']
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(script_dir, ".."))
+
+from utils.config import AnalysisConfig
+
+config = AnalysisConfig()
 
 folder = f"./data/3d/psi/"
 os.makedirs(folder, exist_ok=True)
@@ -32,9 +20,9 @@ os.makedirs(folder, exist_ok=True)
 
 def process_t(t):
     data = np.load(f"./data/3d/vorticity_z/vor_t{str(t).zfill(3)}.npy")
-    psi = np.zeros((nz, ny, nx), dtype=np.float32)
-    for z in range(nz):
-        psi[z] = streamfunction_twisted(data[0], dx ,dy)
+    psi = np.zeros((config.nz, config.ny, config.nx), dtype=np.float32)
+    for z in range(config.nz):
+        psi[z] = streamfunction_twisted(data[z], config.dx, config.dy)
     np.save(f"{folder}psi_t{str(t).zfill(3)}.npy", psi)
     print(f"t: {t} psi calc done")
 
@@ -88,4 +76,4 @@ def streamfunction_twisted(zeta, dx, dy):
     psi = poisson_periodic_fft(-zeta, Lx, Ly)
     return psi
 
-Parallel(n_jobs=4)(delayed(process_t)(t) for t in range(nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))

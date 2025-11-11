@@ -3,31 +3,18 @@
 
 import os
 import numpy as np
-import json
 from joblib import Parallel, delayed
+from utils.config import AnalysisConfig
+from utils.grid import GridHandler
 
-# ファイルを開いてJSONを読み込む
-with open('setting.json', 'r', encoding='utf-8') as f:
-    setting = json.load(f)
-glevel = setting['glevel']
-nt = setting['nt']
-dt = setting['dt_output']
-dt_hour = int(dt / 3600)
-triangle_size = setting['triangle_size']
-nx = 2 ** glevel
-x_width = triangle_size
-dx = x_width / nx
-
-nz = 74
-vgrid = np.loadtxt(f"{os.path.dirname(os.path.abspath(__file__))}/../../../database/vgrid/vgrid_c74.txt")
-
-time_list = [t * dt_hour for t in range(nt)]
+config = AnalysisConfig()
+grid = GridHandler(config)
 
 r_max = 1000e3
 
-nr = int(r_max / dx)
-R = (np.arange(nr) + 0.5) * dx
-R_wall = (np.arange(1, nr)) * dx
+nr = int(r_max / config.dx)
+R = (np.arange(nr) + 0.5) * config.dx
+R_wall = (np.arange(1, nr)) * config.dx
 f = 3.77468e-5
 
 output_folder = "./data/azim/eliassen/I2/"
@@ -45,9 +32,9 @@ g = 9.80665
 def process_t(t):
     xi = np.load(f"./data/azim/eliassen/xi/t{str(t).zfill(3)}.npy")
     v = np.load(f"./data/azim/wind_relative_tangential/t{str(t).zfill(3)}.npy")
-    dv_dr = (v[:,1:] - v[:,:-1]) / dx
+    dv_dr = (v[:,1:] - v[:,:-1]) / config.dx
     I2 = (xi[:,1:] + xi[:,:-1]) / 2 * (dv_dr + (v[:,1:] + v[:,:-1]) / (2 * R_wall) + f)
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", I2)
     print(f"t={t} done")
 
-Parallel(n_jobs=4)(delayed(process_t)(t) for t in range(nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))

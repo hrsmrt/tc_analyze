@@ -1,10 +1,13 @@
 # python $WORK/tc_analyze/center/find_lows.py
-import numpy as np
-import json
+import os
+import sys
 import numpy as np
 from scipy.ndimage import gaussian_filter
 from skimage.feature import peak_local_max
 import pickle
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(script_dir, ".."))
 
 # P: 2D SLP [Pa] or [hPa], lat x lon (or y x x)
 # land_sea_mask: 1=ocean, 0=land (任意)
@@ -12,37 +15,22 @@ import pickle
 # min_sep_km: 低圧中心の最小分離距離
 # thr_Pa: 極小の上限（例：101000Pa 以下など）
 
-# ファイルを開いてJSONを読み込む
-with open('setting.json', 'r', encoding='utf-8') as f:
-    setting = json.load(f)
-glevel = setting['glevel']
-nt = setting['nt']
-dt = setting['dt_output']
-dt_hour = int(dt / 3600)
-triangle_size = setting['triangle_size']
-nx = 2 ** glevel
-ny = 2 ** glevel
-nz = 74
-x_width = triangle_size
-y_width = triangle_size * 0.5 * 3.0 ** 0.5
-dx = x_width / nx
-dy = y_width / ny
+from utils.config import AnalysisConfig
 
-input_folder = setting["input_folder"]
+config = AnalysisConfig()
 
 data_memmap = np.memmap(
-    f"{input_folder}ss_slp.grd",
+    f"{config.input_folder}ss_slp.grd",
     dtype=">f4",
     mode="r",
-    shape=(nt, ny, nx)
+    shape=(config.nt, config.ny, config.nx)
 )
-
 
 def main():
     lows_all = []
-    for t in range(nt):
+    for t in range(config.nt):
         P = data_memmap[t]
-        lows = find_lows_peakmax(P,thr_Pa=100500,dx_km=dx*1e-3,dy_km=dy*1e-3,min_sep_km=200)
+        lows = find_lows_peakmax(P,thr_Pa=100500,dx_km=config.dx*1e-3,dy_km=config.dy*1e-3,min_sep_km=200)
         print(f"Time {t}: Found {len(lows)} low pressure centers")
         lows_all.append(lows)
     with open("./data/ss_slp_lows.pkl", "wb") as f:

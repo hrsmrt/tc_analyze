@@ -1,52 +1,34 @@
 # python $WORK/tc_analyze/azim_mean/azim_3d_calc2.py varname
 import os
 import sys
-script_dir = os.path.dirname(os.path.abspath(__file__))
 import numpy as np
 from joblib import Parallel, delayed
-import json
 
 varname = sys.argv[1]
 
 print(f"Calculating azimuthal mean for variable: {varname}")
 
-# ファイルを開いてJSONを読み込む
-with open('setting.json', 'r', encoding='utf-8') as f:
-    setting = json.load(f)
-glevel = setting['glevel']
-nt = setting['nt']
-dt = setting['dt_output']
-dt_hour = int(dt / 3600)
-triangle_size = setting['triangle_size']
-nx = 2 ** glevel
-ny = 2 ** glevel
-nz = 74
-x_width = triangle_size
-y_width = triangle_size * 0.5 * 3.0 ** 0.5
-dx = x_width / nx
-dy = y_width / ny
-input_folder = setting['input_folder']
+from utils.config import AnalysisConfig
+from utils.grid import GridHandler
+
+config = AnalysisConfig()
+grid = GridHandler(config)
 
 r_max = 1000e3
 
-# 格子点座標（m単位）
-x = (np.arange(nx) + 0.5) * dx
-y = (np.arange(ny) + 0.5) * dy
-X, Y = np.meshgrid(x, y)
+X, Y = grid.X, grid.Y
 
 output_folder = f"./data/azim2/{varname}/"
 
 os.makedirs(output_folder,exist_ok=True)
 
-vgrid = np.loadtxt(f"{script_dir}/../../database/vgrid/vgrid_c74.txt")
-
 center_list = np.loadtxt("./data/low_2.txt", delimiter=",", skiprows=1)
-center_x_list = center_list[:, 1] * dx
-center_y_list = center_list[:, 2] * dy
+center_x_list = center_list[:, 1] * config.dx
+center_y_list = center_list[:, 2] * config.dy
 
 # データの読み込み
-data_all = np.memmap(f"{input_folder}{varname}.grd", dtype=">f4", mode="r",
-                    shape=(nt, nz, ny, nx))
+data_all = np.memmap(f"{config.input_folder}{varname}.grd", dtype=">f4", mode="r",
+                    shape=(config.nt, config.nz, config.ny, config.nx))
 
 # メインループ
 def process_t(t):
@@ -58,19 +40,19 @@ def process_t(t):
     mask = R <= r_max
     valid_r = R[mask]
 
-    bin_idx = np.floor(valid_r / dx).astype(int)
-    max_bin = int(np.floor(r_max / dx))
+    bin_idx = np.floor(valid_r / config.dx).astype(int)
+    max_bin = int(np.floor(r_max / config.dx))
     bin_idx = np.clip(bin_idx, 0, max_bin - 1)  # 範囲外を防ぐ
 
     count_r = np.bincount(bin_idx, minlength=max_bin)
 
-    azim_mean = np.full((nz, len(count_r)), np.nan)
+    azim_mean = np.full((config.nz, len(count_r)), np.nan)
 
     data = data_all[t]
     #print(f"3d data t: {t}, max: {data.max()}, min: {data.min()}")
 
     valid_data = data[:, mask]
-    azim_sum = np.zeros((nz, len(count_r)))
+    azim_sum = np.zeros((config.nz, len(count_r)))
     for i, b in enumerate(bin_idx):
         azim_sum[:, b] += valid_data[:, i]
     # 割り算（ゼロ割回避）
@@ -80,4 +62,4 @@ def process_t(t):
     #print(f"azim mean data t: {t}, max: {azim_mean.max()}, min: {azim_mean.min()}")
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", azim_mean)
 
-Parallel(n_jobs=4)(delayed(process_t)(t) for t in range(nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))

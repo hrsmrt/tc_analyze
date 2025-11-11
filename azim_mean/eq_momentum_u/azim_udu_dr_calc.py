@@ -1,36 +1,16 @@
 # python $WORK/tc_analyze/azim_mean/eq_momentum_u/azim_udu_dr_calc.py
 import os
-import sys
-# 実行ファイル（この.pyファイル）を基準に相対パスを指定
-script_dir = os.path.dirname(os.path.abspath(__file__))
 import numpy as np
-import json
 from joblib import Parallel, delayed
+from utils.config import AnalysisConfig
 
-# ファイルを開いてJSONを読み込む
-with open('setting.json', 'r', encoding='utf-8') as f:
-    setting = json.load(f)
-glevel = setting['glevel']
-nt = setting['nt']
-dt = setting['dt_output']
-dt_hour = int(dt / 3600)
-triangle_size = setting['triangle_size']
-nx = 2 ** glevel
-ny = 2 ** glevel
-nz = 74
-x_width = triangle_size
-y_width = triangle_size * 0.5 * 3.0 ** 0.5
-dx = x_width / nx
-dy = y_width / ny
-
-time_list = [t * dt_hour for t in range(nt)]
+config = AnalysisConfig()
 
 radius = 1000e3
 
-nr = int(radius / dx)
+nr = int(radius / config.dx)
 
-rgrid = np.array([ r * dx - dx/2 for r in range(int(nr))]) * 1e-3
-
+# rgrid generated via grid.create_radial_vertical_meshgrid * 1e-3
 
 output_folder = "./data/azim/eq_momentum_u/udu_dr/"
 
@@ -38,7 +18,7 @@ os.makedirs(output_folder,exist_ok=True)
 
 def process_t(t):
     data = np.load(f"./data/azim/wind_relative_radial/t{str(t).zfill(3)}.npy")
-    udu_dr = (data[:,1:] + data[:,:-1]) * 0.5 * (data[:,1:] - data[:,:-1]) / dx
+    udu_dr = (data[:,1:] + data[:,:-1]) * 0.5 * (data[:,1:] - data[:,:-1]) / config.dx
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", udu_dr)
 
-Parallel(n_jobs=4)(delayed(process_t)(t) for t in range(nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))

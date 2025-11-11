@@ -1,62 +1,36 @@
-# python $WORK/tc_analyze/analyze/2d/whole_domain_with_center_plot.py varname $style
+# python $WORK/tc_analyze/2d/whole_domain_with_center_plot.py varname $style
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap, BoundaryNorm
+from matplotlib.colors import ListedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import sys
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.normpath(os.path.join(script_dir, "..", "module")))
+from utils.config import AnalysisConfig
+from utils.grid import GridHandler
+from utils.plotting import parse_style_argument
 
 from joblib import Parallel, delayed
-import json
-
 varname = sys.argv[1]
-
-# コマンドライン引数が3つ以上あるかを確認
-if len(sys.argv) > 2:
-    mpl_style_sheet = sys.argv[2]
-    print(f"Using style: {mpl_style_sheet}")
-else:
-    print("No style sheet specified, using default.")
+mpl_style_sheet = parse_style_argument(arg_index=2)
 
 original_cmap = plt.cm.rainbow
 colors = original_cmap(np.linspace(0, 1, 256))  # 元のカラーマップの色を取得
 colors[:3] = [1, 1, 1, 1]  # 0に相当する位置（真ん中）を白に変更
 custom_rainbow = ListedColormap(colors)
 
-# ファイルを開いてJSONを読み込む
-with open("setting.json", "r", encoding="utf-8") as f:
-    setting = json.load(f)
-glevel = setting["glevel"]
-nt = setting["nt"]
-dt = setting["dt_output"]
-dt_hour = int(dt / 3600)
-triangle_size = setting["triangle_size"]
-nx = 2**glevel
-ny = 2**glevel
-nz = 74
-x_width = triangle_size
-y_width = triangle_size * 0.5 * 3.0**0.5
-dx = x_width / nx
-dy = y_width / ny
-input_folder = setting["input_folder"]
-
-time_list = [t * dt_hour for t in range(nt)]
+# 設定の初期化
+config = AnalysisConfig()
+grid = GridHandler(config)
 
 output_dir = f"./fig/2d/whole_domain_with_center/{varname}/"
 os.makedirs(output_dir, exist_ok=True)
-
-x = np.arange(0, x_width, dx)
-y = np.arange(0, y_width, dy)
-X, Y = np.meshgrid(x, y)
 
 center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
 center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
 
 data_all = np.memmap(
-    f"{input_folder}{varname}.grd", dtype=">f4", mode="r", shape=(nt, ny, nx)
+    f"{config.input_folder}{varname}.grd", dtype=">f4", mode="r", shape=(config.nt, config.ny, config.nx)
 )
 
 
@@ -65,7 +39,7 @@ def process_t(t):
 
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(2.5,2))
-    title = f"t = {time_list[t]}h"
+    title = f"t = {config.time_list[t]}h"
     match varname:
         case "sa_albedo":
             c = ax.contourf(
@@ -395,11 +369,11 @@ def process_t(t):
         )  # size: colorbar幅, pad: 図との距離
         fig.colorbar(c, cax=cax)
     ax.set_xticks(
-        [0, x_width * 1e-3 / 2, x_width * 1e-3],
+        [0, config.x_width * 1e-3 / 2, config.x_width * 1e-3],
         ["","",""],
     )
     ax.set_yticks(
-        [0, y_width * 1e-3 / 2, y_width * 1e-3],
+        [0, config.y_width * 1e-3 / 2, config.y_width * 1e-3],
         ["","",""],
     )
     ax.set_title(title)
@@ -407,7 +381,7 @@ def process_t(t):
     # ax.set_ylabel("y [km]")
     ax.grid(False)
     ax.set_aspect("equal", "box")
-    fig.savefig(f"{output_dir}t{str(time_list[t]).zfill(4)}.png")
+    fig.savefig(f"{output_dir}t{str(config.time_list[t]).zfill(4)}.png")
     plt.close()
 
-Parallel(n_jobs=4)(delayed(process_t)(t) for t in range(nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))

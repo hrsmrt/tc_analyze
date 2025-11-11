@@ -14,7 +14,7 @@ python $WORK/tc_analyze/center/mass.py $style
 # 3d
 echo "$(date): 3d"
 sh $WORK/tc_analyze/3d/whole_domain.sh
-sh $WORK/tc_analyze/analyz1e/3d/vortex_region.sh
+sh $WORK/tc_analyze/3d/vortex_region.sh
 python $WORK/tc_analyze/3d/streamplot_whole_domain.py $style
 python $WORK/tc_analyze/3d/vortex_region_wind_uv_abs_plot.py $style
 python $WORK/tc_analyze/3d/whole_domain_wind_uv_abs_plot.py $style
@@ -24,9 +24,6 @@ python $WORK/tc_analyze/3d/ms_wind_radial_plot.py $style
 python $WORK/tc_analyze/3d/vorticity_z_calc.py
 python $WORK/tc_analyze/3d/vorticity_z_vortex_region_plot.py $style
 python $WORK/tc_analyze/3d/vorticity_z_absolute_whole_domain_plot.py $style
-python $WORK/tc_analyze/3d/zeta_absolute_plot.py $style
-python $WORK/tc_analyze/3d/zeta_plot.py $style
-python $WORK/tc_analyze/3d/zeta_plus_plot.py $style
 python $WORK/tc_analyze/3d/divergence_calc.py
 python $WORK/tc_analyze/3d/divergence_vortex_region_plot.py $style
 python $WORK/tc_analyze/3d/theta_e_calc.py
@@ -94,3 +91,14 @@ python $WORK/tc_analyze/azim_mean/azim_wind_radial_plot.py $style
 python $WORK/tc_analyze/azim_mean/azim_wind_calc2.py
 python $WORK/tc_analyze/azim_mean/azim_wind_radial_plot2.py $style
 python $WORK/tc_analyze/azim_mean/azim_wind_tangential_plot2.py $style
+
+# z_profile
+sh $WORK/tc_analyze/z_profile/z_profile_calc.sh
+sh $WORK/tc_analyze/z_profile/z_profile_plot.sh
+sh $WORK/tc_analyze/z_profile/vortex_region_calc.sh
+sh $WORK/tc_analyze/z_profile/vortex_region_plot.sh
+python $WORK/tc_analyze/z_profile/zeta_calc.py
+python $WORK/tc_analyze/z_profile/zeta_plot.py $style
+python $WORK/tc_analyze/z_profile/zeta_absolute_plot.py $style
+python $WORK/tc_analyze/z_profile/hf_calc.py
+python $WORK/tc_analyze/z_profile/hf_plot.py $style

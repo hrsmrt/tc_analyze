@@ -4,28 +4,18 @@
 
 import os
 import numpy as np
-import json
 from joblib import Parallel, delayed
+from utils.config import AnalysisConfig
 
-# ファイルを開いてJSONを読み込む
-with open('setting.json', 'r', encoding='utf-8') as f:
-    setting = json.load(f)
-glevel = setting['glevel']
-nt = setting['nt']
-dt = setting['dt_output']
-dt_hour = int(dt / 3600)
-triangle_size = setting['triangle_size']
-nx = 2 ** glevel
-x_width = triangle_size
-dx = x_width / nx
+config = AnalysisConfig()
 
-time_list = [t * dt_hour for t in range(nt)]
+time_list = config.time_list
 
 r_max = 1000e3
 
-nr = int(r_max / dx)
-R = (np.arange(nr) + 0.5) * dx
-f = 3.77468e-5
+nr = int(r_max / config.dx)
+R = (np.arange(nr) + 0.5) * config.dx
+f = config.f
 
 output_folder = "./data/azim/momentum/"
 os.makedirs(output_folder, exist_ok=True)
@@ -36,4 +26,4 @@ def process_t(t):
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", M)
     print(f"t={t} done")
 
-Parallel(n_jobs=4)(delayed(process_t)(t) for t in range(nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))

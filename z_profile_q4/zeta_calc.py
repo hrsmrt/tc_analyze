@@ -8,55 +8,34 @@ module_path = os.path.normpath(os.path.join(script_dir, "..", "module"))
 sys.path.append(module_path)
 from input_data import read_fortran_unformatted
 import numpy as np
-import json
 from joblib import Parallel, delayed
 
 # ファイルを開いてJSONを読み込む
-with open('setting.json', 'r', encoding='utf-8') as f:
-    setting = json.load(f)
-glevel = setting['glevel']
-nt = setting['nt']
-dt = setting['dt_output']
-dt_hour = int(dt / 3600)
-triangle_size = setting['triangle_size']
-nx = 2 ** glevel
-ny = 2 ** glevel
-nz = 74
-x_width = triangle_size
-y_width = triangle_size * 0.5 * 3.0 ** 0.5
-dx = x_width / nx
-dy = y_width / ny
-input_folder = setting['input_folder']
+from utils.config import AnalysisConfig
 
-time_list = [t * dt_hour for t in range(nt)]
-
-output_dir = f"./data/z_profile_q4/zeta/"
-os.makedirs(output_dir,exist_ok=True)
-
-for q in ["q0","q1","q2","q3"]:
-    os.makedirs(f"{output_dir}{q}/",exist_ok=True)
+config = AnalysisConfig()
 
 center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
 center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
 
-x  = np.arange(0,x_width,dx) + dx/2
-y  = np.arange(0,y_width,dy) + dy/2
+x  = np.arange(0,config.x_width,config.dx) + config.dx/2
+y  = np.arange(0,config.y_width,config.dy) + config.dy/2
 X,Y = np.meshgrid(x,y)
 
 R_max = 300e3
 
-# --- 出力配列 (nt, nz, 4象限) ---
-z_profile_q = np.zeros((nt, nz, 4))
+# --- 出力配列 (config.nt, config.nz, 4象限) ---
+z_profile_q = np.zeros((config.nt, config.nz, 4))
 
-for t in range(nt):
+for t in range(config.nt):
     cx = center_x_list[t]
     cy = center_y_list[t]
 
     dX = X - cx
     dY = Y - cy
     # 周期境界補正
-    dX[dX >  0.5*x_width] -= x_width
-    dX[dX < -0.5*x_width] += x_width
+    dX[dX >  0.5*config.x_width] -= config.x_width
+    dX[dX < -0.5*config.x_width] += config.x_width
     R = np.sqrt(dX**2 + dY**2)
 
     # --- マスク（半径R_max以内）---
@@ -70,10 +49,10 @@ for t in range(nt):
     # 例: 0〜π/2 → 北東, π/2〜π → 南東, π〜3π/2 → 南西, 3π/2〜2π → 北西
     sector = np.floor(theta / (np.pi/2)).astype(int)  # 0〜3
 
-    for z in range(nz):
+    for z in range(config.nz):
         filename = f"t{str(t+1).zfill(4)}z{str(z+1).zfill(2)}.dat"
         filepath = f"./data/zeta/{filename}"
-        data = read_fortran_unformatted(filepath, np.float32).reshape(ny, nx)
+        data = read_fortran_unformatted(filepath, np.float32).reshape(config.ny, config.nx)
 
         # 半径R_max内のみ
         data_masked = np.where(mask_R, data, np.nan)
@@ -87,7 +66,7 @@ for t in range(nt):
             else:
                 z_profile_q[t, z, q] = np.nan
 
-    print(f"Processed time step {t+1}/{nt}")
+    print(f"Processed time step {t+1}/{config.nt}")
 
 # --- 保存 ---
 os.makedirs(output_dir, exist_ok=True)

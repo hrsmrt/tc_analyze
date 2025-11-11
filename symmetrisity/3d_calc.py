@@ -4,48 +4,22 @@ import sys
 script_dir = os.path.dirname(os.path.abspath(__file__))
 import numpy as np
 from joblib import Parallel, delayed
-import json
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(script_dir, ".."))
 
 varname = sys.argv[1]
 
 # ファイルを開いてJSONを読み込む
-with open('setting.json', 'r', encoding='utf-8') as f:
-    setting = json.load(f)
-glevel = setting['glevel']
-nt = setting['nt']
-dt = setting['dt_output']
-dt_hour = int(dt / 3600)
-triangle_size = setting['triangle_size']
-nx = 2 ** glevel
-ny = 2 ** glevel
-nz = 74
-x_width = triangle_size
-y_width = triangle_size * 0.5 * 3.0 ** 0.5
-dx = x_width / nx
-dy = y_width / ny
-input_folder = setting['input_folder']
+from utils.config import AnalysisConfig
 
-r_max = 1000e3
-
-# 格子点座標（m単位）
-x = (np.arange(nx) + 0.5) * dx
-y = (np.arange(ny) + 0.5) * dy
-X, Y = np.meshgrid(x, y)
-
-output_folder = f"./data/symmetrisity/{varname}/"
-
-os.makedirs(output_folder,exist_ok=True)
-
-vgrid = np.loadtxt(f"{script_dir}/../../database/vgrid/vgrid_c74.txt")
-
-rgrid = np.array([ r * dx + dx/2 for r in range(int(r_max/dx))])
+config = AnalysisConfig()
 
 center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
 center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
 
 # データの読み込み
-data_all = np.memmap(f"{input_folder}{varname}.grd", dtype=">f4", mode="r",
-                    shape=(nt, nz, ny, nx))
+data_all = np.memmap(f"{config.input_folder}{varname}.grd", dtype=">f4", mode="r",
+                    shape=(config.nt, config.nz, config.ny, config.nx))
 
 # メインループ
 def process_t(t):
@@ -60,16 +34,16 @@ def process_t(t):
     R = np.sqrt((X - cx) ** 2 + (Y - cy) ** 2)
     mask = R <= r_max
     valid_r = R[mask]
-    bin_idx = (valid_r // dx).astype(int)
+    bin_idx = (valid_r // config.dx).astype(int)
     count_r = np.bincount(bin_idx)
 
-    azim_mean = np.full((nz, len(count_r)), np.nan)
+    azim_mean = np.full((config.nz, len(count_r)), np.nan)
 
     data = data_all[t]
     print(f"3d data t: {t}, max: {data.max()}, min: {data.min()}")
 
     valid_data = data[:, mask]
-    azim_sum = np.zeros((nz, len(count_r)))
+    azim_sum = np.zeros((config.nz, len(count_r)))
     for i, b in enumerate(bin_idx):
         azim_sum[:, b] += (valid_data[:, i] - data_azim_mean[:, b]) ** 2
     # 割り算（ゼロ割回避）
@@ -80,4 +54,4 @@ def process_t(t):
     print(f"azim mean data t: {t}, max: {symmetrisity.max()}, min: {symmetrisity.min()}")
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", symmetrisity)
 
-Parallel(n_jobs=4)(delayed(process_t)(t) for t in range(nt))
+Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(config.nt))

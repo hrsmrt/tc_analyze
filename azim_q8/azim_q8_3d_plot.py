@@ -33,15 +33,16 @@ y_width = triangle_size * 0.5 * 3.0 ** 0.5
 dx = x_width / nx
 dy = y_width / ny
 input_folder = setting['input_folder']
+n_jobs = setting.get("n_jobs", 1)
 
 time_list = [t * dt_hour for t in range(nt)]
 
-vgrid = np.loadtxt(f"{script_dir}/../../database/vgrid/vgrid_c74.txt")
+vgrid = np.loadtxt(f"{setting['vgrid_filepath']}")
 
 nr = 1000e3/dx
-xgrid = np.arange(nr) * dx * 1e-3
+xgrid = np.arange(nr) * dx
 
-X, Y = np.meshgrid(xgrid,vgrid*1e-3)
+X, Y = np.meshgrid(xgrid,vgrid)
 
 folder = f"./fig/azim_q8/{varname}/"
 
@@ -83,7 +84,7 @@ def process_t(t):
             case _:
                 c = ax.contourf(X, Y, data_s, cmap="rainbow", extend="both")
                 fig.colorbar(c, ax=ax)
-        ax.set_ylim([0, 20])
+        ax.set_ylim([0, 20e3])
         ax.set_title(f"{sector_names[s]} {varname} t = {time_list[t]} hour")
         ax.set_xlabel("半径 [km]")
         ax.set_ylabel("高度 [km]")
@@ -93,4 +94,4 @@ def process_t(t):
         fig.savefig(f"{sec_folder}/t{str(t).zfill(3)}.png")
         plt.close()
 
-Parallel(n_jobs=4)(delayed(process_t)(t) for t in range(nt))
+Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(nt))

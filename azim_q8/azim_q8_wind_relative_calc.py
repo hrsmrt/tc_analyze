@@ -22,6 +22,7 @@ y_width = triangle_size * 0.5 * 3.0 ** 0.5
 dx = x_width / nx
 dy = y_width / ny
 input_folder = setting['input_folder']
+n_jobs = setting.get("n_jobs", 1)
 
 
 
@@ -37,8 +38,6 @@ output_folder2 = f"./data/azim_q8/wind_relative_tangential/"
 
 os.makedirs(output_folder1, exist_ok=True)
 os.makedirs(output_folder2, exist_ok=True)
-
-vgrid = np.loadtxt(f"{script_dir}/../../database/vgrid/vgrid_c74.txt")
 
 center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
 center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
@@ -109,4 +108,4 @@ def process_t(t):
     print(f"t={t}: radial [{np.nanmin(azim_mean_radial)}, {np.nanmax(azim_mean_radial)}], "
           f"tangential [{np.nanmin(azim_mean_tangential)}, {np.nanmax(azim_mean_tangential)}]")
 
-Parallel(n_jobs=4)(delayed(process_t)(t) for t in range(nt))
+Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(nt))

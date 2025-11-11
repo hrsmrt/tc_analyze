@@ -1,14 +1,14 @@
-# python $WORK/tc_analyze/analyze/2d/vortex_region.py varname $style
+# python $WORK/tc_analyze/2d/vortex_region.py varname $style
 import os
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap, BoundaryNorm
+from matplotlib.colors import ListedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-import json
+from utils.config import AnalysisConfig
+from utils.grid import GridHandler
+from utils.plotting import parse_style_argument, set_vortex_region_ticks_km_empty
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.normpath(os.path.join(script_dir, "..", "module")))
 from joblib import Parallel, delayed
 
 varname = sys.argv[1]
@@ -18,36 +18,13 @@ colors = original_cmap(np.linspace(0, 1, 256))  # 元のカラーマップの色
 colors[:3] = [1, 1, 1, 1]  # 0に相当する位置（真ん中）を白に変更
 custom_rainbow = ListedColormap(colors)
 
-# コマンドライン引数が3つ以上あるかを確認
-if len(sys.argv) > 2:
-    mpl_style_sheet = sys.argv[2]
-    plt.style.use(mpl_style_sheet)
-    print(f"Using style: {mpl_style_sheet}")
-else:
-    print("No style sheet specified, using default.")
+mpl_style_sheet = parse_style_argument(arg_index=2)
 
-# ファイルを開いてJSONを読み込む
-with open("setting.json", "r", encoding="utf-8") as f:
-    setting = json.load(f)
-glevel = setting["glevel"]
-nt = setting["nt"]
-dt = setting["dt_output"]
-dt_hour = int(dt / 3600)
-triangle_size = setting["triangle_size"]
-nx = 2**glevel
-ny = 2**glevel
-nz = 74
-x_width = triangle_size
-y_width = triangle_size * 0.5 * 3.0**0.5
-dx = x_width / nx
-dy = y_width / ny
-input_folder = setting["input_folder"]
-
-time_list = [t * dt_hour for t in range(nt)]
+# 設定の初期化
+config = AnalysisConfig()
+grid = GridHandler(config)
 
 extent = 500e3
-extent_x = int(extent / dx)
-extent_y = int(extent / dy)
 
 center_x_list = np.loadtxt("./data/ss_slp_center_x.txt")
 center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
@@ -55,24 +32,17 @@ center_y_list = np.loadtxt("./data/ss_slp_center_y.txt")
 dir = f"./fig/2d/vortex_region/{varname}/"
 os.makedirs(dir, exist_ok=True)
 
-x = np.arange(0, x_width, dx)
-y = np.arange(0, y_width, dy)
-X, Y = np.meshgrid(x, y)
-X_cut = X[: extent_y * 2, : extent_x * 2]
-Y_cut = Y[: extent_y * 2, : extent_x * 2]
+X_cut, Y_cut = grid.get_vortex_region_meshgrid(extent)
 
-data_all = np.fromfile(f"{input_folder}{varname}.grd", dtype=">f4").reshape(nt, ny, nx)
+data_all = np.fromfile(f"{config.input_folder}{varname}.grd", dtype=">f4").reshape(config.nt, config.ny, config.nx)
 
 
 def process_t(t):
-    center_x = int(center_x_list[t] / dx)
-    center_y = int(center_y_list[t] / dy)
+    center_x = center_x_list[t]
+    center_y = center_y_list[t]
     data = data_all[t]
 
-    x_idx = [(center_x - extent_x + i) % nx for i in range(2 * extent_x)]
-    y_idx = [(center_y - extent_y + i) % ny for i in range(2 * extent_y)]
-
-    data_cut = data[np.ix_(y_idx, x_idx)]
+    data_cut = grid.extract_vortex_region(data, center_x, center_y, extent)
     R_plot_max = 500e3  # 500 km
     cx = X_cut.mean()  # グリッドの中心を近似
     cy = Y_cut.mean()
@@ -86,7 +56,7 @@ def process_t(t):
 
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(2.5,2))
-    title = f"t = {time_list[t]}h"
+    title = f"t = {config.time_list[t]}h"
     match varname:
         case "sa_albedo":
             c = ax.contourf(
@@ -394,17 +364,10 @@ def process_t(t):
         "right", size="5%", pad=0.1
     )  # size: colorbar幅, pad: 図との距離
     fig.colorbar(c, cax=cax)
-    ax.set_xticks(
-        [0, extent_x * dx * 1e-3, 2 * extent_x * dx * 1e-3],
-        ["","",""],
-    )
-    ax.set_yticks(
-        [0, extent_y * dy * 1e-3, 2 * extent_y * dy * 1e-3],
-        ["","",""],
-    )
+    set_vortex_region_ticks_km_empty(ax, extent)
     ax.set_title(title)
     ax.set_aspect("equal", "box")
-    fig.savefig(f"{dir}t{str(time_list[t]).zfill(3)}.png")
+    fig.savefig(f"{dir}t{str(config.time_list[t]).zfill(3)}.png")
     plt.close()
 
-Parallel(n_jobs=4)(delayed(process_t)(t) for t in range(nt))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))

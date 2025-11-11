@@ -26,6 +26,7 @@ y_width = triangle_size * 0.5 * 3.0 ** 0.5
 dx = x_width / nx
 dy = y_width / ny
 input_folder = setting['input_folder']
+n_jobs = setting.get("n_jobs", 1)
 
 time_list = [t * dt_hour for t in range(nt)]
 
@@ -46,9 +47,6 @@ X,Y = np.meshgrid(x,y)
 X_cut = X[: extent_y * 2, : extent_x * 2]
 Y_cut = Y[: extent_y * 2, : extent_x * 2]
 
-
-vgrid = np.loadtxt(f"{script_dir}/../../database/vgrid/vgrid_c74.txt")
-
 data_all = np.memmap(f"{input_folder}{varname}.grd", dtype=">f4", mode="r", shape=(nt,nz,ny,nx))
 
 
@@ -62,6 +60,6 @@ def process_t(t):
     data_sum = data_cut.sum()
     return data_sum
 
-sum_results = Parallel(n_jobs=4)(delayed(process_t)(t) for t in range(nt))
+sum_results = Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(nt))
 
 np.save(f"./data/sums/{varname}_sum.npy", sum_results)

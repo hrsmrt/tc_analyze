@@ -3,23 +3,14 @@ import os
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-import json
+from utils.config import AnalysisConfig
+from utils.plotting import parse_style_argument
 
-if len(sys.argv) > 1:
-    mpl_style_sheet = sys.argv[1]
-    print(f"Using style: {mpl_style_sheet}")
-else:
-    print("No style sheet specified, using default.")
+mpl_style_sheet = parse_style_argument(arg_index=1)
 
-# ファイルを開いてJSONを読み込む
-with open('setting.json', 'r', encoding='utf-8') as f:
-    setting = json.load(f)
-nt = setting['nt']
-dt = setting['dt_output']
-dt_hour = int(dt / 3600)
-
-time_list = [i * dt_hour for i in range(nt)]
-time_ticks = [i * dt_hour for i in range(0, nt, 24)]
+# 設定の初期化
+config = AnalysisConfig()
+time_ticks = [i * config.dt_hour for i in range(0, config.nt, 5)]
 
 folder = f"./fig/center/"
 os.makedirs(folder,exist_ok=True)
@@ -29,9 +20,10 @@ data = np.load(f"./data/ss_slp_min.npy")
 
 # プロット
 plt.style.use(mpl_style_sheet)
-plt.plot(time_list[1:], data[1:] * 1e-2)
-plt.xticks(time_ticks)
-plt.xlabel("時間 [hour]")
-plt.ylabel("最低海面気圧 [hPa]")
-plt.savefig(f"{folder}ss_slp_min.png")
+fig, ax = plt.subplots()
+ax.plot(config.time_list[1:], data[1:] * 1e-2)
+ax.set_xticks(time_ticks)
+ax.set_xlabel("時間 [hour]")
+ax.set_ylabel("最低海面気圧 [hPa]")
+fig.savefig(f"{folder}ss_slp_min.png")
 plt.close()
