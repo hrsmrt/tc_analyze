@@ -1,38 +1,28 @@
 #!/bin/bash
 
 # ============================================================================
-# TC Analysis Pipeline Script
+# TC Analysis Pipeline Script - 全解析実行
 # ============================================================================
-# より柔軟に解析を実行できるスクリプト
+# 全ての解析を順番に実行するスクリプト
 #
 # 注意: setting.jsonがあるディレクトリで実行してください
 #
 # 使用方法:
-#   sh /path/to/tc_analyze/script/analyze_all.sh [OPTIONS] [CATEGORIES...]
+#   sh /path/to/tc_analyze/script/analyze_all.sh [OPTIONS]
 #
 # オプション:
 #   -s, --style STYLE     matplotlibスタイル (default, dark_background, 等)
 #   -d, --dry-run         実行せずにコマンドのみ表示
 #   -h, --help            このヘルプを表示
-#   -l, --list            利用可能なカテゴリ一覧を表示
 #   -v, --verbose         詳細な出力（実行ファイルの出力を表示）
 #   --log PREFIX          ログファイルを出力 (PREFIX_stdout.log, PREFIX_stderr.log)
 #   --stop-on-error       エラーが発生したら停止 (デフォルト: 継続)
 #
-# カテゴリ:
-#   center      - 中心位置の計算とプロット
-#   3d          - 3次元解析
-#   2d          - 2次元解析
-#   azim        - 方位平均解析
-#   z_profile   - 鉛直プロファイル
-#   all         - 全てのカテゴリ (デフォルトt)
-#
 # 例:
 #   cd /path/to/your/workdir  # setting.jsonがあるディレクトリに移動
+#   nohup sh $WORK/tc_analyze/script/analyze_all.sh  -s $style --log ./log01 & # おすすめ
 #   sh $WORK/tc_analyze/script/analyze_all.sh                        # 全て実行
 #   sh $WORK/tc_analyze/script/analyze_all.sh --style dark_background # スタイル指定
-#   sh $WORK/tc_analyze/script/analyze_all.sh center 3d              # 一部のみ実行
-#   sh $WORK/tc_analyze/script/analyze_all.sh --dry-run center       # ドライラン
 #   sh $WORK/tc_analyze/script/analyze_all.sh --log ./logs/run       # ログファイル出力
 #   nohup sh $WORK/tc_analyze/script/analyze_all.sh --log ./logs/run & # バックグラウンド実行+ログ
 # ============================================================================
@@ -73,7 +63,6 @@ VERBOSE=false
 STOP_ON_ERROR=false
 LOG_STDOUT=""
 LOG_STDERR=""
-CATEGORIES=()
 FAILED_COMMANDS=()  # エラーが発生したコマンドを記録
 
 # カラー出力
@@ -99,49 +88,28 @@ fi
 
 show_help() {
     cat << EOF
-TC Analysis Pipeline Script
+TC Analysis Pipeline Script - 全解析実行
 
 注意: setting.jsonがあるディレクトリで実行してください
 
 使用方法:
-  sh /path/to/tc_analyze/script/analyze_all.sh [OPTIONS] [CATEGORIES...]
+  sh /path/to/tc_analyze/script/analyze_all.sh [OPTIONS]
 
 オプション:
   -s, --style STYLE     matplotlibスタイル (default, dark_background, 等)
   -d, --dry-run         実行せずにコマンドのみ表示
   -h, --help            このヘルプを表示
-  -l, --list            利用可能なカテゴリ一覧を表示
   -v, --verbose         詳細な出力（実行ファイルの出力を表示）
   --log PREFIX          ログファイルを出力 (PREFIX_stdout.log, PREFIX_stderr.log)
   --stop-on-error       エラーが発生したら停止 (デフォルト: 継続)
-
-カテゴリ:
-  center      - 中心位置の計算とプロット
-  3d          - 3次元解析
-  2d          - 2次元解析
-  azim        - 方位平均解析
-  z_profile   - 鉛直プロファイル
-  all         - 全てのカテゴリ (デフォルト)
 
 例:
   cd /path/to/your/workdir  # setting.jsonがあるディレクトリに移動
   sh \$WORK/tc_analyze/script/analyze_all.sh                        # 全て実行
   sh \$WORK/tc_analyze/script/analyze_all.sh --style dark_background # スタイル指定
-  sh \$WORK/tc_analyze/script/analyze_all.sh center 3d              # 一部のみ実行
-  sh \$WORK/tc_analyze/script/analyze_all.sh --dry-run center       # ドライラン
   sh \$WORK/tc_analyze/script/analyze_all.sh --log ./logs/run       # ログファイル出力
   nohup sh \$WORK/tc_analyze/script/analyze_all.sh --log ./logs/run & # バックグラウンド実行+ログ
 EOF
-}
-
-list_categories() {
-    echo -e "${COLOR_BOLD}利用可能なカテゴリ:${COLOR_RESET}"
-    echo "  center      - 中心位置の計算とプロット"
-    echo "  3d          - 3次元解析"
-    echo "  2d          - 2次元解析"
-    echo "  azim        - 方位平均解析"
-    echo "  z_profile   - 鉛直プロファイル"
-    echo "  all         - 全てのカテゴリ"
 }
 
 log_info() {
@@ -229,10 +197,6 @@ while [[ $# -gt 0 ]]; do
             show_help
             exit 0
             ;;
-        -l|--list)
-            list_categories
-            exit 0
-            ;;
         -v|--verbose)
             VERBOSE=true
             shift
@@ -252,16 +216,13 @@ while [[ $# -gt 0 ]]; do
             exit 1
             ;;
         *)
-            CATEGORIES+=("$1")
-            shift
+            log_error "このスクリプトはカテゴリ指定に対応していません: $1"
+            log_info "カテゴリ別実行には analyze.sh を使用してください"
+            show_help
+            exit 1
             ;;
     esac
 done
-
-# カテゴリが指定されていない場合はallをデフォルトとする
-if [[ ${#CATEGORIES[@]} -eq 0 ]]; then
-    CATEGORIES=("all")
-fi
 
 # ============================================================================
 # 実行開始
@@ -270,7 +231,6 @@ fi
 log_section "TC解析パイプライン開始"
 log_info "実行ディレクトリ: $(pwd)"
 log_info "スタイル: ${STYLE}"
-log_info "カテゴリ: ${CATEGORIES[*]}"
 if [[ -n "${LOG_STDOUT}" ]]; then
     log_info "標準出力ログ: ${LOG_STDOUT}"
     log_info "エラー出力ログ: ${LOG_STDERR}"
@@ -280,153 +240,105 @@ if [[ "${DRY_RUN}" == true ]]; then
 fi
 
 # ============================================================================
-# カテゴリ別実行関数
+# 解析実行（順番を保持）
 # ============================================================================
 
-run_center() {
-    log_section "Center Analysis"
-    run_cmd "python ${TC_ANALYZE}/center/ss_slp_center_calc.py"
-    run_cmd "python ${TC_ANALYZE}/center/ss_slp_center_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/center/ss_slp_center_velocity.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/center/mass_all.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/center/mass_under20km.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/center/mass.py ${STYLE}"
-}
+# 極大、極小値
+log_section "極大・極小値"
+run_cmd "python ${TC_ANALYZE}/2d/ss_slp_min_calc.py"
+run_cmd "python ${TC_ANALYZE}/2d/ss_slp_min_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_max_calc.py"
+run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_max_plot.py ${STYLE}"
 
-run_3d() {
-    log_section "3D Analysis"
-    run_cmd "sh ${TC_ANALYZE}/3d/whole_domain.sh"
-    run_cmd "sh ${TC_ANALYZE}/3d/vortex_region.sh"
-    run_cmd "python ${TC_ANALYZE}/3d/streamplot_whole_domain.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/vortex_region_wind_uv_abs_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/whole_domain_wind_uv_abs_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/ms_wind_radial_tangential_calc.py"
-    run_cmd "python ${TC_ANALYZE}/3d/ms_wind_tangential_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/ms_wind_radial_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/vorticity_z_calc.py"
-    run_cmd "python ${TC_ANALYZE}/3d/vorticity_z_vortex_region_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/vorticity_z_absolute_whole_domain_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/divergence_calc.py"
-    run_cmd "python ${TC_ANALYZE}/3d/divergence_vortex_region_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/theta_e_calc.py"
-    run_cmd "python ${TC_ANALYZE}/3d/theta_e_plot_vortex_region.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/theta_e_plot_whole_region.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/psi_calc.py"
-    run_cmd "python ${TC_ANALYZE}/3d/psi_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/psi_plot_vortex_region.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/psi_plot_r200.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/ms_dyn_radial_tangential_calc.py"
-    run_cmd "python ${TC_ANALYZE}/3d/ms_dyn_tangential_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/ms_dyn_radial_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/relative_u.py"
-    run_cmd "python ${TC_ANALYZE}/3d/relative_v.py"
-    run_cmd "python ${TC_ANALYZE}/3d/relative_wind_radial_tangential_calc.py"
-    run_cmd "python ${TC_ANALYZE}/3d/relative_wind_tangential_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/relative_wind_radial_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/relative_wind_uv_abs_calc.py"
-    run_cmd "python ${TC_ANALYZE}/3d/relative_wind_uv_abs_plot.py ${STYLE}"
-}
+# whole_domain(中心に依存しない解析)
+log_section "whole_domain (中心に依存しない解析)"
+run_cmd "sh ${TC_ANALYZE}/2d/whole_domain.sh"
+run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_abs_whole_domain.py ${STYLE}"
 
-run_2d() {
-    log_section "2D Analysis"
-    run_cmd "sh ${TC_ANALYZE}/2d/whole_domain.sh"
-    run_cmd "sh ${TC_ANALYZE}/2d/vortex_region.sh"
-    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_abs_whole_domain.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_abs_vortex_region.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_max_calc.py"
-    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_max_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_radial_tangential_calc.py"
-    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_tangential_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_radial_plot.py ${STYLE}"
-}
+run_cmd "sh ${TC_ANALYZE}/3d/whole_domain.sh"
+run_cmd "python ${TC_ANALYZE}/center/mass_all.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/streamplot_whole_domain.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/whole_domain_wind_uv_abs_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/divergence_calc.py"
+run_cmd "python ${TC_ANALYZE}/3d/divergence_whole_domain_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/vorticity_z_calc.py"
+run_cmd "python ${TC_ANALYZE}/3d/vorticity_z_absolute_whole_domain_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/theta_e_calc.py"
+run_cmd "python ${TC_ANALYZE}/3d/theta_e_plot_whole_region.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/psi_calc.py"
+run_cmd "python ${TC_ANALYZE}/3d/psi_plot.py ${STYLE}"
 
-run_azim() {
-    log_section "Azimuthal Mean Analysis"
-    log_info "azim_2d_calc"
-    run_cmd "sh ${TC_ANALYZE}/azim_mean/azim_2d_calc.sh"
-    log_info "azim_2d_plot"
-    run_cmd "sh ${TC_ANALYZE}/azim_mean/azim_2d_plot.sh"
-    log_info "azim_3d_calc"
-    run_cmd "sh ${TC_ANALYZE}/azim_mean/azim_3d_calc.sh"
-    log_info "azim_3d_plot"
-    run_cmd "sh ${TC_ANALYZE}/azim_mean/azim_3d_plot.sh"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind10m_calc.py"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind10m_tangential_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind10m_radial_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind10m_tangential_max_calc.py"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind10m_tangential_max_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_momentum_calc.py"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_momentum_plot.py ${STYLE}"
-    run_cmd "sh ${TC_ANALYZE}/azim_mean/azim_pert_3d_calc.sh"
-    run_cmd "sh ${TC_ANALYZE}/azim_mean/azim_pert_3d_plot.sh"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_relative_calc.py"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_stream_calc.py"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_stream_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_stream_max_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_stream2_calc.py"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_stream2_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_theta_calc.py"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_theta_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_theta_e_calc.py"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_theta_e_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_vorticity_z_calc.py"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_vorticity_z_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_vorticity_z_absolute_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_calc.py"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_tangential_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_radial_plot.py ${STYLE}"
-    #run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_calc2.py"
-    #run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_radial_plot2.py ${STYLE}"
-    #run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_tangential_plot2.py ${STYLE}"
-}
+# center
+log_section "Center Analysis"
+run_cmd "python ${TC_ANALYZE}/center/ss_slp_center_calc.py"
+run_cmd "python ${TC_ANALYZE}/center/ss_slp_center_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/center/ss_slp_center_velocity.py ${STYLE}"
 
-run_z_profile() {
-    log_section "Z Profile Analysis"
-    run_cmd "sh ${TC_ANALYZE}/z_profile/z_profile_calc.sh"
-    run_cmd "sh ${TC_ANALYZE}/z_profile/z_profile_plot.sh"
-    run_cmd "sh ${TC_ANALYZE}/z_profile/vortex_region_calc.sh"
-    run_cmd "sh ${TC_ANALYZE}/z_profile/vortex_region_plot.sh"
-    run_cmd "python ${TC_ANALYZE}/z_profile/hf_calc.py"
-    run_cmd "python ${TC_ANALYZE}/z_profile/hf_plot.py ${STYLE}"
-}
+run_cmd "python ${TC_ANALYZE}/center/mass_under20km.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/center/mass.py ${STYLE}"
 
-# ============================================================================
-# カテゴリの実行
-# ============================================================================
+# 3d
+log_section "3D Analysis"
+run_cmd "sh ${TC_ANALYZE}/3d/vortex_region.sh"
+run_cmd "python ${TC_ANALYZE}/3d/vortex_region_wind_uv_abs_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/ms_wind_radial_tangential_calc.py"
+run_cmd "python ${TC_ANALYZE}/3d/ms_wind_tangential_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/ms_wind_radial_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/vorticity_z_vortex_region_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/divergence_vortex_region_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/theta_e_plot_vortex_region.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/psi_plot_vortex_region.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/psi_plot_r200.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/ms_dyn_radial_tangential_calc.py"
+run_cmd "python ${TC_ANALYZE}/3d/ms_dyn_tangential_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/ms_dyn_radial_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/relative_u.py"
+run_cmd "python ${TC_ANALYZE}/3d/relative_v.py"
+run_cmd "python ${TC_ANALYZE}/3d/relative_wind_radial_tangential_calc.py"
+run_cmd "python ${TC_ANALYZE}/3d/relative_wind_tangential_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/relative_wind_radial_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/3d/relative_wind_uv_abs_calc.py"
+run_cmd "python ${TC_ANALYZE}/3d/relative_wind_uv_abs_plot.py ${STYLE}"
 
-ERROR_COUNT=0
+log_section "2D Vortex Region"
+run_cmd "sh ${TC_ANALYZE}/2d/vortex_region.sh"
+run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_abs_vortex_region.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_radial_tangential_calc.py"
+run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_tangential_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_radial_plot.py ${STYLE}"
 
-for category in "${CATEGORIES[@]}"; do
-    case "${category}" in
-        center)
-            run_center
-            ;;
-        3d)
-            run_3d
-            ;;
-        2d)
-            run_2d
-            ;;
-        azim)
-            run_azim
-            ;;
-        z_profile)
-            run_z_profile
-            ;;
-        all)
-            run_center
-            run_3d
-            run_2d
-            run_azim
-            run_z_profile
-            ;;
-        *)
-            log_error "不明なカテゴリ: ${category}"
-            log_info "利用可能なカテゴリは --list で確認してください"
-            ERROR_COUNT=$((ERROR_COUNT + 1))
-            ;;
-    esac
-done
+log_section "Azimuthal Mean Analysis"
+run_cmd "sh ${TC_ANALYZE}/azim_mean/azim_2d_calc.sh"
+run_cmd "sh ${TC_ANALYZE}/azim_mean/azim_2d_plot.sh"
+run_cmd "sh ${TC_ANALYZE}/azim_mean/azim_3d_calc.sh"
+run_cmd "sh ${TC_ANALYZE}/azim_mean/azim_3d_plot.sh"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind10m_calc.py"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind10m_tangential_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind10m_radial_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind10m_tangential_max_calc.py"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind10m_tangential_max_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_momentum_calc.py"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_momentum_plot.py ${STYLE}"
+run_cmd "sh ${TC_ANALYZE}/azim_mean/azim_pert_3d_calc.sh"
+run_cmd "sh ${TC_ANALYZE}/azim_mean/azim_pert_3d_plot.sh"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_stream_calc.py"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_stream_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_stream_max_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_stream2_calc.py"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_stream2_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_theta_calc.py"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_theta_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_theta_e_calc.py"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_theta_e_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_vorticity_z_calc.py"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_vorticity_z_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_vorticity_z_absolute_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_calc.py"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_tangential_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_radial_plot.py ${STYLE}"
+#run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_calc2.py"
+#run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_radial_plot2.py ${STYLE}"
+#run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_tangential_plot2.py ${STYLE}"
 
 # ============================================================================
 # 完了メッセージ
@@ -460,10 +372,5 @@ if [[ ${#FAILED_COMMANDS[@]} -gt 0 ]]; then
     exit 1
 fi
 
-if [[ ${ERROR_COUNT} -gt 0 ]]; then
-    log_warn "エラーが ${ERROR_COUNT} 件発生しました"
-    exit 1
-else
-    log_info "全ての処理が正常に完了しました"
-    exit 0
-fi
+log_info "全ての処理が正常に完了しました"
+exit 0
