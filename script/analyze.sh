@@ -36,12 +36,12 @@
 #
 # 例:
 #   cd /path/to/your/workdir  # setting.jsonがあるディレクトリに移動
-#   sh $WORK/tc_analyze/script/analyze_all.sh                        # 全て実行
-#   sh $WORK/tc_analyze/script/analyze_all.sh --style dark_background # スタイル指定
-#   sh $WORK/tc_analyze/script/analyze_all.sh center 3d              # 一部のみ実行
-#   sh $WORK/tc_analyze/script/analyze_all.sh --dry-run center       # ドライラン
-#   sh $WORK/tc_analyze/script/analyze_all.sh --log ./logs/run       # ログファイル出力
-#   nohup sh $WORK/tc_analyze/script/analyze_all.sh --log ./logs/run & # バックグラウンド実行+ログ
+#   sh $WORK/tc_analyze/script/analyze.sh                        # 全て実行
+#   sh $WORK/tc_analyze/script/analyze.sh --style dark_background # スタイル指定
+#   sh $WORK/tc_analyze/script/analyze.sh center 3d              # 一部のみ実行
+#   sh $WORK/tc_analyze/script/analyze.sh --dry-run center       # ドライラン
+#   sh $WORK/tc_analyze/script/analyze.sh --log ./logs/run       # ログファイル出力
+#   nohup sh $WORK/tc_analyze/script/analyze.sh --log ./log01 & # バックグラウンド実行+ログ
 # ============================================================================
 
 set -u  # 未定義変数の使用でエラー
