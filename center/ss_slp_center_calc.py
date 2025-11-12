@@ -25,10 +25,10 @@ data_memmap = np.memmap(
 
 def main():
     # 並列実行して結果をリストで受け取る
-    results = Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))
+    results = Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.nt))
 
     # 結果をそれぞれ x, y に分解
-    for t, (x, y) in zip(range(config.t_start, config.t_end), results):
+    for t, (x, y) in zip(range(config.nt), results):
         x_c_evo.append(x)
         y_c_evo.append(y)
 
