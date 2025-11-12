@@ -38,4 +38,4 @@ def process_t(t):
     plt.close()
     print(f"t={t} done(max:{data.max()},min:{data.min()})")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))

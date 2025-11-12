@@ -29,7 +29,7 @@ data_all = np.memmap(
     f"{config.input_folder}{varname}.grd", dtype=">f4", mode="r", shape=(config.nt, config.ny, config.nx)
 )
 
-for t in range(config.t_start, config.t_end):
+for t in range(config.t_first, config.t_last):
     data = data_all[t].mean(axis=1)
 
     plt.style.use(mpl_style_sheet)
@@ -43,4 +43,4 @@ for t in range(config.t_start, config.t_end):
     fig.savefig(f"{dir}t{str(config.time_list[t]).zfill(4)}.png")
     plt.close()
 
-#Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))
+#Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))

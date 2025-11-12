@@ -1,44 +1,44 @@
 #!/usr/bin/env python3
 """
-range(config.nt)をrange(config.t_start, config.t_end)に置換するスクリプト
+range(config.nt)をrange(config.t_first, config.t_last)に置換するスクリプト
 """
 import re
 import sys
 from pathlib import Path
 
 def update_time_range(file_path):
-    """ファイル内のrange(config.nt)をrange(config.t_start, config.t_end)に置換"""
+    """ファイル内のrange(config.nt)をrange(config.t_first, config.t_last)に置換"""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
 
         original_content = content
 
-        # range(config.nt) を range(config.t_start, config.t_end) に置換
+        # range(config.nt) を range(config.t_first, config.t_last) に置換
         content = re.sub(
             r'range\(config\.nt\)',
-            'range(config.t_start, config.t_end)',
+            'range(config.t_first, config.t_last)',
             content
         )
 
-        # range(0,config.nt,step) を range(config.t_start,config.t_end,step) に置換
+        # range(0,config.nt,step) を range(config.t_first,config.t_last,step) に置換
         content = re.sub(
             r'range\(0,\s*config\.nt,',
-            'range(config.t_start, config.t_end,',
+            'range(config.t_first, config.t_last,',
             content
         )
 
-        # range(0,config.nt) を range(config.t_start,config.t_end) に置換
+        # range(0,config.nt) を range(config.t_first,config.t_last) に置換
         content = re.sub(
             r'range\(0,\s*config\.nt\)',
-            'range(config.t_start, config.t_end)',
+            'range(config.t_first, config.t_last)',
             content
         )
 
-        # range(config.nt-...,config.nt) を range(config.t_end-...,config.t_end) に置換
+        # range(config.nt-...,config.nt) を range(config.t_last-...,config.t_last) に置換
         content = re.sub(
             r'range\(config\.nt-',
-            'range(config.t_end-',
+            'range(config.t_last-',
             content
         )
 

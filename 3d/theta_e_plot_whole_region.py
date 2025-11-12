@@ -45,4 +45,4 @@ def process_t(t):
         fig.savefig(f"./fig/3d/theta_e/whole_region/z{str(z).zfill(2)}/t{str(config.time_list[t]).zfill(3)}.png")
         plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))

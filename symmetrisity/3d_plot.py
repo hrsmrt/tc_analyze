@@ -38,4 +38,4 @@ def process_t(t):
     fig.savefig(f"{output_folder}t{str(t).zfill(3)}.png")
     plt.close()
 
-Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))
+Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))

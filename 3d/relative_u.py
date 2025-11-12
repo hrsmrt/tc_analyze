@@ -37,4 +37,4 @@ def process_t(t):
     np.save(f"./data/3d/relative_u/t{str(t).zfill(3)}.npy",data_rel)
     print(f"Saved: ./data/3d/relative_u/t{str(t).zfill(3)}.npy")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))

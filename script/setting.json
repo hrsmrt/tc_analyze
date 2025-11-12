@@ -1,7 +1,7 @@
 {
     "nt": 101,
-    "t_start": 0,
-    "t_end": 101,
+    "t_first": 0,
+    "t_last": 101,
     "triangle_size": 256000.0,
     "glevel": 7,
     "nz": 74,

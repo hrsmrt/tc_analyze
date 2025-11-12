@@ -56,4 +56,4 @@ def process_t(t):
     print(f"azim mean data t: {t}, max: {symmetrisity.max()}, min: {symmetrisity.min()}")
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", symmetrisity)
 
-Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))
+Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))

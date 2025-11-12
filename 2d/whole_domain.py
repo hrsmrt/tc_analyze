@@ -120,7 +120,7 @@ for var, cfg in additional_configs.items():
         )
 
 # 各時刻のデータをプロット
-for t in range(config.t_start, config.t_end):
+for t in range(config.t_first, config.t_last):
     data = data_all[t]
 
     # スタイル適用

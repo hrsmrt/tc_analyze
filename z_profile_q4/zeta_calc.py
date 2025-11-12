@@ -23,7 +23,7 @@ R_max = 300e3
 # --- 出力配列 (config.nt, config.nz, 4象限) ---
 z_profile_q = np.zeros((config.nt, config.nz, 4))
 
-for t in range(config.t_start, config.t_end):
+for t in range(config.t_first, config.t_last):
     cx = center_x_list[t]
     cy = center_y_list[t]
 

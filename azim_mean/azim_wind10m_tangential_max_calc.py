@@ -22,7 +22,7 @@ def process_t(t):
     data = np.load(f"{folder}t{str(t).zfill(3)}.npy")
     return data.max(), data.argmax()*config.dx
 
-max_values = Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))
+max_values = Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
 
 max_values = np.array(max_values)
 

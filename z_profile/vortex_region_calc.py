@@ -51,7 +51,7 @@ def process_t(t):
     return profile
 
 # === 並列実行 ===
-results = Parallel(n_jobs=config.n_jobs, verbose=5)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))
+results = Parallel(n_jobs=config.n_jobs, verbose=5)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
 
 # === 結果をまとめる ===
 z_profile_all = np.stack(results, axis=0)

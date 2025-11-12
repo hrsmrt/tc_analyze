@@ -37,7 +37,7 @@ def hf_t(t):
     hf = cp * T + g * vgrid + L * qv + Lv * qg
     return hf
 
-hf_all = Parallel(n_jobs=config.n_jobs)(delayed(hf_t)(t) for t in range(config.t_start, config.t_end))
+hf_all = Parallel(n_jobs=config.n_jobs)(delayed(hf_t)(t) for t in range(config.t_first, config.t_last))
 
 hf_all = np.array(hf_all)
 np.save(f"{output_dir}hf.npy", hf_all)

@@ -22,4 +22,4 @@ def process_t(t):
     grad_p = - 1 / data_rho[:,1:-1] * (data[:,2:] - data[:,:-2]) / (config.dx * 2)
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", grad_p)
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))

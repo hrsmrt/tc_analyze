@@ -47,7 +47,7 @@ rh_env = np.zeros(config.nz)
 
 def main():
     cape_evol = np.zeros(config.nt)
-    for t in range(config.t_start, config.t_end):
+    for t in range(config.t_first, config.t_last):
         count = config.nx * config.ny * config.nz
         offset = count * t * 4
         data = np.fromfile(f"{config.input_folder}ms_tem.grd",dtype=">f4",count=count,offset=offset)

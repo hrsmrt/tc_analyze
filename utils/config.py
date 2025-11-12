@@ -73,14 +73,14 @@ class AnalysisConfig:
         return self._data["nt"]
 
     @property
-    def t_start(self) -> int:
+    def t_first(self) -> int:
         """解析開始時刻のインデックス"""
-        return self._data.get("t_start", 0)
+        return self._data.get("t_first", 0)
 
     @property
-    def t_end(self) -> int:
-        """解析終了時刻のインデックス（この値は含まない）"""
-        return self._data.get("t_end", self.nt)
+    def t_last(self) -> int:
+        """解析終了時刻のインデックス（この値は含む）"""
+        return self._data.get("t_last", self.nt)
 
     @property
     def dt_output(self) -> int:

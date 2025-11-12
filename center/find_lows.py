@@ -24,7 +24,7 @@ data_memmap = np.memmap(
 
 def main():
     lows_all = []
-    for t in range(config.t_start, config.t_end):
+    for t in range(config.t_first, config.t_last):
         P = data_memmap[t]
         lows = find_lows_peakmax(P,thr_Pa=100500,dx_km=config.dx*1e-3,dy_km=config.dy*1e-3,min_sep_km=200)
         print(f"Time {t}: Found {len(lows)} low pressure centers")

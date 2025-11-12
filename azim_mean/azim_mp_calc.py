@@ -82,4 +82,4 @@ def process_t(t):
     print(f"azim mean data t: {t}, max: {azim_mean_tangential.max()}, min: {azim_mean_tangential.min()}")
     np.save(f"{folder2}t{str(t).zfill(3)}.npy", azim_mean_tangential)
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))

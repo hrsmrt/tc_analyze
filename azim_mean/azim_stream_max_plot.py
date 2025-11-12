@@ -18,7 +18,7 @@ output_folder = "./fig/azim/stream/"
 os.makedirs(output_folder, exist_ok=True)
 
 max_phi = []
-for t in range(config.t_start, config.t_end):
+for t in range(config.t_first, config.t_last):
     data = np.load(f"./data/azim/stream/t{str(t).zfill(3)}.npy")
     print(f"t={t} max: {np.nanmax(data)}")
     max_phi.append(np.nanmax(data))

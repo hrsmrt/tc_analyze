@@ -29,7 +29,7 @@ cmap = cm.rainbow
 norm = plt.Normalize(0, config.nt)
 # 散布図でプロット
 fig, ax = plt.subplots(figsize=(5,4))
-sc = ax.scatter(x_c_evo, y_c_evo, c=np.arange(config.t_start, config.t_end), cmap=cmap, norm=norm, s=20)
+sc = ax.scatter(x_c_evo, y_c_evo, c=np.arange(config.t_first, config.t_last), cmap=cmap, norm=norm, s=20)
 ax.set_aspect('equal', 'box')
 ax.set_xlim(0,config.x_width)
 ax.set_ylim(0,config.y_width)

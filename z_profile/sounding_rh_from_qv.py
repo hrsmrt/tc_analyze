@@ -23,7 +23,7 @@ if not os.path.exists(outfig_dir):
     os.makedirs(outfig_dir)
 
 c = 0
-for t in range(config.t_end-int(24/config.dt_hour),config.nt):
+for t in range(config.t_last-int(24/config.dt_hour),config.nt):
   c += 1
   for z in range(config.nz):
     count = config.nx * config.ny

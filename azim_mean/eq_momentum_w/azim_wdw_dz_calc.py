@@ -26,4 +26,4 @@ def process_t(t):
         wdu_dz[z,:] = (data[z+1,:] + data[z,:]) * 0.5 * (data[z+1,:] - data[z,:]) / (vgrid[z+1] - vgrid[z])
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", wdu_dz)
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))

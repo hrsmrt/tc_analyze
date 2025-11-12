@@ -15,7 +15,7 @@ from utils.plotting import parse_style_argument
 
 config = AnalysisConfig()
 
-time_list = [t * config.dt_hour for t in range(config.t_start, config.t_end)]
+time_list = [t * config.dt_hour for t in range(config.t_first, config.t_last)]
 
 vgrid = np.loadtxt(f"{setting['vgrid_filepath']}")
 
@@ -43,7 +43,7 @@ for q in range(4):
     plt.close()
 
 for q in range(4):
-    for t in range(config.t_start, config.t_end):
+    for t in range(config.t_first, config.t_last):
         data = data_all[t, :, q]
         plt.style.use(mpl_style_sheet)
         fig, ax = plt.subplots(figsize=(5,3))

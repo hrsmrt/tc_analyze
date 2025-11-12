@@ -24,4 +24,4 @@ def process_t(t):
     score = np.abs(gradient_balance_diff)/ (np.abs(centrifugal[:,1:-1]) + np.abs(coriolis[:,1:-1]) + np.abs(grad_p) + 1e-10)
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", score)
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))

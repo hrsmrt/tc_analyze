@@ -104,4 +104,4 @@ def process_t(t):
         fig.savefig(f"./fig/3d/vortex_region/{varname}/z{str(z).zfill(2)}/t{str(config.time_list[t]).zfill(3)}.png")
         plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_start, config.t_end,int(24/config.dt_hour)))
+Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last,int(24/config.dt_hour)))
