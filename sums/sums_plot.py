@@ -1,9 +1,10 @@
 # python $WORK/tc_analyze/sums/sums_plot.py varname $style
+import json
 import os
 import sys
-import numpy as np
+
 import matplotlib.pyplot as plt
-import json
+import numpy as np
 
 varname = sys.argv[1]
 
@@ -15,16 +16,16 @@ else:
     print("No style sheet specified, using default.")
 
 # ファイルを開いてJSONを読み込む
-with open('setting.json', 'r', encoding='utf-8') as f:
+with open("setting.json", "r", encoding="utf-8") as f:
     setting = json.load(f)
-nt = setting['nt']
-dt = setting['dt_output']
+nt = setting["nt"]
+dt = setting["dt_output"]
 dt_hour = int(dt / 3600)
 
 time_list = [i * dt_hour for i in range(nt)]
 
 folder = f"./fig/sums/"
-os.makedirs(folder,exist_ok=True)
+os.makedirs(folder, exist_ok=True)
 
 # データの読み込み
 data = np.load(f"./data/sums/{varname}_sum.npy")

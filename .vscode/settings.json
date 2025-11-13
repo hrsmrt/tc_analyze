@@ -1,0 +1,8 @@
+{
+  "editor.formatOnSave": true,
+  "python.formatting.provider": "black",
+  "python.formatting.blackPath": "/opt/homebrew/Caskroom/miniforge/base/envs/dev/bin/black",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  }
+}

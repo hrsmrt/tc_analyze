@@ -1,5 +1,6 @@
 # python $WORK/tc_analyze/symmetrisity/relative_wind_radial_calc.py
 import os
+
 import numpy as np
 from joblib import Parallel, delayed
 
@@ -16,12 +17,13 @@ X, Y = np.meshgrid(x, y)
 
 output_folder = f"./data/symmetrisity/relative_wind_radial/"
 
-os.makedirs(output_folder,exist_ok=True)
+os.makedirs(output_folder, exist_ok=True)
 
-rgrid = np.array([ r * config.dx + config.dx/2 for r in range(int(r_max/config.dx))])
+rgrid = np.array([r * config.dx + config.dx / 2 for r in range(int(r_max / config.dx))])
 
 center_x_list = config.center_x
 center_y_list = config.center_y
+
 
 # メインループ
 def process_t(t):
@@ -47,13 +49,18 @@ def process_t(t):
     azim_sum = np.zeros((config.nz, len(count_r)))
     for i, b in enumerate(bin_idx):
         azim_sum[:, b] += (valid_data[:, i] - data_azim_mean[:, b]) ** 2
-    
-    # 割り算（ゼロ割回避）
-    with np.errstate(divide='ignore', invalid='ignore'):
-        azim_mean = np.where(count_r > 0, azim_sum / count_r, np.nan)
-    symmetrisity = data_azim_mean ** 2 / (data_azim_mean ** 2 + azim_mean + 1e-20)
 
-    print(f"azim mean data t: {t}, max: {symmetrisity.max()}, min: {symmetrisity.min()}")
+    # 割り算（ゼロ割回避）
+    with np.errstate(divide="ignore", invalid="ignore"):
+        azim_mean = np.where(count_r > 0, azim_sum / count_r, np.nan)
+    symmetrisity = data_azim_mean**2 / (data_azim_mean**2 + azim_mean + 1e-20)
+
+    print(
+        f"azim mean data t: {t}, max: {symmetrisity.max()}, min: {symmetrisity.min()}"
+    )
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", symmetrisity)
 
-Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

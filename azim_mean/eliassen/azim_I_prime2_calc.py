@@ -2,8 +2,10 @@
 # output: I'^2 = \xi (dv/dr + v/r * f)
 
 import os
+
 import numpy as np
 from joblib import Parallel, delayed
+
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 
@@ -29,12 +31,16 @@ theta_ref = 300.0  # 基準温位 K
 
 g = 9.80665
 
+
 def process_t(t):
     I2 = np.load(f"./data/azim/eliassen/I2/t{str(t).zfill(3)}.npy")
     gamma = np.load(f"./data/azim/eliassen/gamma/t{str(t).zfill(3)}.npy")
     B = np.load(f"./data/azim/eliassen/B/t{str(t).zfill(3)}.npy")
-    I2_prime = I2 - (gamma[:,1:] + gamma[:,:-1]) * 0.5 * B
+    I2_prime = I2 - (gamma[:, 1:] + gamma[:, :-1]) * 0.5 * B
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", I2_prime)
     print(f"t={t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

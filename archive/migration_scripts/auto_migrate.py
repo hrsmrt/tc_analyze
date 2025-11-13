@@ -6,15 +6,15 @@
 """
 
 import re
-import sys
 import shutil
+import sys
 from pathlib import Path
 from typing import Tuple
 
 
 def backup_file(filepath: Path) -> Path:
     """ファイルをバックアップ"""
-    backup_path = filepath.with_suffix(filepath.suffix + '.backup')
+    backup_path = filepath.with_suffix(filepath.suffix + ".backup")
     shutil.copy2(filepath, backup_path)
     return backup_path
 
@@ -26,7 +26,7 @@ def add_imports(content: str, filepath: Path) -> str:
     parent_path = "../" * (depth - 1) if depth > 1 else ".."
 
     # 既存のインポートセクションを見つける
-    lines = content.split('\n')
+    lines = content.split("\n")
 
     # shebang, docstring, import行の後にインポートを追加
     insert_pos = 0
@@ -37,7 +37,7 @@ def add_imports(content: str, filepath: Path) -> str:
         stripped = line.strip()
 
         # shebangをスキップ
-        if stripped.startswith('#!'):
+        if stripped.startswith("#!"):
             insert_pos = i + 1
             continue
 
@@ -59,12 +59,12 @@ def add_imports(content: str, filepath: Path) -> str:
             continue
 
         # import行を見つける
-        if stripped.startswith('import ') or stripped.startswith('from '):
+        if stripped.startswith("import ") or stripped.startswith("from "):
             insert_pos = i + 1
             continue
 
         # 空行やコメントをスキップ
-        if not stripped or stripped.startswith('#'):
+        if not stripped or stripped.startswith("#"):
             if insert_pos == i:
                 insert_pos = i + 1
             continue
@@ -83,13 +83,15 @@ def add_imports(content: str, filepath: Path) -> str:
     new_imports = []
 
     if not has_syspath:
-        new_imports.extend([
-            "import sys",
-            "import os",
-            "script_dir = os.path.dirname(os.path.abspath(__file__))",
-            f"sys.path.append(os.path.join(script_dir, \"{parent_path}\"))",
-            ""
-        ])
+        new_imports.extend(
+            [
+                "import sys",
+                "import os",
+                "script_dir = os.path.dirname(os.path.abspath(__file__))",
+                f'sys.path.append(os.path.join(script_dir, "{parent_path}"))',
+                "",
+            ]
+        )
 
     # utils からのインポートを追加
     imports_to_add = []
@@ -100,8 +102,12 @@ def add_imports(content: str, filepath: Path) -> str:
     if "np.meshgrid" in content:
         imports_to_add.append("from utils.grid import GridHandler")
 
-    if "match varname:" in content or ("len(sys.argv)" in content and "mpl_style" in content):
-        imports_to_add.append("from utils.plotting import PlotConfig, parse_style_argument, create_custom_colormap")
+    if "match varname:" in content or (
+        "len(sys.argv)" in content and "mpl_style" in content
+    ):
+        imports_to_add.append(
+            "from utils.plotting import PlotConfig, parse_style_argument, create_custom_colormap"
+        )
 
     if imports_to_add:
         new_imports.extend(imports_to_add)
@@ -109,9 +115,9 @@ def add_imports(content: str, filepath: Path) -> str:
 
     # インポートを挿入
     if new_imports:
-        lines.insert(insert_pos, '\n'.join(new_imports))
+        lines.insert(insert_pos, "\n".join(new_imports))
 
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 def replace_config_loading(content: str) -> str:
@@ -134,41 +140,48 @@ def replace_config_loading(content: str) -> str:
 (?:.*?input_folder = setting\[['"]input_folder['"]\].*?)?"""
 
     # より簡潔なパターン
-    simple_pattern = r"with open\(['\"].*?setting\.json['\"].*?\).*?[\s\S]*?(?=\n(?:[a-zA-Z_]|#|$))"
+    simple_pattern = (
+        r"with open\(['\"].*?setting\.json['\"].*?\).*?[\s\S]*?(?=\n(?:[a-zA-Z_]|#|$))"
+    )
 
     replacement = """# 設定とグリッドの初期化
 config = AnalysisConfig()"""
 
     # まず複雑なパターンを試す
-    new_content = re.sub(config_pattern, replacement, content, flags=re.MULTILINE | re.DOTALL)
+    new_content = re.sub(
+        config_pattern, replacement, content, flags=re.MULTILINE | re.DOTALL
+    )
 
     if new_content == content:
         # 簡略版を試す
-        if "with open('setting.json'" in content or 'with open("setting.json"' in content:
+        if (
+            "with open('setting.json'" in content
+            or 'with open("setting.json"' in content
+        ):
             # 個別に置き換え
             new_content = re.sub(
                 r"with open\(['\"]setting\.json['\"].*?\).*?as f:.*?\n.*?setting = json\.load\(f\)",
                 "# 設定読み込み（下記で config = AnalysisConfig() に置き換え）",
-                content
+                content,
             )
 
     # 変数参照を置き換え
     replacements = {
-        r'\bglevel\b': 'config.glevel',
-        r'\bnt\b': 'config.nt',
-        r'\bdt_hour\b': 'config.dt_hour',
-        r'\btriangle_size\b': 'config.triangle_size',
-        r'\bnx\b': 'config.nx',
-        r'\bny\b': 'config.ny',
-        r'\bnz\b': 'config.nz',
-        r'\bx_width\b': 'config.x_width',
-        r'\by_width\b': 'config.y_width',
-        r'\bdx\b': 'config.dx',
-        r'\bdy\b': 'config.dy',
-        r'\binput_folder\b': 'config.input_folder',
-        r'\btime_list\b': 'config.time_list',
-        r'\bvgrid_filepath\b': 'config.vgrid_filepath',
-        r"setting\[['\"]+vgrid_filepath['\"]+ ?\]": 'config.vgrid_filepath',
+        r"\bglevel\b": "config.glevel",
+        r"\bnt\b": "config.nt",
+        r"\bdt_hour\b": "config.dt_hour",
+        r"\btriangle_size\b": "config.triangle_size",
+        r"\bnx\b": "config.nx",
+        r"\bny\b": "config.ny",
+        r"\bnz\b": "config.nz",
+        r"\bx_width\b": "config.x_width",
+        r"\by_width\b": "config.y_width",
+        r"\bdx\b": "config.dx",
+        r"\bdy\b": "config.dy",
+        r"\binput_folder\b": "config.input_folder",
+        r"\btime_list\b": "config.time_list",
+        r"\bvgrid_filepath\b": "config.vgrid_filepath",
+        r"setting\[['\"]+vgrid_filepath['\"]+ ?\]": "config.vgrid_filepath",
     }
 
     for pattern, replacement in replacements.items():
@@ -180,7 +193,7 @@ config = AnalysisConfig()"""
         new_content = re.sub(
             r"(from utils\.config import AnalysisConfig\n)",
             r"\1\n# 設定の初期化\nconfig = AnalysisConfig()\n",
-            new_content
+            new_content,
         )
 
     return new_content
@@ -204,9 +217,9 @@ def replace_grid_calculation(content: str) -> str:
 
     # GridHandler を使用する場合の変数置き換え
     if "GridHandler" in content:
-        content = re.sub(r'\bX\b(?![\w])', 'grid.X', content)
-        content = re.sub(r'\bY\b(?![\w])', 'grid.Y', content)
-        content = re.sub(r'grid\.grid\.(X|Y)', r'grid.\1', content)  # 二重参照を修正
+        content = re.sub(r"\bX\b(?![\w])", "grid.X", content)
+        content = re.sub(r"\bY\b(?![\w])", "grid.Y", content)
+        content = re.sub(r"grid\.grid\.(X|Y)", r"grid.\1", content)  # 二重参照を修正
 
     # 周期境界条件と角度計算を uv_to_radial_tangential に置き換え
     radial_tangential_pattern = r"""dX = X - c[xy].*?
@@ -223,7 +236,7 @@ def replace_grid_calculation(content: str) -> str:
             radial_tangential_pattern,
             "# 直交座標系から極座標系への変換\n    v_radial, v_tangential = grid.uv_to_radial_tangential(data_u, data_v, cx, cy)",
             content,
-            flags=re.MULTILINE | re.DOTALL
+            flags=re.MULTILINE | re.DOTALL,
         )
 
     return content
@@ -248,7 +261,7 @@ mpl_style_sheet = parse_style_argument()"""
 def add_docstring(content: str, filepath: Path) -> str:
     """ファイルの先頭にdocstringを追加"""
 
-    lines = content.split('\n')
+    lines = content.split("\n")
 
     # 既にdocstringがあるかチェック
     for line in lines[:10]:
@@ -259,20 +272,22 @@ def add_docstring(content: str, filepath: Path) -> str:
     filename = filepath.stem
 
     # 説明を生成
-    if '_calc' in filename:
+    if "_calc" in filename:
         desc = f"{filename.replace('_calc', '')} の計算\n\n計算処理を実行します。"
-    elif '_plot' in filename:
-        desc = f"{filename.replace('_plot', '')} のプロット\n\nプロット処理を実行します。"
+    elif "_plot" in filename:
+        desc = (
+            f"{filename.replace('_plot', '')} のプロット\n\nプロット処理を実行します。"
+        )
     else:
         desc = f"{filename}\n\n解析処理を実行します。"
 
     # shebangの後に挿入
-    insert_pos = 1 if lines[0].startswith('#!') else 0
+    insert_pos = 1 if lines[0].startswith("#!") else 0
 
     docstring = f'"""\n{desc}\n"""\n'
     lines.insert(insert_pos, docstring)
 
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 def migrate_file(filepath: Path, dry_run: bool = False) -> Tuple[bool, str]:
@@ -284,7 +299,7 @@ def migrate_file(filepath: Path, dry_run: bool = False) -> Tuple[bool, str]:
     """
     try:
         # ファイルを読み込み
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with open(filepath, "r", encoding="utf-8") as f:
             original_content = f.read()
 
         # 変換を適用
@@ -306,11 +321,12 @@ def migrate_file(filepath: Path, dry_run: bool = False) -> Tuple[bool, str]:
         backup_path = backup_file(filepath)
 
         # ファイルを書き込み
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             f.write(content)
 
         # 構文チェック
         import py_compile
+
         try:
             py_compile.compile(str(filepath), doraise=True)
         except py_compile.PyCompileError as e:
@@ -334,7 +350,7 @@ def main():
         sys.exit(1)
 
     target = Path(sys.argv[1])
-    dry_run = '--dry-run' in sys.argv
+    dry_run = "--dry-run" in sys.argv
 
     if dry_run:
         print("🔍 ドライランモード（実際の変更は行いません）\n")
@@ -343,7 +359,7 @@ def main():
     if target.is_file():
         files = [target]
     elif target.is_dir():
-        files = list(target.glob('**/*.py'))
+        files = list(target.glob("**/*.py"))
     else:
         print(f"エラー: '{target}' が見つかりません")
         sys.exit(1)

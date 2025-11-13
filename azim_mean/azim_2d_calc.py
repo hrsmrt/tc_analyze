@@ -1,8 +1,10 @@
 # python $WORK/tc_analyze/azim_mean/azim_2d_calc.py varname
 import os
 import sys
+
 import numpy as np
 from joblib import Parallel, delayed
+
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 
@@ -17,10 +19,11 @@ X, Y = grid.X, grid.Y
 
 folder = f"./data/azim/{varname}/"
 
-os.makedirs(folder,exist_ok=True)
+os.makedirs(folder, exist_ok=True)
 
 center_x_list = config.center_x
 center_y_list = config.center_y
+
 
 def process_t(t):
     # 中心座標（m単位）
@@ -48,9 +51,12 @@ def process_t(t):
     data_r = np.bincount(bin_idx, weights=valid_data)
 
     # 割り算（ゼロ割回避）
-    with np.errstate(divide='ignore', invalid='ignore'):
+    with np.errstate(divide="ignore", invalid="ignore"):
         azim_mean = np.where(count_r > 0, data_r / count_r, np.nan)
     print(f"azim mean data t: {t}, max: {azim_mean.max()}, min: {azim_mean.min()}")
     np.save(f"{folder}t{str(t).zfill(3)}.npy", azim_mean)
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

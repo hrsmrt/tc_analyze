@@ -2,9 +2,9 @@
 # hf: moist static energy, Nolan+2007 (3)式
 
 import os
-import sys
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 from joblib import Parallel, delayed
 
 from utils.config import AnalysisConfig
@@ -27,18 +27,22 @@ vgrid = np.loadtxt(config.vgrid_filepath)
 ave_all = hf_all.mean(axis=1)
 ave_under15 = hf_all[:, vgrid < 15e3].mean(axis=1)
 
+
 def process_t(t):
     hf = hf_all[t]
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(hf*1e-3, vgrid*1e-3)
-    ax.set_ylabel('高度 [km]')
-    ax.set_xlabel('湿潤静的エネルギー [kJ/kg]')
-    ax.set_title(f't={config.time_list[t]} hour')
-    fig.savefig(os.path.join(output_dir, f't{config.time_list[t]:04d}h.png'))
+    ax.plot(hf * 1e-3, vgrid * 1e-3)
+    ax.set_ylabel("高度 [km]")
+    ax.set_xlabel("湿潤静的エネルギー [kJ/kg]")
+    ax.set_title(f"t={config.time_list[t]} hour")
+    fig.savefig(os.path.join(output_dir, f"t{config.time_list[t]:04d}h.png"))
     plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)
 
 # 時系列プロット（全体平均）
 plt.style.use(mpl_style_sheet)

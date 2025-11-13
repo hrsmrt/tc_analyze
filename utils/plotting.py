@@ -4,17 +4,16 @@
 プロット関連の設定、カスタムカラーマップ、変数ごとのプロット設定などを提供します。
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap, BoundaryNorm
-from typing import Dict, Any, Optional, Tuple
 import sys
+from typing import Any, Dict, Optional, Tuple
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.colors import ListedColormap
 
 
 def create_custom_colormap(
-    base_cmap: str = "rainbow",
-    n_white_colors: int = 3,
-    n_colors: int = 256
+    base_cmap: str = "rainbow", n_white_colors: int = 3, n_colors: int = 256
 ) -> ListedColormap:
     """
     カスタムカラーマップを作成（下部を白に変更）
@@ -80,13 +79,30 @@ def parse_style_argument() -> str:
     # 2. コマンドライン引数から検出
     # 既知のmatplotlibスタイル名
     known_styles = {
-        "default", "dark_background", "ggplot", "seaborn", "bmh",
-        "fivethirtyeight", "grayscale", "seaborn-darkgrid",
-        "seaborn-whitegrid", "seaborn-dark", "seaborn-white",
-        "seaborn-pastel", "seaborn-bright", "seaborn-muted",
-        "seaborn-colorblind", "seaborn-deep", "seaborn-paper",
-        "seaborn-poster", "seaborn-talk", "seaborn-notebook",
-        "classic", "Solarize_Light2", "fast", "tableau-colorblind10"
+        "default",
+        "dark_background",
+        "ggplot",
+        "seaborn",
+        "bmh",
+        "fivethirtyeight",
+        "grayscale",
+        "seaborn-darkgrid",
+        "seaborn-whitegrid",
+        "seaborn-dark",
+        "seaborn-white",
+        "seaborn-pastel",
+        "seaborn-bright",
+        "seaborn-muted",
+        "seaborn-colorblind",
+        "seaborn-deep",
+        "seaborn-paper",
+        "seaborn-poster",
+        "seaborn-talk",
+        "seaborn-notebook",
+        "classic",
+        "Solarize_Light2",
+        "fast",
+        "tableau-colorblind10",
     }
 
     for arg in sys.argv[1:]:
@@ -95,7 +111,7 @@ def parse_style_argument() -> str:
             return arg
 
         # スタイルファイル (.mplstyle, .style)
-        if arg.endswith('.mplstyle') or arg.endswith('.style'):
+        if arg.endswith(".mplstyle") or arg.endswith(".style"):
             return arg
 
         # ファイルとして存在するパス（絶対パス・相対パス）
@@ -297,7 +313,7 @@ class PlotConfig:
         data: np.ndarray,
         varname: str,
         time_hour: Optional[int] = None,
-        **kwargs
+        **kwargs,
     ) -> Tuple[Any, str]:
         """
         変数名に基づいてcontourfプロットを作成
@@ -346,7 +362,7 @@ class PlotConfig:
         cmap: str,
         title: str,
         extend: str = "neither",
-        data_transform = None,
+        data_transform=None,
     ) -> None:
         """
         新しい変数のプロット設定を追加
@@ -403,14 +419,8 @@ def set_vortex_region_ticks_km(ax, extent: float) -> None:
         extent (float): 範囲（メートル）
     """
     extent_km = int(extent * 1e-3)
-    ax.set_xticks(
-        [0, extent, 2 * extent],
-        [f"-{extent_km}", "0", f"{extent_km}"]
-    )
-    ax.set_yticks(
-        [0, extent, 2 * extent],
-        [f"-{extent_km}", "0", f"{extent_km}"]
-    )
+    ax.set_xticks([0, extent, 2 * extent], [f"-{extent_km}", "0", f"{extent_km}"])
+    ax.set_yticks([0, extent, 2 * extent], [f"-{extent_km}", "0", f"{extent_km}"])
 
 
 def set_vortex_region_ticks_km_empty(ax, extent: float) -> None:

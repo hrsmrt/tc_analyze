@@ -6,13 +6,14 @@ ms_wind_radial のプロット
 
 # python $WORK/tc_analyze/3d/ms_wind_radial_plot.py $style
 import os
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
+from joblib import Parallel, delayed
 
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 from utils.plotting import parse_style_argument, set_vortex_region_ticks_km
-from joblib import Parallel, delayed
 
 # スタイルシートの解析
 mpl_style_sheet = parse_style_argument()
@@ -21,38 +22,52 @@ mpl_style_sheet = parse_style_argument()
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-extent = 500e3
+EXTENT = 500e3
 
 center_x_list = config.center_x
 center_y_list = config.center_y
 
-os.makedirs(str(f"./fig/3d/vortex_region/wind_radial/"),exist_ok=True)
+os.makedirs(str(f"./fig/3d/vortex_region/wind_radial/"), exist_ok=True)
 
-X_cut, Y_cut = grid.get_vortex_region_meshgrid(extent)
+X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)
 
-z_list = [0,9,17,23,29,36,42,48,54,60]
+z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
 for z in z_list:
-  os.makedirs(f"./fig/3d/vortex_region/wind_radial/z{str(z).zfill(2)}",exist_ok=True)
+    os.makedirs(f"./fig/3d/vortex_region/wind_radial/z{str(z).zfill(2)}", exist_ok=True)
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")
+
 
 def process_t(t):
     data_t = np.load(f"./data/3d/wind_radial/t{str(t).zfill(3)}.npy")
     center_x = center_x_list[t]
     center_y = center_y_list[t]
     for z in z_list:
-        data = data_t[z,:,:]
-        data_cut = grid.extract_vortex_region(data, center_x, center_y, extent)
+        data = data_t[z, :, :]
+        data_cut = grid.extract_vortex_region(data, center_x, center_y, EXTENT)
         plt.style.use(mpl_style_sheet)
-        fig, ax = plt.subplots(figsize=(3,2.5))
-        c = ax.contourf(X_cut,Y_cut,data_cut,cmap="bwr",levels=np.arange(-30,35,5),extend='both')
+        fig, ax = plt.subplots(figsize=(3, 2.5))
+        c = ax.contourf(
+            X_cut,
+            Y_cut,
+            data_cut,
+            cmap="bwr",
+            levels=np.arange(-30, 35, 5),
+            extend="both",
+        )
         fig.colorbar(c, ax=ax)
-        set_vortex_region_ticks_km(ax, extent)
-        ax.set_title(f"t={t}h, z={round(vgrid[z]*1e-3, 1):.1f}km")
+        set_vortex_region_ticks_km(ax, EXTENT)
+        ax.set_title(f"t={t}h, z={round(vgrid[z] * 1e-3, 1):.1f}km")
         ax.set_xlabel("x [km]")
         ax.set_ylabel("y [km]")
         ax.set_aspect("equal", "box")
-        fig.savefig(f"./fig/3d/vortex_region/wind_radial/z{str(z).zfill(2)}/t{str(config.time_list[t]).zfill(3)}.png")
+        fig.savefig(
+            f"./fig/3d/vortex_region/wind_radial/z{str(z).zfill(2)}/t{str(config.time_list[t]).zfill(3)}.png"
+        )
         plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last,int(24/config.dt_hour)))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t)
+    for t in range(config.t_first, config.t_last, int(24 / config.dt_hour))
+)

@@ -5,6 +5,7 @@
 直交座標系の風速(u, v)を、台風中心からの放射状成分と接線方向成分に変換します。
 """
 import os
+
 import numpy as np
 from joblib import Parallel, delayed
 
@@ -16,10 +17,10 @@ config = AnalysisConfig()
 grid = GridHandler(config)
 
 # 出力フォルダの作成
-folder1 = "./data/3d/wind_radial/"
-folder2 = "./data/3d/wind_tangential/"
-os.makedirs(folder1, exist_ok=True)
-os.makedirs(folder2, exist_ok=True)
+FOLDER_RADIAL = "./data/3d/wind_radial/"
+FOLDER_TANGENTIAL = "./data/3d/wind_tangential/"
+os.makedirs(FOLDER_RADIAL, exist_ok=True)
+os.makedirs(FOLDER_TANGENTIAL, exist_ok=True)
 
 # 中心座標の読み込み
 center_x_list = config.center_x
@@ -30,14 +31,15 @@ data_all_u = np.memmap(
     f"{config.input_folder}/ms_u.grd",
     dtype=">f4",
     mode="r",
-    shape=(config.nt, config.nz, config.ny, config.nx)
+    shape=(config.nt, config.nz, config.ny, config.nx),
 )
 data_all_v = np.memmap(
     f"{config.input_folder}/ms_v.grd",
     dtype=">f4",
     mode="r",
-    shape=(config.nt, config.nz, config.ny, config.nx)
+    shape=(config.nt, config.nz, config.ny, config.nx),
 )
+
 
 def process_t(t):
     """
@@ -58,10 +60,13 @@ def process_t(t):
     v_radial, v_tangential = grid.uv_to_radial_tangential(data_u, data_v, cx, cy)
 
     # 結果を保存
-    np.save(f"{folder1}/t{str(t).zfill(3)}.npy", v_radial)
-    np.save(f"{folder2}/t{str(t).zfill(3)}.npy", v_tangential)
+    np.save(f"{FOLDER_RADIAL}/t{str(t).zfill(3)}.npy", v_radial)
+    np.save(f"{FOLDER_TANGENTIAL}/t{str(t).zfill(3)}.npy", v_tangential)
 
     print(f"t: {t} done")
 
+
 # 並列処理で全時刻を処理
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

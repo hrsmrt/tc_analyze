@@ -1,7 +1,8 @@
 """
 TC Analyze - 熱帯低気圧解析ツール
 """
-from setuptools import setup, find_packages
+
+from setuptools import setup
 
 setup(
     name="tc_analyze",

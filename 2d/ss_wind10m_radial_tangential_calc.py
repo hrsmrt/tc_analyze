@@ -1,5 +1,6 @@
 # python $WORK/tc_analyze/analyze/2d/ss_wind10m_radial_tangential_calc.py
 import os
+
 import numpy as np
 from joblib import Parallel, delayed
 
@@ -19,10 +20,19 @@ os.makedirs(folder2, exist_ok=True)
 center_x_list = config.center_x
 center_y_list = config.center_y
 
-data_all_u = np.memmap(f"{config.input_folder}ss_u10m.grd", dtype=">f4", mode="r",
-                    shape=(config.nt, config.ny, config.nx))
-data_all_v = np.memmap(f"{config.input_folder}ss_v10m.grd", dtype=">f4", mode="r",
-                    shape=(config.nt, config.ny, config.nx))
+data_all_u = np.memmap(
+    f"{config.input_folder}ss_u10m.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.ny, config.nx),
+)
+data_all_v = np.memmap(
+    f"{config.input_folder}ss_v10m.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.ny, config.nx),
+)
+
 
 def process_t(t):
     # 中心座標（m単位）
@@ -41,4 +51,7 @@ def process_t(t):
     np.save(f"{folder2}t{str(t).zfill(3)}.npy", v_tangential)
     print(f"t: {t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

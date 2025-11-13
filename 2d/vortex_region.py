@@ -1,17 +1,18 @@
 # python $WORK/tc_analyze/2d/vortex_region.py varname $style
 import os
 import sys
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
+from joblib import Parallel, delayed
 from matplotlib.colors import ListedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 from utils.plotting import parse_style_argument, set_vortex_region_ticks_km_empty
 
-from joblib import Parallel, delayed
-
-varname = sys.argv[1]
+VARNAME = sys.argv[1]
 
 original_cmap = plt.cm.rainbow
 colors = original_cmap(np.linspace(0, 1, 256))  # 元のカラーマップの色を取得
@@ -24,17 +25,19 @@ mpl_style_sheet = parse_style_argument()
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-extent = 500e3
+EXTENT = 500e3
 
 center_x_list = config.center_x
 center_y_list = config.center_y
 
-dir = f"./fig/2d/vortex_region/{varname}/"
-os.makedirs(dir, exist_ok=True)
+DIR = f"./fig/2d/vortex_region/{VARNAME}/"
+os.makedirs(DIR, exist_ok=True)
 
-X_cut, Y_cut = grid.get_vortex_region_meshgrid(extent)
+X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)
 
-data_all = np.fromfile(f"{config.input_folder}{varname}.grd", dtype=">f4").reshape(config.nt, config.ny, config.nx)
+data_all = np.fromfile(f"{config.input_folder}{VARNAME}.grd", dtype=">f4").reshape(
+    config.nt, config.ny, config.nx
+)
 
 
 def process_t(t):
@@ -42,22 +45,22 @@ def process_t(t):
     center_y = center_y_list[t]
     data = data_all[t]
 
-    data_cut = grid.extract_vortex_region(data, center_x, center_y, extent)
+    data_cut = grid.extract_vortex_region(data, center_x, center_y, EXTENT)
     R_plot_max = 500e3  # 500 km
     cx = X_cut.mean()  # グリッドの中心を近似
     cy = Y_cut.mean()
 
     # 半径距離
-    R = np.sqrt((X_cut - cx)**2 + (Y_cut - cy)**2)
+    R = np.sqrt((X_cut - cx) ** 2 + (Y_cut - cy) ** 2)
 
     # 半径 R 内だけプロットするマスク
     mask = R <= R_plot_max
     data_masked = np.where(mask, data_cut, np.nan)  # 外側は NaN に
 
     plt.style.use(mpl_style_sheet)
-    fig, ax = plt.subplots(figsize=(2.5,2))
+    fig, ax = plt.subplots(figsize=(2.5, 2))
     title = f"t = {config.time_list[t]}h"
-    match varname:
+    match VARNAME:
         case "sa_albedo":
             c = ax.contourf(
                 X_cut * 1e-3,
@@ -121,7 +124,7 @@ def process_t(t):
             c = ax.contourf(
                 X_cut * 1e-3,
                 Y_cut * 1e-3,
-                data_masked*3600,
+                data_masked * 3600,
                 extend="both",
                 levels=np.arange(0, 1, 0.1),
                 cmap=custom_rainbow,
@@ -226,7 +229,7 @@ def process_t(t):
                 levels=np.arange(0.015, 0.026, 0.001),
                 cmap="rainbow",
             )
-            title = r"2m比湿 [$\mathrm{kg/kg}$]" + title 
+            title = r"2m比湿 [$\mathrm{kg/kg}$]" + title
         case "sa_vap_atm":
             c = ax.contourf(
                 X_cut * 1e-3,
@@ -358,16 +361,19 @@ def process_t(t):
             )
             title = "降水量 [mm/h] " + title
         case _:
-            c = ax.contourf(X_cut * 1e-3, Y_cut * 1e-3, data_masked,cmap='rainbow')
+            c = ax.contourf(X_cut * 1e-3, Y_cut * 1e-3, data_masked, cmap="rainbow")
     divider = make_axes_locatable(ax)
     cax = divider.append_axes(
         "right", size="5%", pad=0.1
     )  # size: colorbar幅, pad: 図との距離
     fig.colorbar(c, cax=cax)
-    set_vortex_region_ticks_km_empty(ax, extent)
+    set_vortex_region_ticks_km_empty(ax, EXTENT)
     ax.set_title(title)
     ax.set_aspect("equal", "box")
-    fig.savefig(f"{dir}t{str(config.time_list[t]).zfill(3)}.png")
+    fig.savefig(f"{DIR}t{str(config.time_list[t]).zfill(3)}.png")
     plt.close()
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

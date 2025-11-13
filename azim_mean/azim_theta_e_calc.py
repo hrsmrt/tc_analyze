@@ -5,8 +5,10 @@
 # output: 相当温位 θ_e = T(Ps/P)^(Rd/Cp) * exp(Lv*rv/(Cp*T))
 
 import os
+
 import numpy as np
 from joblib import Parallel, delayed
+
 from utils.config import AnalysisConfig
 
 config = AnalysisConfig()
@@ -25,6 +27,7 @@ Rd = 287.05  # 気体定数 J/(kg·K)
 Cp = 1005  # 定圧比熱 J/(kg·K)
 L = 2.5e6  # 蒸発潜熱 J/kg
 
+
 def process_t(t):
     tem = np.load(f"./data/azim/ms_tem/t{str(t).zfill(3)}.npy")
     pres = np.load(f"./data/azim/ms_pres/t{str(t).zfill(3)}.npy")
@@ -34,4 +37,7 @@ def process_t(t):
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", theta_e)
     print(f"t={t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

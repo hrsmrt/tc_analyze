@@ -1,31 +1,34 @@
 # python $WORK/tc_analyze/sums/sums_calc.py varname
+import json
 import os
 import sys
+
 import numpy as np
-import json
+from joblib import Parallel, delayed
+
+from utils.config import AnalysisConfig
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.normpath(os.path.join(script_dir, "..", "module")))
-from joblib import Parallel, delayed
 
 varname = sys.argv[1]
 
 # ファイルを開いてJSONを読み込む
-with open('setting.json', 'r', encoding='utf-8') as f:
+with open("setting.json", "r", encoding="utf-8") as f:
     setting = json.load(f)
-glevel = setting['glevel']
-nt = setting['nt']
-dt = setting['dt_output']
+glevel = setting["glevel"]
+nt = setting["nt"]
+dt = setting["dt_output"]
 dt_hour = int(dt / 3600)
-triangle_size = setting['triangle_size']
-nx = 2 ** glevel
-ny = 2 ** glevel
+triangle_size = setting["triangle_size"]
+nx = 2**glevel
+ny = 2**glevel
 nz = 74
 x_width = triangle_size
-y_width = triangle_size * 0.5 * 3.0 ** 0.5
+y_width = triangle_size * 0.5 * 3.0**0.5
 dx = x_width / nx
 dy = y_width / ny
-input_folder = setting['input_folder']
+input_folder = setting["input_folder"]
 n_jobs = setting.get("n_jobs", 1)
 
 time_list = [t * dt_hour for t in range(nt)]
@@ -36,29 +39,33 @@ extent_y = int(extent / dy)
 
 z_max = 60
 
+config = AnalysisConfig()
 center_x_list = config.center_x
 center_y_list = config.center_y
 
-os.makedirs(str(f"./data/sums/"),exist_ok=True)
+os.makedirs(str(f"./data/sums/"), exist_ok=True)
 
-x  = np.arange(0,x_width,dx)
-y  = np.arange(0,y_width,dy)
-X,Y = np.meshgrid(x,y)
+x = np.arange(0, x_width, dx)
+y = np.arange(0, y_width, dy)
+X, Y = np.meshgrid(x, y)
 X_cut = X[: extent_y * 2, : extent_x * 2]
 Y_cut = Y[: extent_y * 2, : extent_x * 2]
 
-data_all = np.memmap(f"{input_folder}{varname}.grd", dtype=">f4", mode="r", shape=(nt,nz,ny,nx))
+data_all = np.memmap(
+    f"{input_folder}{varname}.grd", dtype=">f4", mode="r", shape=(nt, nz, ny, nx)
+)
 
 
 def process_t(t):
-    center_x = int(center_x_list[t]/dx)
-    center_y = int(center_y_list[t]/dy)
+    center_x = int(center_x_list[t] / dx)
+    center_y = int(center_y_list[t] / dy)
     x_idx = [(center_x - extent_x + i) % nx for i in range(2 * extent_x)]
     y_idx = [(center_y - extent_y + i) % ny for i in range(2 * extent_y)]
-    data = data_all[t,:z_max,:,:]
+    data = data_all[t, :z_max, :, :]
     data_cut = data[:, y_idx, :][:, :, x_idx]
     data_sum = data_cut.sum()
     return data_sum
+
 
 sum_results = Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(nt))
 

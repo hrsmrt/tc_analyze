@@ -2,8 +2,8 @@
 
 import os
 import sys
+
 import numpy as np
-from joblib import Parallel, delayed
 
 from utils.config import AnalysisConfig
 
@@ -20,7 +20,7 @@ data_memmap = np.memmap(
     f"{config.input_folder}{varname}.grd",
     dtype=">f4",
     mode="r",
-    shape=(config.nt, config.nz, config.ny, config.nx)
+    shape=(config.nt, config.nz, config.ny, config.nx),
 )
 
 z_profile_all = data_memmap.mean(axis=(2, 3))

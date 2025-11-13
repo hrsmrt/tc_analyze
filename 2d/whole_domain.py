@@ -7,19 +7,20 @@
 import os
 import sys
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
-from utils.plotting import PlotConfig, parse_style_argument, create_custom_colormap
+from utils.plotting import PlotConfig, create_custom_colormap, parse_style_argument
 
 # コマンドライン引数の解析
 if len(sys.argv) < 2:
     print("使用方法: python whole_domain.py <varname> [style]")
     sys.exit(1)
 
-varname = sys.argv[1]
+VARNAME = sys.argv[1]
 mpl_style_sheet = parse_style_argument()
 
 # 設定とグリッドの初期化
@@ -30,15 +31,15 @@ grid = GridHandler(config)
 custom_rainbow = create_custom_colormap("rainbow", 3)
 
 # 出力ディレクトリの作成
-output_dir = f"./fig/2d/whole_domain/{varname}/"
-os.makedirs(output_dir, exist_ok=True)
+OUTPUT_DIR = f"./fig/2d/whole_domain/{VARNAME}/"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # データの読み込み
 data_all = np.memmap(
-    f"{config.input_folder}{varname}.grd",
+    f"{config.input_folder}{VARNAME}.grd",
     dtype=">f4",
     mode="r",
-    shape=(config.nt, config.ny, config.nx)
+    shape=(config.nt, config.ny, config.nx),
 )
 
 # PlotConfigに追加の変数設定を登録（まだ定義されていない場合）
@@ -116,7 +117,7 @@ for var, cfg in additional_configs.items():
             cfg["cmap"],
             cfg["title"],
             cfg.get("extend", "neither"),
-            cfg.get("data_transform")
+            cfg.get("data_transform"),
         )
 
 # 各時刻のデータをプロット
@@ -132,15 +133,15 @@ for t in range(config.t_first, config.t_last):
     # PlotConfigを使用してプロット作成
     try:
         c, title = PlotConfig.create_contourf(
-            ax, grid.X, grid.Y, data, varname, config.time_list[t]
+            ax, grid.X, grid.Y, data, VARNAME, config.time_list[t]
         )
     except ValueError:
         # 未定義の変数の場合はデフォルトプロット
-        c = ax.contourf(grid.X, grid.Y, data, cmap='rainbow')
-        title = f"{varname} t = {config.time_list[t]}h"
+        c = ax.contourf(grid.X, grid.Y, data, cmap="rainbow")
+        title = f"{VARNAME} t = {config.time_list[t]}h"
 
     # カラーバーの追加（特定の変数を除く）
-    if varname not in ["ss_slp", "sa_slp"]:
+    if VARNAME not in ["ss_slp", "sa_slp"]:
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.1)
         fig.colorbar(c, cax=cax)
@@ -153,7 +154,7 @@ for t in range(config.t_first, config.t_last):
     ax.set_aspect("equal", "box")
 
     # 保存
-    fig.savefig(f"{output_dir}t{str(config.time_list[t]).zfill(4)}.png")
+    fig.savefig(f"{OUTPUT_DIR}t{str(config.time_list[t]).zfill(4)}.png")
     plt.close()
 
-print(f"プロット完了: {output_dir}")
+print(f"プロット完了: {OUTPUT_DIR}")

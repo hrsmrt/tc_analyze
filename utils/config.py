@@ -7,7 +7,6 @@ setting.jsonファイルの読み込みと、設定値へのアクセスを提�
 
 import json
 import os
-from pathlib import Path
 from typing import Optional
 
 
@@ -35,7 +34,9 @@ class AnalysisConfig:
     R_MAX = 1000e3  # 1000km
     R_PLOT_MAX = 500e3  # 500km
 
-    def __init__(self, config_file: str = "setting.json", base_dir: Optional[str] = None):
+    def __init__(
+        self, config_file: str = "setting.json", base_dir: Optional[str] = None
+    ):
         """
         設定ファイルを読み込む
 
@@ -137,12 +138,12 @@ class AnalysisConfig:
     @property
     def nx(self) -> int:
         """x方向のグリッド数"""
-        return 2 ** self.glevel
+        return 2**self.glevel
 
     @property
     def ny(self) -> int:
         """y方向のグリッド数"""
-        return 2 ** self.glevel
+        return 2**self.glevel
 
     @property
     def x_width(self) -> float:
@@ -152,7 +153,7 @@ class AnalysisConfig:
     @property
     def y_width(self) -> float:
         """y方向の領域幅"""
-        return self.triangle_size * 0.5 * 3.0 ** 0.5
+        return self.triangle_size * 0.5 * 3.0**0.5
 
     @property
     def dx(self) -> float:
@@ -168,7 +169,7 @@ class AnalysisConfig:
     def time_list(self) -> list:
         """時間リスト（時間単位）"""
         return [t * self.dt_hour for t in range(self.nt)]
-    
+
     @property
     def time_ticks(self) -> list:
         """時間メモリ（時間単位）"""
@@ -177,22 +178,26 @@ class AnalysisConfig:
     @property
     def center_x(self):
         """TC中心のx座標リスト（キャッシュ付き）"""
-        if not hasattr(self, '_center_x'):
+        if not hasattr(self, "_center_x"):
             import numpy as np
+
             self._center_x = np.loadtxt("./data/ss_slp_center_x.txt", ndmin=1)
         return self._center_x
 
     @property
     def center_y(self):
         """TC中心のy座標リスト（キャッシュ付き）"""
-        if not hasattr(self, '_center_y'):
+        if not hasattr(self, "_center_y"):
             import numpy as np
+
             self._center_y = np.loadtxt("./data/ss_slp_center_y.txt", ndmin=1)
         return self._center_y
 
     # === 領域計算用のヘルパーメソッド ===
 
-    def get_extent_indices(self, center_x: int, center_y: int, extent: Optional[float] = None) -> tuple:
+    def get_extent_indices(
+        self, center_x: int, center_y: int, extent: Optional[float] = None
+    ) -> tuple:
         """
         指定された中心座標と範囲から、グリッドインデックスを計算
 
@@ -226,7 +231,9 @@ class AnalysisConfig:
 _default_config = None
 
 
-def get_config(config_file: str = "setting.json", force_reload: bool = False) -> AnalysisConfig:
+def get_config(
+    config_file: str = "setting.json", force_reload: bool = False
+) -> AnalysisConfig:
     """
     グローバルな設定インスタンスを取得
 

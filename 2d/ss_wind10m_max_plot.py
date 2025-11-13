@@ -1,8 +1,9 @@
 # python $WORK/tc_analyze/analyze/2d/ss_wind10m_max_plot.py $style
 import os
-import sys
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
+
 from utils.config import AnalysisConfig
 from utils.plotting import parse_style_argument
 
@@ -12,7 +13,7 @@ mpl_style_sheet = parse_style_argument()
 config = AnalysisConfig()
 
 folder = f"./fig/ss_wind10m/"
-os.makedirs(folder,exist_ok=True)
+os.makedirs(folder, exist_ok=True)
 
 # データの読み込み
 data = np.load("./data/ss_wind10m_max.npy")

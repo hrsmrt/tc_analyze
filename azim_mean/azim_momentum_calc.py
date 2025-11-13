@@ -3,8 +3,10 @@
 # output: 単位質量あたりの角運動量 M = rv + f r^2/2
 
 import os
+
 import numpy as np
 from joblib import Parallel, delayed
+
 from utils.config import AnalysisConfig
 
 config = AnalysisConfig()
@@ -16,6 +18,7 @@ f = config.f
 output_folder = "./data/azim/momentum/"
 os.makedirs(output_folder, exist_ok=True)
 
+
 def process_t(t):
     u_tangential = np.load(f"./data/azim/wind_tangential/t{str(t).zfill(3)}.npy")
     # データの形状から半径方向のビン数を取得
@@ -25,4 +28,7 @@ def process_t(t):
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", M)
     print(f"t={t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

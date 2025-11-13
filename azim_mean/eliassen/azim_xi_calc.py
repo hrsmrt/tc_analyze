@@ -2,8 +2,10 @@
 # output: xi = 2v/r + f
 
 import os
+
 import numpy as np
 from joblib import Parallel, delayed
+
 from utils.config import AnalysisConfig
 
 config = AnalysisConfig()
@@ -26,10 +28,14 @@ theta_ref = 300.0  # 基準温位 K
 
 g = 9.80665
 
+
 def process_t(t):
     v = np.load(f"./data/azim/wind_relative_tangential/t{str(t).zfill(3)}.npy")
     xi = 2 * v / R + f
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", xi)
     print(f"t={t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

@@ -2,8 +2,10 @@
 # output: R = r \rho \theta
 
 import os
+
 import numpy as np
 from joblib import Parallel, delayed
+
 from utils.config import AnalysisConfig
 
 config = AnalysisConfig()
@@ -26,11 +28,15 @@ theta_ref = 300.0  # 基準温位 K
 
 g = 9.80665
 
+
 def process_t(t):
     rho = np.load(f"./data/azim/ms_rho/t{str(t).zfill(3)}.npy")
     theta = np.load(f"./data/azim/theta/t{str(t).zfill(3)}.npy")
-    R_eliassen = R *  rho * theta
+    R_eliassen = R * rho * theta
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", R_eliassen)
     print(f"t={t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

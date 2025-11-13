@@ -1,10 +1,11 @@
 # python $WORK/tc_analyze/azim_mean/azim_plot_momentum_theta_e.py $style
 
 import os
-import sys
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 from joblib import Parallel, delayed
+
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 from utils.plotting import parse_style_argument
@@ -28,14 +29,17 @@ X, Y = np.meshgrid(R, vgrid)
 output_folder = "./fig/azim/momentum_theta_e/"
 os.makedirs(output_folder, exist_ok=True)
 
+
 def process_t(t):
     plt.style.use(mpl_style_sheet)
-    fig, ax = plt.subplots(figsize=(5,2))
+    fig, ax = plt.subplots(figsize=(5, 2))
     data = np.load(f"./data/azim/momentum/t{str(t).zfill(3)}.npy")
-    c = ax.contourf(X, Y, data,extend="max", levels=np.arange(0,2.8e7,2e6))
-    fig.colorbar(c,ax=ax)
+    c = ax.contourf(X, Y, data, extend="max", levels=np.arange(0, 2.8e7, 2e6))
+    fig.colorbar(c, ax=ax)
     data = np.load(f"./data/azim/theta_e/t{str(t).zfill(3)}.npy")
-    ax.contour(X, Y, data, levels=np.arange(330,375,5), colors="black", linewidths=0.5)
+    ax.contour(
+        X, Y, data, levels=np.arange(330, 375, 5), colors="black", linewidths=0.5
+    )
     ax.set_ylim([0, 20])
     ax.set_title(f"t = {config.time_list[t]} hour")
     ax.set_xlabel("半径 [km]")
@@ -44,4 +48,7 @@ def process_t(t):
     plt.close()
     print(f"t={t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

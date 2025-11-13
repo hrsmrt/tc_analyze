@@ -3,8 +3,10 @@
 # output: B = db/dr
 
 import os
+
 import numpy as np
 from joblib import Parallel, delayed
+
 from utils.config import AnalysisConfig
 
 config = AnalysisConfig()
@@ -27,10 +29,14 @@ theta_ref = 300.0  # 基準温位 K
 
 g = 9.80665
 
+
 def process_t(t):
     b = np.load(f"./data/azim/eliassen/buoyancy/t{str(t).zfill(3)}.npy")
-    db_dr = (b[:,1:] - b[:,:-1]) / config.dx
+    db_dr = (b[:, 1:] - b[:, :-1]) / config.dx
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", db_dr)
     print(f"t={t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

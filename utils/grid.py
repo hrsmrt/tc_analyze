@@ -5,8 +5,10 @@
 グリッド関連の計算を提供します。
 """
 
+from typing import Optional, Tuple
+
 import numpy as np
-from typing import Tuple, Optional
+
 from .config import AnalysisConfig
 
 
@@ -95,9 +97,7 @@ class GridHandler:
         theta = np.arctan2(dY, dX)
         return theta
 
-    def calculate_radial_distance(
-        self, center_x: float, center_y: float
-    ) -> np.ndarray:
+    def calculate_radial_distance(self, center_x: float, center_y: float) -> np.ndarray:
         """
         中心座標からの半径距離を計算
 
@@ -203,10 +203,16 @@ class GridHandler:
 
         # 周期境界条件を考慮したインデックス配列
         x_idx = np.array(
-            [(center_x_idx - extent_x + i) % self.config.nx for i in range(2 * extent_x)]
+            [
+                (center_x_idx - extent_x + i) % self.config.nx
+                for i in range(2 * extent_x)
+            ]
         )
         y_idx = np.array(
-            [(center_y_idx - extent_y + i) % self.config.ny for i in range(2 * extent_y)]
+            [
+                (center_y_idx - extent_y + i) % self.config.ny
+                for i in range(2 * extent_y)
+            ]
         )
 
         return x_idx, y_idx
@@ -238,7 +244,9 @@ class GridHandler:
             return data[np.ix_(y_idx, x_idx)]
         elif data.ndim == 3:
             # 3次元データ (nz, ny, nx)
-            return data[:, np.ix_(y_idx, x_idx)].reshape(data.shape[0], len(y_idx), len(x_idx))
+            return data[:, np.ix_(y_idx, x_idx)].reshape(
+                data.shape[0], len(y_idx), len(x_idx)
+            )
         else:
             raise ValueError(f"サポートされていないデータ次元: {data.ndim}")
 
@@ -334,6 +342,7 @@ def create_grid(config: Optional[AnalysisConfig] = None) -> GridHandler:
     """
     if config is None:
         from .config import get_config
+
         config = get_config()
 
     return GridHandler(config)

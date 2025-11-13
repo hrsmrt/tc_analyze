@@ -6,6 +6,7 @@ ms_dyn_radial_tangential の計算
 
 # python $WORK/tc_analyze/3d/ms_dyn_radial_tangential_calc.py
 import os
+
 import numpy as np
 from joblib import Parallel, delayed
 
@@ -16,26 +17,35 @@ from utils.grid import GridHandler
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-r_max = 1000e3
+R_MAX = 1000e3
 
 # 格子点座標（m単位）
 x = (np.arange(config.nx) + 0.5) * config.dx
 y = (np.arange(config.ny) + 0.5) * config.dy
 grid.X, grid.Y = np.meshgrid(x, y)
 
-folder1 = f"./data/3d/dyn_radial/"
-folder2 = f"./data/3d/dyn_tangential/"
+FOLDER1 = "./data/3d/dyn_radial/"
+FOLDER2 = "./data/3d/dyn_tangential/"
 
-os.makedirs(folder1, exist_ok=True)
-os.makedirs(folder2, exist_ok=True)
+os.makedirs(FOLDER1, exist_ok=True)
+os.makedirs(FOLDER2, exist_ok=True)
 
 center_x_list = config.center_x
 center_y_list = config.center_y
 
-data_all_u = np.memmap(f"{config.input_folder}/ms_dyn_du.grd", dtype=">f4", mode="r",
-                    shape=(config.nt, config.nz, config.ny, config.nx))
-data_all_v = np.memmap(f"{config.input_folder}/ms_dyn_dv.grd", dtype=">f4", mode="r",
-                    shape=(config.nt, config.nz, config.ny, config.nx))
+data_all_u = np.memmap(
+    f"{config.input_folder}/ms_dyn_du.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_all_v = np.memmap(
+    f"{config.input_folder}/ms_dyn_dv.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+
 
 def process_t(t):
     # 中心座標（m単位）
@@ -56,9 +66,12 @@ def process_t(t):
     v_radial = data_u * np.cos(theta) + data_v * np.sin(theta)
     v_tangential = -data_u * np.sin(theta) + data_v * np.cos(theta)
 
-    np.save(f"{folder1}/t{str(t).zfill(3)}.npy", v_radial)
-    np.save(f"{folder2}/t{str(t).zfill(3)}.npy", v_tangential)
+    np.save(f"{FOLDER1}/t{str(t).zfill(3)}.npy", v_radial)
+    np.save(f"{FOLDER2}/t{str(t).zfill(3)}.npy", v_tangential)
 
     print(f"t: {t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

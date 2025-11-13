@@ -6,6 +6,7 @@ relative_wind_uv_abs の計算
 
 # python $WORK/tc_analyze/3d/relative_wind_uv_abs_calc.py
 import os
+
 import numpy as np
 from joblib import Parallel, delayed
 
@@ -16,21 +17,22 @@ from utils.grid import GridHandler
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-r_max = 1000e3
+R_MAX = 1000e3
 
 # 格子点座標（m単位）
 x = (np.arange(config.nx) + 0.5) * config.dx
 y = (np.arange(config.ny) + 0.5) * config.dy
 grid.X, grid.Y = np.meshgrid(x, y)
 
-output_folder = f"./data/3d/relative_wind_uv_abs/"
+OUTPUT_FOLDER = "./data/3d/relative_wind_uv_abs/"
 
-os.makedirs(output_folder, exist_ok=True)
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
 center_x_list = config.center_x
 center_y_list = config.center_y
+
 
 def process_t(t):
     # 中心座標（m単位）
@@ -41,17 +43,24 @@ def process_t(t):
     dY = grid.Y - cy
     dX[dX > 0.5 * config.x_width] -= config.x_width
     dX[dX < -0.5 * config.x_width] += config.x_width
-    theta = np.arctan2(dY, dX)
+    np.arctan2(dY, dX)
 
     # (config.nz, config.ny, config.nx) の配列を取得
-    data_u = np.load(f"./data/3d/relative_u/t{str(t).zfill(3)}.npy")  # shape: (config.nz, config.ny, config.nx)
-    data_v = np.load(f"./data/3d/relative_v/t{str(t).zfill(3)}.npy")  # shape: (config.nz, config.ny, config.nx)
+    data_u = np.load(
+        f"./data/3d/relative_u/t{str(t).zfill(3)}.npy"
+    )  # shape: (config.nz, config.ny, config.nx)
+    data_v = np.load(
+        f"./data/3d/relative_v/t{str(t).zfill(3)}.npy"
+    )  # shape: (config.nz, config.ny, config.nx)
 
     # ブロードキャストで一括計算
     v_abs = np.sqrt(data_u**2 + data_v**2)
 
-    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", v_abs)
+    np.save(f"{OUTPUT_FOLDER}/t{str(t).zfill(3)}.npy", v_abs)
 
     print(f"t: {t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

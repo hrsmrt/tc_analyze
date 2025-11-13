@@ -1,7 +1,13 @@
-import numpy as np
-import os
-import sys
+"""
+3次元グリッドデータの結合スクリプト
+
+複数のバイナリファイルを結合して1つのメモリマップ配列を作成する。
+"""
+
 import gc
+import sys
+
+import numpy as np
 
 varname = sys.argv[1]
 
@@ -13,15 +19,15 @@ file_list = [
 ]
 
 nt_list = [61, 61, 61, 61]
-nz = 74
+NZ = 74
 ny, nx = 2048, 2048
-dtype = ">f4"
-chunk_size = 10  # ← 必要に応じて調整
+DTYPE = ">f4"
+CHUNK_SIZE = 10  # ← 必要に応じて調整
 
 nt_total = nt_list[0] + sum(nt - 1 for nt in nt_list[1:])
-output_path = f"./grd_data/{varname}.grd"
+OUTPUT_PATH = f"./grd_data/{varname}.grd"
 
-merged = np.memmap(output_path, dtype=dtype, mode="w+", shape=(nt_total, nz, ny, nx))
+merged = np.memmap(OUTPUT_PATH, dtype=DTYPE, mode="w+", shape=(nt_total, NZ, ny, nx))
 
 write_start = 0
 for i, fname in enumerate(file_list):
@@ -33,13 +39,13 @@ for i, fname in enumerate(file_list):
 
     with open(fname, "rb") as f:
         if skip:
-            f.seek(nz * ny * nx * 4, 1)
+            f.seek(NZ * ny * nx * 4, 1)
 
-        for chunk_start in range(0, valid_nt, chunk_size):
-            c = min(chunk_size, valid_nt - chunk_start)
-            raw = np.fromfile(f, dtype=dtype, count=c * nz * ny * nx)
-            frames = raw.reshape(c, nz, ny, nx)
-            merged[write_start:write_start + c] = frames
+        for chunk_start in range(0, valid_nt, CHUNK_SIZE):
+            c = min(CHUNK_SIZE, valid_nt - chunk_start)
+            raw = np.fromfile(f, dtype=DTYPE, count=c * NZ * ny * nx)
+            frames = raw.reshape(c, NZ, ny, nx)
+            merged[write_start: write_start + c] = frames
 
             print(f"  ✅ チャンク書き出し: step {write_start} ～ {write_start + c - 1}")
 
@@ -47,8 +53,8 @@ for i, fname in enumerate(file_list):
             del raw, frames
             gc.collect()
 
-            if (write_start % (10 * chunk_size)) == 0:
+            if (write_start % (10 * CHUNK_SIZE)) == 0:
                 merged.flush()
 
 merged.flush()
-print(f"\n✅ 結合完了: {output_path}（{nt_total} 時間ステップ）")
+print(f"\n✅ 結合完了: {OUTPUT_PATH}（{nt_total} 時間ステップ）")

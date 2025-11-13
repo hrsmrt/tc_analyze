@@ -1,7 +1,9 @@
 # python $WORK/tc_analyze/azim_mean/eq_momentum_u/azim_du_dr_calc.py
 import os
+
 import numpy as np
 from joblib import Parallel, delayed
+
 from utils.config import AnalysisConfig
 
 config = AnalysisConfig()
@@ -14,11 +16,15 @@ nr = int(radius / config.dx)
 
 output_folder = "./data/azim/eq_momentum_u/du_dr/"
 
-os.makedirs(output_folder,exist_ok=True)
+os.makedirs(output_folder, exist_ok=True)
+
 
 def process_t(t):
     data = np.load(f"./data/azim/wind_relative_radial/t{str(t).zfill(3)}.npy")
-    du_dr = (data[:,1:] - data[:,:-1]) / config.dx
+    du_dr = (data[:, 1:] - data[:, :-1]) / config.dx
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", du_dr)
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

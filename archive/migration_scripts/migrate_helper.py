@@ -9,7 +9,6 @@
     python scripts/migrate_helper.py <file_path>
 """
 
-import re
 import sys
 from pathlib import Path
 
@@ -24,7 +23,7 @@ def analyze_file(filepath: Path) -> dict:
     Returns:
         dict: 分析結果
     """
-    with open(filepath, 'r', encoding='utf-8') as f:
+    with open(filepath, "r", encoding="utf-8") as f:
         content = f.read()
 
     analysis = {
@@ -33,8 +32,8 @@ def analyze_file(filepath: Path) -> dict:
         "has_grid_calculation": False,
         "has_match_statement": False,
         "has_style_parsing": False,
-        "line_count": len(content.split('\n')),
-        "suggestions": []
+        "line_count": len(content.split("\n")),
+        "suggestions": [],
     }
 
     # 設定読み込みの検出
@@ -135,13 +134,15 @@ def generate_migration_template(analysis: dict) -> str:
 
 def print_analysis_report(analysis: dict):
     """分析レポートを表示"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print(f"📄 ファイル: {analysis['file']}")
-    print("="*70)
+    print("=" * 70)
     print(f"\n📊 現在の行数: {analysis['line_count']}行")
     print(f"📉 期待削減: 約{analysis['expected_reduction']}行")
     print(f"📈 移行後予想: 約{analysis['expected_line_count']}行")
-    print(f"💾 削減率: {analysis['expected_reduction'] / analysis['line_count'] * 100:.1f}%")
+    print(
+        f"💾 削減率: {analysis['expected_reduction'] / analysis['line_count'] * 100:.1f}%"
+    )
 
     print("\n🔍 検出された移行可能箇所:")
     if not analysis["suggestions"]:
@@ -150,14 +151,16 @@ def print_analysis_report(analysis: dict):
         for suggestion in analysis["suggestions"]:
             print(f"  {suggestion}")
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
 
 
 def main():
     if len(sys.argv) < 2:
         print("使用方法: python migrate_helper.py <file_path>")
         print("\n例:")
-        print("  python scripts/migrate_helper.py 3d/relative_wind_radial_tangential_calc.py")
+        print(
+            "  python scripts/migrate_helper.py 3d/relative_wind_radial_tangential_calc.py"
+        )
         print("  python scripts/migrate_helper.py 2d/whole_domain.py")
         sys.exit(1)
 

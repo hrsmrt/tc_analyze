@@ -2,8 +2,10 @@
 # output: I^2 = \xi (dv/dr + v/r * f)
 
 import os
+
 import numpy as np
 from joblib import Parallel, delayed
+
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 
@@ -29,12 +31,20 @@ theta_ref = 300.0  # 基準温位 K
 
 g = 9.80665
 
+
 def process_t(t):
     xi = np.load(f"./data/azim/eliassen/xi/t{str(t).zfill(3)}.npy")
     v = np.load(f"./data/azim/wind_relative_tangential/t{str(t).zfill(3)}.npy")
-    dv_dr = (v[:,1:] - v[:,:-1]) / config.dx
-    I2 = (xi[:,1:] + xi[:,:-1]) / 2 * (dv_dr + (v[:,1:] + v[:,:-1]) / (2 * R_wall) + f)
+    dv_dr = (v[:, 1:] - v[:, :-1]) / config.dx
+    I2 = (
+        (xi[:, 1:] + xi[:, :-1])
+        / 2
+        * (dv_dr + (v[:, 1:] + v[:, :-1]) / (2 * R_wall) + f)
+    )
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", I2)
     print(f"t={t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

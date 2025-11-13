@@ -1,10 +1,11 @@
 # python $WORK/tc_analyze/azim_mean/azim_theta_e_plot.py $style
 
 import os
-import sys
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 from joblib import Parallel, delayed
+
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 from utils.plotting import parse_style_argument
@@ -19,6 +20,7 @@ vgrid = np.loadtxt(config.vgrid_filepath)
 output_folder = "./fig/azim/theta_e/"
 os.makedirs(output_folder, exist_ok=True)
 
+
 def process_t(t):
     data = np.load(f"./data/azim/theta_e/t{str(t).zfill(3)}.npy")
     # データの形状から半径方向のグリッドを作成
@@ -26,11 +28,13 @@ def process_t(t):
     xgrid = np.arange(nr) * config.dx
     X, Y = np.meshgrid(xgrid, vgrid)
     plt.style.use(mpl_style_sheet)
-    fig, ax = plt.subplots(figsize=(5,2))
-    c = ax.contourf(X, Y, data, levels=np.arange(330,375,5), cmap="rainbow", extend="both")
-    cbar = fig.colorbar(c,ax=ax)
-    cbar.set_ticks([330,370])
-    ax.set_ylim([0,20e3])
+    fig, ax = plt.subplots(figsize=(5, 2))
+    c = ax.contourf(
+        X, Y, data, levels=np.arange(330, 375, 5), cmap="rainbow", extend="both"
+    )
+    cbar = fig.colorbar(c, ax=ax)
+    cbar.set_ticks([330, 370])
+    ax.set_ylim([0, 20e3])
     ax.set_title(f"相当温位 t = {config.time_list[t]} hour")
     ax.set_xlabel("半径 [km]")
     ax.set_ylabel("高度 [km]")
@@ -38,4 +42,7 @@ def process_t(t):
     plt.close()
     print(f"t={t} done")
 
-Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)
