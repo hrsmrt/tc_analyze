@@ -2,49 +2,30 @@
 import os
 import sys
 
-# 実行ファイル（この.pyファイル）を基準に相対パスを指定
-script_dir = os.path.dirname(os.path.abspath(__file__))
-import numpy as np
 import matplotlib.pyplot as plt
-import json
+import numpy as np
 from joblib import Parallel, delayed
 
-sys.path.append(os.path.normpath(os.path.join(script_dir, "..", "module")))
+from utils.config import AnalysisConfig
+from utils.grid import GridHandler
+from utils.plotting import parse_style_argument
+
+config = AnalysisConfig()
+grid = GridHandler(config)
 
 varname = sys.argv[1]
+mpl_style_sheet = parse_style_argument()
 
-if len(sys.argv) > 2:
-    mpl_style_sheet = sys.argv[2]
-    print(f"Using style: {mpl_style_sheet}")
-else:
-    print("No style sheet specified, using default.")
+# グリッド設定：データから実際のサイズを取得
+sample_data = np.load(f"./data/azim_q8/{varname}/t{str(config.t_first).zfill(3)}.npy")
+nz_data, nr, n_sectors = sample_data.shape
+R_MAX = nr * config.dx
 
-# ファイルを開いてJSONを読み込む
-with open("setting.json", "r", encoding="utf-8") as f:
-    setting = json.load(f)
-glevel = setting["glevel"]
-nt = setting["nt"]
-dt = setting["dt_output"]
-dt_hour = int(dt / 3600)
-triangle_size = setting["triangle_size"]
-nx = 2**glevel
-ny = 2**glevel
-nz = 74
-x_width = triangle_size
-y_width = triangle_size * 0.5 * 3.0**0.5
-dx = x_width / nx
-dy = y_width / ny
-input_folder = setting["input_folder"]
-n_jobs = setting.get("n_jobs", 1)
+# rgrid と vgrid を作成
+rgrid = (np.arange(nr) + 0.5) * config.dx * 1e-3  # km単位
+vgrid = grid.create_vertical_grid() * 1e-3  # km単位
 
-time_list = [t * dt_hour for t in range(nt)]
-
-vgrid = np.loadtxt(f"{setting['vgrid_filepath']}")
-
-nr = 1000e3 / dx
-xgrid = np.arange(nr) * dx
-
-X, Y = np.meshgrid(xgrid, vgrid)
+X, Y = np.meshgrid(rgrid, vgrid)
 
 folder = f"./fig/azim_q8/{varname}/"
 
@@ -121,8 +102,8 @@ def process_t(t):
             case _:
                 c = ax.contourf(X, Y, data_s, cmap="rainbow", extend="both")
                 fig.colorbar(c, ax=ax)
-        ax.set_ylim([0, 20e3])
-        ax.set_title(f"{sector_names[s]} {varname} t = {time_list[t]} hour")
+        ax.set_ylim([0, 20])
+        ax.set_title(f"{sector_names[s]} {varname} t = {config.time_list[t]} hour")
         ax.set_xlabel("半径 [km]")
         ax.set_ylabel("高度 [km]")
 
@@ -132,4 +113,6 @@ def process_t(t):
         plt.close()
 
 
-Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(nt))
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

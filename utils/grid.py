@@ -308,19 +308,22 @@ class GridHandler:
         return np.loadtxt(self.config.vgrid_filepath)
 
     def create_radial_vertical_meshgrid(
-        self, r_max: float
+        self, r_max: float, nz: Optional[int] = None
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
         方位角平均プロット用の動径-鉛直メッシュグリッドを生成
 
         Args:
             r_max (float): 最大半径（メートル）
+            nz (int, optional): z方向のグリッド数。Noneの場合は全て使用
 
         Returns:
             tuple: (動径メッシュグリッド, 鉛直メッシュグリッド)
         """
         rgrid = self.create_radial_grid(r_max)
         vgrid = self.create_vertical_grid()
+        if nz is not None:
+            vgrid = vgrid[:nz]
         return np.meshgrid(rgrid, vgrid)
 
     def __repr__(self) -> str:

@@ -1,40 +1,22 @@
 # python $WORK/tc_analyze/azim_q8/azim_q8_wind_relative_calc.py
 import os
-import sys
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
 import numpy as np
 from joblib import Parallel, delayed
-import json
 
-# ファイルを開いてJSONを読み込む
-with open("setting.json", "r", encoding="utf-8") as f:
-    setting = json.load(f)
-glevel = setting["glevel"]
-nt = setting["nt"]
-dt = setting["dt_output"]
-dt_hour = int(dt / 3600)
-triangle_size = setting["triangle_size"]
-nx = 2**glevel
-ny = 2**glevel
-nz = 74
-x_width = triangle_size
-y_width = triangle_size * 0.5 * 3.0**0.5
-dx = x_width / nx
-dy = y_width / ny
-input_folder = setting["input_folder"]
-n_jobs = setting.get("n_jobs", 1)
+from utils.config import AnalysisConfig
 
+config = AnalysisConfig()
 
 r_max = 1000e3
 
 # 格子点座標（m単位）
-x = (np.arange(nx) + 0.5) * dx
-y = (np.arange(ny) + 0.5) * dy
+x = (np.arange(config.nx) + 0.5) * config.dx
+y = (np.arange(config.ny) + 0.5) * config.dy
 X, Y = np.meshgrid(x, y)
 
-output_folder1 = f"./data/azim_q8/wind_relative_radial/"
-output_folder2 = f"./data/azim_q8/wind_relative_tangential/"
+output_folder1 = "./data/azim_q8/wind_relative_radial/"
+output_folder2 = "./data/azim_q8/wind_relative_tangential/"
 
 os.makedirs(output_folder1, exist_ok=True)
 os.makedirs(output_folder2, exist_ok=True)
@@ -49,8 +31,8 @@ def process_t(t):
     cy = center_y_list[t]
     dX = X - cx
     dY = Y - cy
-    dX[dX > 0.5 * x_width] -= x_width
-    dX[dX < -0.5 * x_width] += x_width
+    dX[dX > 0.5 * config.x_width] -= config.x_width
+    dX[dX < -0.5 * config.x_width] += config.x_width
     R = np.sqrt(dX**2 + dY**2)
     mask = R <= r_max
     valid_r = R[mask]
@@ -62,14 +44,15 @@ def process_t(t):
     theta = (theta_raw - np.pi / 2) % (2 * np.pi)
     sector = (theta // (np.pi / 4)).astype(int)
 
-    bin_idx = (valid_r // dx).astype(int)
-    nbins = bin_idx.max() + 1
+    bin_idx = np.floor(valid_r / config.dx).astype(int)
+    max_bin = int(np.floor(r_max / config.dx))
+    bin_idx = np.clip(bin_idx, 0, max_bin - 1)
 
     # 出力配列
-    azim_sum_radial = np.zeros((nz, nbins, 8), dtype=np.float64)
-    count_r_radial = np.zeros((nbins, 8), dtype=np.int64)
-    azim_sum_tangential = np.zeros((nz, nbins, 8), dtype=np.float64)
-    count_r_tangential = np.zeros((nbins, 8), dtype=np.int64)
+    azim_sum_radial = np.zeros((config.nz, max_bin, 8), dtype=np.float64)
+    count_r_radial = np.zeros((max_bin, 8), dtype=np.int64)
+    azim_sum_tangential = np.zeros((config.nz, max_bin, 8), dtype=np.float64)
+    count_r_tangential = np.zeros((max_bin, 8), dtype=np.int64)
 
     # データを読み込む
     data_u = np.load(f"./data/3d/relative_u/t{str(t).zfill(3)}.npy", mmap_mode="r")
@@ -121,4 +104,6 @@ def process_t(t):
     )
 
 
-Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(nt))
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

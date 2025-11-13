@@ -14,7 +14,7 @@ grid = GridHandler(config)
 
 r_max = 1000e3
 
-nr = int(r_max / config.dx)
+nr = int(np.floor(r_max / config.dx))
 R = (np.arange(nr) + 0.5) * config.dx
 R_wall = (np.arange(1, nr)) * config.dx
 f = 3.77468e-5

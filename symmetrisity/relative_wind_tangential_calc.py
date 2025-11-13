@@ -5,21 +5,16 @@ import numpy as np
 from joblib import Parallel, delayed
 
 from utils.config import AnalysisConfig
+from utils.grid import GridHandler
 
 config = AnalysisConfig()
+grid = GridHandler(config)
 
 r_max = 1000e3
 
-# 格子点座標（m単位）
-x = (np.arange(config.nx) + 0.5) * config.dx
-y = (np.arange(config.ny) + 0.5) * config.dy
-X, Y = np.meshgrid(x, y)
-
-output_folder = f"./data/symmetrisity/relative_wind_tangential/"
+output_folder = "./data/symmetrisity/relative_wind_tangential/"
 
 os.makedirs(output_folder, exist_ok=True)
-
-rgrid = np.array([r * config.dx + config.dx / 2 for r in range(int(r_max / config.dx))])
 
 center_x_list = config.center_x
 center_y_list = config.center_y
@@ -31,26 +26,31 @@ def process_t(t):
     data_azim_mean = np.load(
         f"./data/azim/wind_relative_tangential/t{str(t).zfill(3)}.npy"
     )
+    max_bin = data_azim_mean.shape[1]  # azim_meanのビン数に合わせる
 
     # 中心座標（m単位）
     cx = center_x_list[t]
     cy = center_y_list[t]
 
-    R = np.sqrt((X - cx) ** 2 + (Y - cy) ** 2)
+    # 周期境界条件を考慮した距離計算
+    R = grid.calculate_radial_distance(cx, cy)
     mask = R <= r_max
     valid_r = R[mask]
-    bin_idx = (valid_r // config.dx).astype(int)
-    count_r = np.bincount(bin_idx)
 
-    azim_mean = np.full((config.nz, len(count_r)), np.nan)
+    # 統一されたビニング方法
+    bin_idx = np.floor(valid_r / config.dx).astype(int)
+    bin_idx = np.clip(bin_idx, 0, max_bin - 1)
 
     data = np.load(f"./data/3d/relative_wind_tangential/t{str(t).zfill(3)}.npy")
     print(f"3d data t: {t}, max: {data.max()}, min: {data.min()}")
 
     valid_data = data[:, mask]
-    azim_sum = np.zeros((config.nz, len(count_r)))
+    azim_sum = np.zeros((config.nz, max_bin))
+    count_r = np.zeros(max_bin, dtype=int)
+
     for i, b in enumerate(bin_idx):
         azim_sum[:, b] += (valid_data[:, i] - data_azim_mean[:, b]) ** 2
+        count_r[b] += 1
 
     # 割り算（ゼロ割回避）
     with np.errstate(divide="ignore", invalid="ignore"):
@@ -58,7 +58,7 @@ def process_t(t):
     symmetrisity = data_azim_mean**2 / (data_azim_mean**2 + azim_mean + 1e-20)
 
     print(
-        f"azim mean data t: {t}, max: {symmetrisity.max()}, min: {symmetrisity.min()}"
+        f"symmetrisity t: {t}, max: {np.nanmax(symmetrisity)}, min: {np.nanmin(symmetrisity)}"
     )
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", symmetrisity)
 

@@ -14,17 +14,15 @@ grid = GridHandler(config)
 
 mpl_style_sheet = parse_style_argument()
 
-radius = 1000e3
+# グリッド設定：データから実際のサイズを取得
+sample_data = np.load(f"./data/azim/eq_momentum_u/grad_p/t{str(config.t_first).zfill(3)}.npy")
+nz_data, nr_data = sample_data.shape
 
-nr = int(radius / config.dx)
+# vgrid と rgrid を作成 (shifted cell center: r=1+0.5, 2+0.5, ...)
+vgrid = grid.create_vertical_grid()[:nz_data] * 1e-3
+rgrid_wall = ((np.arange(nr_data) + 1) * config.dx + config.dx / 2) * 1e-3
 
-vgrid = np.loadtxt(config.vgrid_filepath)
-vgrid = vgrid * 1e-3
-rgrid_wall = (
-    np.array([r * config.dx + config.dx / 2 for r in range(1, int(nr) - 1)]) * 1e-3
-)
-
-X, Y = np.meshgrid(rgrid_wall, vgrid[:-1])
+X, Y = np.meshgrid(rgrid_wall, vgrid)
 
 output_folder = "./fig/azim/eq_momentum_u/grad_p/"
 

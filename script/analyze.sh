@@ -426,7 +426,6 @@ run_z_profile() {
     log_section "Z Profile Analysis"
     run_cmd "sh ${TC_ANALYZE}/z_profile/z_profile_calc.sh"
     run_cmd "sh ${TC_ANALYZE}/z_profile/z_profile_plot.sh"
-    run_cmd "python ${TC_ANALYZE}/z_profile/z_profile_absolute_plot.py ${STYLE}"
     run_cmd "sh ${TC_ANALYZE}/z_profile/vortex_region_calc.sh"
     run_cmd "sh ${TC_ANALYZE}/z_profile/vortex_region_plot.sh"
     run_cmd "python ${TC_ANALYZE}/z_profile/hf_calc.py"
@@ -495,8 +494,8 @@ run_azim_q8() {
 
 run_sums() {
     log_section "Sums Analysis"
-    run_cmd "python ${TC_ANALYZE}/sums/sums_calc.py"
-    run_cmd "python ${TC_ANALYZE}/sums/sums_plot.py ${STYLE}"
+    run_cmd "sh ${TC_ANALYZE}/sums/sums_calc.sh"
+    run_cmd "sh ${TC_ANALYZE}/sums/sums_plot.sh"
 }
 
 run_symmetrisity() {
@@ -511,8 +510,8 @@ run_symmetrisity() {
 
 run_z_profile_q4() {
     log_section "Z Profile Q4 Analysis"
-    run_cmd "python ${TC_ANALYZE}/z_profile_q4/zeta_calc.py"
-    run_cmd "python ${TC_ANALYZE}/z_profile_q4/zeta_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/z_profile_q4/vorticity_z_calc.py"
+    run_cmd "python ${TC_ANALYZE}/z_profile_q4/vorticity_z_plot.py ${STYLE}"
 }
 
 # ============================================================================

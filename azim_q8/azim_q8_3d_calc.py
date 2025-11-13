@@ -2,36 +2,20 @@
 import os
 import sys
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
 import numpy as np
 from joblib import Parallel, delayed
-import json
+
+from utils.config import AnalysisConfig
+
+config = AnalysisConfig()
 
 varname = sys.argv[1]
-
-# ファイルを開いてJSONを読み込む
-with open("setting.json", "r", encoding="utf-8") as f:
-    setting = json.load(f)
-glevel = setting["glevel"]
-nt = setting["nt"]
-dt = setting["dt_output"]
-dt_hour = int(dt / 3600)
-triangle_size = setting["triangle_size"]
-nx = 2**glevel
-ny = 2**glevel
-nz = 74
-x_width = triangle_size
-y_width = triangle_size * 0.5 * 3.0**0.5
-dx = x_width / nx
-dy = y_width / ny
-input_folder = setting["input_folder"]
-n_jobs = setting.get("n_jobs", 1)
 
 r_max = 1000e3
 
 # 格子点座標（m単位）
-x = (np.arange(nx) + 0.5) * dx
-y = (np.arange(ny) + 0.5) * dy
+x = (np.arange(config.nx) + 0.5) * config.dx
+y = (np.arange(config.ny) + 0.5) * config.dy
 X, Y = np.meshgrid(x, y)
 
 folder = f"./data/azim_q8/{varname}/"
@@ -43,7 +27,10 @@ center_y_list = config.center_y
 
 # データの読み込み
 data_all = np.memmap(
-    f"{input_folder}{varname}.grd", dtype=">f4", mode="r", shape=(nt, nz, ny, nx)
+    f"{config.input_folder}{varname}.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
 )
 
 
@@ -55,8 +42,8 @@ def process_t(t):
     dX = X - cx
     dY = Y - cy
     # 周期境界条件を考慮
-    dX = np.where(dX > x_width / 2, dX - x_width, dX)
-    dX = np.where(dX < -x_width / 2, dX + x_width, dX)
+    dX = np.where(dX > config.x_width / 2, dX - config.x_width, dX)
+    dX = np.where(dX < -config.x_width / 2, dX + config.x_width, dX)
     R = np.sqrt(dX**2 + dY**2)
     mask = R <= r_max
     valid_r = R[mask]
@@ -66,12 +53,13 @@ def process_t(t):
     theta = (theta - np.pi / 2) % (2 * np.pi)  # 北を0°にシフト
     sector = (theta // (np.pi / 4)).astype(int)  # 0〜7
 
-    bin_idx = (valid_r // dx).astype(int)
-    nbins = bin_idx.max() + 1
+    bin_idx = np.floor(valid_r / config.dx).astype(int)
+    max_bin = int(np.floor(r_max / config.dx))
+    bin_idx = np.clip(bin_idx, 0, max_bin - 1)
 
-    # 出力配列 (nz, nbins, 8 sectors)
-    azim_sum = np.zeros((nz, nbins, 8))
-    count_r = np.zeros((nbins, 8), dtype=int)
+    # 出力配列 (nz, max_bin, 8 sectors)
+    azim_sum = np.zeros((config.nz, max_bin, 8))
+    count_r = np.zeros((max_bin, 8), dtype=int)
 
     data = data_all[t]  # shape = (nz, ny, nx)
     print(f"3d data t: {t}, max: {data.max()}, min: {data.min()}")
@@ -95,4 +83,6 @@ def process_t(t):
     np.save(f"{folder}t{str(t).zfill(3)}.npy", azim_mean)
 
 
-Parallel(n_jobs=n_jobs)(delayed(process_t)(t) for t in range(nt))
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+)

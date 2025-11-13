@@ -6,6 +6,7 @@ tc_analyze.egg-info/dependency_links.txt
 tc_analyze.egg-info/requires.txt
 tc_analyze.egg-info/top_level.txt
 utils/__init__.py
+utils/basic.py
 utils/config.py
 utils/grid.py
 utils/plotting.py

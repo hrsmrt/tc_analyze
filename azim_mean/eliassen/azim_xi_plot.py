@@ -16,6 +16,12 @@ grid = GridHandler(config)
 
 mpl_style_sheet = parse_style_argument()
 
+# グリッド設定：データから実際のビン数を取得
+sample_data = np.load(f"./data/azim/eliassen/xi/t{str(config.t_first).zfill(3)}.npy")
+nr = sample_data.shape[1]
+R_MAX = nr * config.dx
+r_mesh, z_mesh = grid.create_radial_vertical_meshgrid(R_MAX)
+
 output_folder = "./fig/azim/eliassen/xi/"
 os.makedirs(output_folder, exist_ok=True)
 
@@ -24,7 +30,7 @@ def process_t(t):
     data = np.load(f"./data/azim/eliassen/xi/t{str(t).zfill(3)}.npy")
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(5, 2))
-    c = ax.contourf(grid.X * 1e-3, grid.Y * 1e-3, data, cmap="rainbow", extend="both")
+    c = ax.contourf(r_mesh * 1e-3, z_mesh * 1e-3, data, cmap="rainbow", extend="both")
     cbar = fig.colorbar(c, ax=ax)
     # cbar.set_ticks([300,400])
     ax.set_ylim([0, 20])
