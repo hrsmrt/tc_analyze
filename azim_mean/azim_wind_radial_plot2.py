@@ -14,14 +14,11 @@ grid = GridHandler(config)
 
 mpl_style_sheet = parse_style_argument()
 
-radius = 1000e3
-
-nr = int(radius / config.dx)
-
-vgrid = grid.create_vertical_grid()
-# rgrid generated via grid.create_radial_vertical_meshgrid
-
-X, Y = grid.create_radial_vertical_meshgrid(1000e3)
+# グリッド設定：データから実際のビン数を取得
+sample_data = np.load(f"./data/azim/wind_radial2/t{str(config.t_first).zfill(3)}.npy")
+nr = sample_data.shape[1]
+R_MAX = nr * config.dx
+r_mesh, z_mesh = grid.create_radial_vertical_meshgrid(R_MAX)
 
 folder = "./fig/azim/wind_radial/b/"
 
@@ -33,7 +30,7 @@ def process_t(t):
 
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(5, 2))
-    c = ax.contourf(X, Y, data, cmap="bwr", levels=np.arange(-15, 16, 3), extend="both")
+    c = ax.contourf(r_mesh, z_mesh, data, cmap="bwr", levels=np.arange(-15, 16, 3), extend="both")
     cbar = fig.colorbar(c, ax=ax)
     cbar.set_ticks([-15, 0, 15])
     ax.set_title(f"方位角平均動径風 t = {config.time_list[t]} hour")

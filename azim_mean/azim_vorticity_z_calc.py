@@ -31,16 +31,20 @@ def process_t(t):
     R = np.sqrt((X - cx) ** 2 + (Y - cy) ** 2)
     mask = R <= r_max
     valid_r = R[mask]
-    bin_idx = (valid_r // config.dx).astype(int)
-    count_r = np.bincount(bin_idx)
 
-    azim_mean = np.full((config.nz, len(count_r)), np.nan)
+    bin_idx = np.floor(valid_r / config.dx).astype(int)
+    max_bin = int(np.floor(r_max / config.dx))
+    bin_idx = np.clip(bin_idx, 0, max_bin - 1)  # 範囲外を防ぐ
+
+    count_r = np.bincount(bin_idx, minlength=max_bin)
+
+    azim_mean = np.full((config.nz, max_bin), np.nan)
 
     data = np.load(f"./data/3d/vorticity_z/vor_t{str(t).zfill(3)}.npy")
     print(f"3d data t: {t}, max: {data.max()}, min: {data.min()}")
 
     valid_data = data[:, mask]
-    azim_sum = np.zeros((config.nz, len(count_r)))
+    azim_sum = np.zeros((config.nz, max_bin))
     for i, b in enumerate(bin_idx):
         azim_sum[:, b] += valid_data[:, i]
     # 割り算（ゼロ割回避）

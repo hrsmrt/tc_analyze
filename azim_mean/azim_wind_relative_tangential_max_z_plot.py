@@ -15,14 +15,8 @@ grid = GridHandler(config)
 
 mpl_style_sheet = parse_style_argument()
 
-radius = 1000e3
-
-nr = int(radius / config.dx)
-
+# グリッド設定
 vgrid = grid.create_vertical_grid()
-# rgrid generated via grid.create_radial_vertical_meshgrid
-
-X, Y = grid.create_radial_vertical_meshgrid(1000e3)
 
 output_folder = "./fig/azim/wind_relative_tangential_max_z/"
 

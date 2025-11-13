@@ -33,10 +33,14 @@ def process_t(t):
     R = np.sqrt((X - cx) ** 2 + (Y - cy) ** 2)
     mask = R <= r_max
     valid_r = R[mask]
-    bin_idx = (valid_r // config.dx).astype(int)
-    count_r = np.bincount(bin_idx)
 
-    azim_mean = np.full((len(count_r)), np.nan)
+    bin_idx = np.floor(valid_r / config.dx).astype(int)
+    max_bin = int(np.floor(r_max / config.dx))
+    bin_idx = np.clip(bin_idx, 0, max_bin - 1)  # 範囲外を防ぐ
+
+    count_r = np.bincount(bin_idx, minlength=max_bin)
+
+    azim_mean = np.full(max_bin, np.nan)
 
     # データの読み込み
     count_2d = config.nx * config.ny
@@ -48,7 +52,7 @@ def process_t(t):
     print(f"2d data t: {t}, max: {data.max()}, min: {data.min()}")
 
     valid_data = data[mask]
-    data_r = np.bincount(bin_idx, weights=valid_data)
+    data_r = np.bincount(bin_idx, weights=valid_data, minlength=max_bin)
 
     # 割り算（ゼロ割回避）
     with np.errstate(divide="ignore", invalid="ignore"):

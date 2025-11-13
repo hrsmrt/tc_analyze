@@ -13,28 +13,27 @@ from utils.config import AnalysisConfig
 
 config = AnalysisConfig()
 
-r_max = 1000e3
+OUTPUT_FOLDER = "./data/azim/theta_e/"
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-nr = int(r_max / config.dx)
-R = (np.arange(nr) + 0.5) * config.dx
-f = 3.77468e-5
-
-output_folder = "./data/azim/theta_e/"
-os.makedirs(output_folder, exist_ok=True)
-
-pres_s = 100000  # 基準気圧 Pa
-Rd = 287.05  # 気体定数 J/(kg·K)
-Cp = 1005  # 定圧比熱 J/(kg·K)
-L = 2.5e6  # 蒸発潜熱 J/kg
+# 物理定数
+PRES_SURFACE = 100000  # 基準気圧 Pa
+GAS_CONST_DRY = 287.05  # 乾燥大気の気体定数 J/(kg·K)
+HEAT_CAPACITY = 1005  # 定圧比熱 J/(kg·K)
+LATENT_HEAT = 2.5e6  # 蒸発潜熱 J/kg
 
 
 def process_t(t):
-    tem = np.load(f"./data/azim/ms_tem/t{str(t).zfill(3)}.npy")
-    pres = np.load(f"./data/azim/ms_pres/t{str(t).zfill(3)}.npy")
-    qv = np.load(f"./data/azim/ms_qv/t{str(t).zfill(3)}.npy")
-    rv = qv / (1 - qv)
-    theta_e = tem * (pres_s / pres) ** (Rd / Cp) * np.exp(L * rv / (Cp * tem))
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", theta_e)
+    temperature = np.load(f"./data/azim/ms_tem/t{str(t).zfill(3)}.npy")
+    pressure = np.load(f"./data/azim/ms_pres/t{str(t).zfill(3)}.npy")
+    specific_humidity = np.load(f"./data/azim/ms_qv/t{str(t).zfill(3)}.npy")
+    mixing_ratio = specific_humidity / (1 - specific_humidity)
+    theta_e = (
+        temperature
+        * (PRES_SURFACE / pressure) ** (GAS_CONST_DRY / HEAT_CAPACITY)
+        * np.exp(LATENT_HEAT * mixing_ratio / (HEAT_CAPACITY * temperature))
+    )
+    np.save(f"{OUTPUT_FOLDER}t{str(t).zfill(3)}.npy", theta_e)
     print(f"t={t} done")
 
 

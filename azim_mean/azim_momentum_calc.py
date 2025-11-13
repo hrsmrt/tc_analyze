@@ -11,21 +11,19 @@ from utils.config import AnalysisConfig
 
 config = AnalysisConfig()
 
-time_list = config.time_list
+CORIOLIS_PARAM = config.f
 
-f = config.f
-
-output_folder = "./data/azim/momentum/"
-os.makedirs(output_folder, exist_ok=True)
+OUTPUT_FOLDER = "./data/azim/momentum/"
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 
 def process_t(t):
     u_tangential = np.load(f"./data/azim/wind_tangential/t{str(t).zfill(3)}.npy")
     # データの形状から半径方向のビン数を取得
     nr = u_tangential.shape[1]
-    R = (np.arange(nr) + 0.5) * config.dx
-    M = R * u_tangential + 0.5 * f * R**2
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", M)
+    rgrid = (np.arange(nr) + 0.5) * config.dx
+    momentum = rgrid * u_tangential + 0.5 * CORIOLIS_PARAM * rgrid**2
+    np.save(f"{OUTPUT_FOLDER}t{str(t).zfill(3)}.npy", momentum)
     print(f"t={t} done")
 
 

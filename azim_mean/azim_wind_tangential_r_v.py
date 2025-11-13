@@ -1,6 +1,5 @@
 # python $WORK/tc_analyze/azim_mean/azim_wind_tangential_r_v.py $style
 import os
-import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,24 +7,19 @@ from joblib import Parallel, delayed
 
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
+from utils.plotting import parse_style_argument
 
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-if len(sys.argv) > 1:
-    mpl_style_sheet = sys.argv[1]
-    print(f"Using style: {mpl_style_sheet}")
-else:
-    print("No style sheet specified, using default.")
+mpl_style_sheet = parse_style_argument()
 
-radius = 1000e3
-
-nr = int(radius / config.dx)
-
+# グリッド設定：データから実際のビン数を取得
+sample_data = np.load(f"./data/azim/wind_tangential/t{str(config.t_first).zfill(3)}.npy")
+nr = sample_data.shape[1]
+R_MAX = nr * config.dx
+rgrid = grid.create_radial_grid(R_MAX)
 vgrid = grid.create_vertical_grid()
-rgrid = grid.create_radial_grid(radius)
-
-X, Y = grid.create_radial_vertical_meshgrid(1000e3)
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
 

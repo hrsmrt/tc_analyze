@@ -48,8 +48,12 @@ def process_t(t):
     R = np.minimum(R, R2)
     mask = R <= r_max
     valid_r = R[mask]
-    bin_idx = (valid_r // config.dx).astype(int)
-    count_r = np.bincount(bin_idx)
+
+    bin_idx = np.floor(valid_r / config.dx).astype(int)
+    max_bin = int(np.floor(r_max / config.dx))
+    bin_idx = np.clip(bin_idx, 0, max_bin - 1)  # 範囲外を防ぐ
+
+    count_r = np.bincount(bin_idx, minlength=max_bin)
 
     data_u = np.load(f"./data/3d/relative_u/t{str(t).zfill(3)}.npy")
     data_v = np.load(f"./data/3d/relative_v/t{str(t).zfill(3)}.npy")
@@ -62,7 +66,7 @@ def process_t(t):
         theta[mask]
     )
 
-    azim_sum_radial = np.zeros((config.nz, len(count_r)))
+    azim_sum_radial = np.zeros((config.nz, max_bin))
     for i, b in enumerate(bin_idx):
         azim_sum_radial[:, b] += v_radial[:, i]
     # 割り算（ゼロ割回避）
@@ -74,7 +78,7 @@ def process_t(t):
     )
     np.save(f"{output_folder1}t{str(t).zfill(3)}.npy", azim_mean_radial)
 
-    azim_sum_tangential = np.zeros((config.nz, len(count_r)))
+    azim_sum_tangential = np.zeros((config.nz, max_bin))
     for i, b in enumerate(bin_idx):
         azim_sum_tangential[:, b] += v_tangential[:, i]
     # 割り算（ゼロ割回避）

@@ -15,30 +15,40 @@ grid = GridHandler(config)
 
 mpl_style_sheet = parse_style_argument()
 
-vgrid = np.loadtxt(config.vgrid_filepath)
+# グリッド設定：データから実際のビン数を取得
+sample_data = np.load(f"./data/azim/momentum/t{str(config.t_first).zfill(3)}.npy")
+nr = sample_data.shape[1]
+R_MAX = nr * config.dx
+r_mesh, z_mesh = grid.create_radial_vertical_meshgrid(R_MAX)
 
-output_folder = "./fig/azim/momentum/"
-os.makedirs(output_folder, exist_ok=True)
+# km単位に変換
+r_mesh_km = r_mesh * 1e-3
+z_mesh_km = z_mesh * 1e-3
+
+OUTPUT_FOLDER = "./fig/azim/momentum/"
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"./data/azim/momentum/t{str(t).zfill(3)}.npy")
-    # データの形状から半径方向のグリッドを作成
-    nr = data.shape[1]
-    xgrid = np.arange(nr) * config.dx
-    X, Y = np.meshgrid(xgrid, vgrid)
+    momentum_data = np.load(f"./data/azim/momentum/t{str(t).zfill(3)}.npy")
+
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(5, 2))
-    c = ax.contourf(
-        X, Y, data, levels=np.arange(0, 2.8e7, 0.4e7), cmap="rainbow", extend="both"
+    contour_filled = ax.contourf(
+        r_mesh_km,
+        z_mesh_km,
+        momentum_data,
+        levels=np.arange(0, 2.8e7, 0.4e7),
+        cmap="rainbow",
+        extend="both",
     )
-    cbar = fig.colorbar(c, ax=ax)
-    cbar.set_ticks([0, 2.8e7])
-    ax.set_ylim([0, 20e3])
+    colorbar = fig.colorbar(contour_filled, ax=ax)
+    colorbar.set_ticks([0, 2.8e7])
+    ax.set_ylim([0, 20])
     ax.set_title(f"角運動量 t = {config.time_list[t]} hour")
     ax.set_xlabel("半径 [km]")
     ax.set_ylabel("高度 [km]")
-    fig.savefig(f"{output_folder}t{str(t).zfill(3)}.png")
+    fig.savefig(f"{OUTPUT_FOLDER}t{str(t).zfill(3)}.png")
     plt.close()
     print(f"t={t} done")
 
