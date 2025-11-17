@@ -1,9 +1,4 @@
-"""
-whole_domain
-
-解析処理を実行します。
-"""
-
+"""Plot 3D data over whole domain."""
 # python $WORK/tc_analyze/3d/whole_domain.py varname $style
 import os
 import sys

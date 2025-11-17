@@ -1,9 +1,4 @@
-"""
-ms_wind_radial のプロット
-
-プロット処理を実行します。
-"""
-
+"""Plot radial wind component over vortex region."""
 # python $WORK/tc_analyze/3d/ms_wind_radial_plot.py $style
 import os
 
@@ -27,7 +22,7 @@ EXTENT = 500e3
 center_x_list = config.center_x
 center_y_list = config.center_y
 
-os.makedirs(str(f"./fig/3d/vortex_region/wind_radial/"), exist_ok=True)
+os.makedirs("./fig/3d/vortex_region/wind_radial/", exist_ok=True)
 
 X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)
 
@@ -39,6 +34,14 @@ vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
 
 def process_t(t):
+    """
+    Process a single time step to create radial wind plots.
+
+    Parameters
+    ----------
+    t : int
+        Time step index
+    """
     data_t = np.load(f"./data/3d/wind_radial/t{str(t).zfill(3)}.npy")
     center_x = center_x_list[t]
     center_y = center_y_list[t]

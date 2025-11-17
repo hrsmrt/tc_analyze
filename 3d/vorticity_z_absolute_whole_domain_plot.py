@@ -1,9 +1,4 @@
-"""
-vorticity_z_absolute_whole_domain のプロット
-
-プロット処理を実行します。
-"""
-
+"""Plot 3D absolute vorticity field over whole domain."""
 # python $WORK/tc_analyze/3d/vorticity_z_absolute_whole_domain_plot.py $style
 import os
 
@@ -24,7 +19,7 @@ config = AnalysisConfig()
 grid = GridHandler(config)
 F = config.f
 
-OUTPUT_DIR = f"./fig/3d/whole_domain/vorticity_z_absolute/"
+OUTPUT_DIR = "./fig/3d/whole_domain/vorticity_z_absolute/"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
@@ -35,6 +30,14 @@ vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
 
 def process_t(t):
+    """
+    Process a single time step to create absolute vorticity plots.
+
+    Parameters
+    ----------
+    t : int
+        Time step index
+    """
     data_z = np.memmap(
         f"./data/3d/vorticity_z/vor_t{str(t).zfill(3)}.npy",
         dtype=np.float32,

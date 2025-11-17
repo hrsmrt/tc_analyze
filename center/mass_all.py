@@ -1,3 +1,4 @@
+"""Calculate and plot total domain mass."""
 # python $WORK/tc_analyze/center/mass_all.py $style
 import os
 

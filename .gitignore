@@ -6,3 +6,4 @@ run/
 specific/
 *.backup
 pylint*
+memo.md

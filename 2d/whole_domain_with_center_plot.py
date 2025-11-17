@@ -1,3 +1,4 @@
+"""Plot 2D whole domain data with tropical cyclone center marked."""
 # python $WORK/tc_analyze/2d/whole_domain_with_center_plot.py varname $style
 import os
 import sys
@@ -15,7 +16,7 @@ from utils.plotting import parse_style_argument
 VARNAME = sys.argv[1]
 mpl_style_sheet = parse_style_argument()
 
-original_cmap = plt.cm.rainbow
+original_cmap = plt.cm.get_cmap('rainbow')
 colors = original_cmap(np.linspace(0, 1, 256))  # 元のカラーマップの色を取得
 colors[:3] = [1, 1, 1, 1]  # 0に相当する位置（真ん中）を白に変更
 custom_rainbow = ListedColormap(colors)
@@ -319,7 +320,7 @@ def process_t(t):
         case "ss_slp":
             levels_fine = np.arange(800, 1030 + 2, 2)  # 2 hPa間隔
             levels_bold = np.arange(800, 1030 + 10, 10)  # 10 hPa間隔
-            cf1 = ax.contour(
+            _ = ax.contour(
                 grid.X * 1e-3,
                 grid.Y * 1e-3,
                 data / 100,
@@ -328,7 +329,7 @@ def process_t(t):
                 colors="black",
                 linewidths=0.3,
             )
-            cf2 = ax.contour(
+            _ = ax.contour(
                 grid.X * 1e-3,
                 grid.Y * 1e-3,
                 data / 100,

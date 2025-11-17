@@ -1,3 +1,4 @@
+"""Plot time series of maximum 10m wind speed."""
 # python $WORK/tc_analyze/analyze/2d/ss_wind10m_max_plot.py $style
 import os
 
@@ -12,7 +13,7 @@ mpl_style_sheet = parse_style_argument()
 # 設定の初期化
 config = AnalysisConfig()
 
-folder = f"./fig/ss_wind10m/"
+folder = "./fig/ss_wind10m/"
 os.makedirs(folder, exist_ok=True)
 
 # データの読み込み

@@ -1,3 +1,4 @@
+"""Plot time series of minimum sea level pressure."""
 # python $WORK/tc_analyze/2d/ss_slp_min_plot.py $style
 import os
 
@@ -12,11 +13,11 @@ mpl_style_sheet = parse_style_argument()
 # 設定の初期化
 config = AnalysisConfig()
 
-folder = f"./fig/center/"
+folder = "./fig/center/"
 os.makedirs(folder, exist_ok=True)
 
 # データの読み込み
-data = np.load(f"./data/ss_slp_min.npy")
+data = np.load("./data/ss_slp_min.npy")
 
 # プロット
 plt.style.use(mpl_style_sheet)

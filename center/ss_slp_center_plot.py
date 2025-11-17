@@ -1,3 +1,4 @@
+"""Plot tropical cyclone center trajectory on sea level pressure field."""
 # python $WORK/tc_analyze/center/ss_slp_center_plot.py $style
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,7 +23,7 @@ y_c_evo = config.center_y
 plt.style.use(mpl_style_sheet)
 fig, ax = plt.subplots(figsize=(5, 4))
 # colormap と正規化
-cmap = cm.rainbow
+cmap = 'rainbow'
 norm = plt.Normalize(0, config.nt)
 # 散布図でプロット
 fig, ax = plt.subplots(figsize=(5, 4))

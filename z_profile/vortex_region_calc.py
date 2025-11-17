@@ -1,19 +1,20 @@
+"""Calculate vertical profile over vortex region for specified variable."""
 # python $WORK/tc_analyze/z_profile/vortex_region_calc.py varname
 
-from utils.config import AnalysisConfig
 import os
 import sys
 
-# 実行ファイル（この.pyファイル）を基準に相対パスを指定
 import numpy as np
 from joblib import Parallel, delayed
+
+from utils.config import AnalysisConfig
 
 varname = sys.argv[1]
 
 
 config = AnalysisConfig()
 
-output_dir = f"./data/z_profile/vortex_region/"
+output_dir = "./data/z_profile/vortex_region/"
 os.makedirs(output_dir, exist_ok=True)
 
 center_x_list = config.center_x

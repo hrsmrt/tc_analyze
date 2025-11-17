@@ -1,9 +1,4 @@
-"""
-vorticity_z_vortex_region のプロット
-
-プロット処理を実行します。
-"""
-
+"""Plot vertical vorticity over vortex region."""
 # python $WORK/tc_analyze/3d/vorticity_z_vortex_region_plot.py $style
 import os
 

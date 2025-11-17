@@ -1,3 +1,5 @@
+"""Basic physical constants and utility functions for atmospheric calculations."""
+
 import numpy as np
 
 # 基礎定数
@@ -28,39 +30,84 @@ g0 = 9.80665 # m/s2. Holton and Hakim(2014)p19
 
 Cp_dry = 1004 # J/(kg K). 乾燥空気の定圧比熱
 
-DryAir_weight = 0.78*N2_weight + 0.21*O2_weight + 9.3e-3*Ar_weight + 3.9e-4*CO2_weight + 1.8e-5*Ne_weight + 5.2e-6*He_weight
+DryAir_weight = (0.78 * N2_weight + 0.21 * O2_weight + 9.3e-3 * Ar_weight
+                 + 3.9e-4 * CO2_weight + 1.8e-5 * Ne_weight
+                 + 5.2e-6 * He_weight)
 Rd = R / DryAir_weight * 1e3 # 乾燥空気の気体定数 [J/(kg K)]
 Rv = R / H2O_weight * 1e3 # 水蒸気の気体定数 [J/(kg K)]
 
 # Tetensの式, Satoh(2013) p256
 def tetens(T):
-  if (T > 273.15):
-    A = 7.5
-    B = 237.3
-  else:
-    A = 9.5
-    B = 265.5
-  T0 = 273.15
-  p0 = 6.1078e2 # Pa
-  T_ = T - T0
-  es = p0 * np.power(10,A * T_/ (B + T_))
-  return es
+    """
+    Calculate saturation vapor pressure using Tetens formula.
+
+    Parameters
+    ----------
+    T : float or ndarray
+        Temperature [K]
+
+    Returns
+    -------
+    es : float or ndarray
+        Saturation vapor pressure [Pa]
+    """
+    if T > 273.15:
+        A = 7.5
+        B = 237.3
+    else:
+        A = 9.5
+        B = 265.5
+    T0 = 273.15
+    p0 = 6.1078e2  # Pa
+    T_ = T - T0
+    es = p0 * np.power(10, A * T_ / (B + T_))
+    return es
 # Goff-Gratch formula, Satoh(2013) p256
-def goff_gratch(T): # おそらく、氷点下以下に対しては係数を変える必要がある
-  Ts = 373.16
-  t = T/Ts
-  ps = 101324.6 # Pa
-  a = -7.90298*(1/t-1)-5.02808*np.log10(t) \
-      -1.3816e-7*(np.power(10,11.344*(1-t))-1) \
-      +8.1328e-3*(np.power(10,-3.19149*(1/t-1))-1)
-  es = ps * np.power(10,a)
-  return es
+def goff_gratch(T):
+    """
+    Calculate saturation vapor pressure using Goff-Gratch formula.
+
+    Note: Coefficients may need to be adjusted for temperatures below freezing.
+
+    Parameters
+    ----------
+    T : float or ndarray
+        Temperature [K]
+
+    Returns
+    -------
+    es : float or ndarray
+        Saturation vapor pressure [Pa]
+    """
+    Ts = 373.16
+    t = T / Ts
+    ps = 101324.6  # Pa
+    a = (-7.90298 * (1 / t - 1) - 5.02808 * np.log10(t)
+         - 1.3816e-7 * (np.power(10, 11.344 * (1 - t)) - 1)
+         + 8.1328e-3 * (np.power(10, -3.19149 * (1 / t - 1)) - 1))
+    es = ps * np.power(10, a)
+    return es
 
 def potential_temperature(T, p):
-  p0 = 1e5 # Pa
-  kappa = Rd / Cp_dry
-  theta = T * (p0 / p)**kappa
-  return theta
+    """
+    Calculate potential temperature.
+
+    Parameters
+    ----------
+    T : float or ndarray
+        Temperature [K]
+    p : float or ndarray
+        Pressure [Pa]
+
+    Returns
+    -------
+    theta : float or ndarray
+        Potential temperature [K]
+    """
+    p0 = 1e5  # Pa
+    kappa = Rd / Cp_dry
+    theta = T * (p0 / p)**kappa
+    return theta
 
 if __name__ == "__main__":
     print(k_boltzmann,"ボルツマン定数 [J/K]")

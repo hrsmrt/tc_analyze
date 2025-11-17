@@ -1,9 +1,4 @@
-"""
-psi のプロット
-
-プロット処理を実行します。
-"""
-
+"""Plot streamfunction (psi) field."""
 # python $WORK/tc_analyze/3d/psi_plot.py $style
 import os
 

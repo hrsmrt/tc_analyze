@@ -1,9 +1,4 @@
-"""
-vortex_region
-
-解析処理を実行します。
-"""
-
+"""Plot 3D data over vortex region."""
 # python $WORK/tc_analyze/3d/vortex_region.py VARNAME $style
 import os
 import sys

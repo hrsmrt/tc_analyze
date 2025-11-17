@@ -1,3 +1,4 @@
+"""Calculate minimum sea level pressure at each time step."""
 # python $WORK/tc_analyze/2d/ss_slp_min_calc.py
 import os
 

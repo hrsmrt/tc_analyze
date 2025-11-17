@@ -1,3 +1,4 @@
+"""Calculate vertical profile for specified variable."""
 # python $WORK/tc_analyze/z_profile/z_profile_calc.py
 
 import os

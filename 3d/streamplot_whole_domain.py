@@ -1,9 +1,4 @@
-"""
-streamplot_whole_domain
-
-解析処理を実行します。
-"""
-
+"""Plot streamlines over whole domain."""
 # python $WORK/tc_analyze/3d/streamplot_whole_domain.py $style
 import os
 

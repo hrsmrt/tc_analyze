@@ -1,7 +1,10 @@
+"""Calculate tropical cyclone center from sea level pressure minimum."""
 # python $WORK/tc_analyze/center/ss_slp_center_calc.py
-from utils.config import AnalysisConfig
+
 import numpy as np
 from joblib import Parallel, delayed
+
+from utils.config import AnalysisConfig
 
 r_max_ite = 100e3
 

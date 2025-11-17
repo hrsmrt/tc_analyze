@@ -1,3 +1,4 @@
+"""Plot 10m wind speed over vortex region (alternative version)."""
 # python $WORK/tc_analyze/2d/ss_wind10m_abs_vortex_region2.py $style
 import os
 
@@ -13,7 +14,7 @@ from utils.plotting import parse_style_argument, set_vortex_region_ticks_km_empt
 
 mpl_style_sheet = parse_style_argument()
 
-original_cmap = plt.cm.rainbow
+original_cmap = plt.cm.get_cmap('rainbow')
 colors = original_cmap(np.linspace(0, 1, 256))  # 元のカラーマップの色を取得
 colors[:20] = [1, 1, 1, 1]  # 下限の20色を白に設定
 custom_cmap = ListedColormap(colors)

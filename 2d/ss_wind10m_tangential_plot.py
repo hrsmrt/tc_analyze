@@ -1,3 +1,4 @@
+"""Plot tangential component of 10m wind."""
 # python $WORK/tc_analyze/analyze/2d/ss_wind10m_tangential_plot.py $style
 import os
 
@@ -13,7 +14,7 @@ from utils.plotting import parse_style_argument, set_vortex_region_ticks_km_empt
 
 mpl_style_sheet = parse_style_argument()
 
-original_cmap = plt.cm.rainbow
+original_cmap = plt.cm.get_cmap('rainbow')
 colors = original_cmap(np.linspace(0, 1, 256))  # 元のカラーマップの色を取得
 colors[:40] = [1, 1, 1, 1]  # 0に相当する位置（真ん中）を白に変更
 custom_cmap = ListedColormap(colors)

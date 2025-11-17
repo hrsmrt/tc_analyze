@@ -1,9 +1,4 @@
-"""
-theta_e_vortex_region のプロット
-
-プロット処理を実行します。
-"""
-
+"""Plot equivalent potential temperature over vortex region."""
 # python $WORK/tc_analyze/3d/theta_e_plot_vortex_region.py $style
 import os
 

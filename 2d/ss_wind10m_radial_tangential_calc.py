@@ -1,3 +1,4 @@
+"""Calculate radial and tangential components of 10m wind."""
 # python $WORK/tc_analyze/analyze/2d/ss_wind10m_radial_tangential_calc.py
 import os
 
@@ -11,8 +12,8 @@ from utils.grid import GridHandler
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-folder1 = f"./data/2d/wind10m_radial/"
-folder2 = f"./data/2d/wind10m_tangential/"
+folder1 = "./data/2d/wind10m_radial/"
+folder2 = "./data/2d/wind10m_tangential/"
 
 os.makedirs(folder1, exist_ok=True)
 os.makedirs(folder2, exist_ok=True)
@@ -35,6 +36,14 @@ data_all_v = np.memmap(
 
 
 def process_t(t):
+    """
+    Process a single time step to calculate radial and tangential wind components.
+
+    Parameters
+    ----------
+    t : int
+        Time step index
+    """
     # 中心座標（m単位）
     cx = center_x_list[t]
     cy = center_y_list[t]

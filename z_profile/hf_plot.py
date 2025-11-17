@@ -1,3 +1,4 @@
+"""Plot moist static energy vertical profile."""
 # nohup python $WORK/tc_analyze/z_profile/hf_plot.py $style
 # hf: moist static energy, Nolan+2007 (3)式
 

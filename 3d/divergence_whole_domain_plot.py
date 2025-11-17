@@ -1,6 +1,5 @@
-"""
-python $WORK/tc_analyze/3d/divergence_whole_domain_plot.py $style
-"""
+"""Plot 3D divergence field over whole domain."""
+# python $WORK/tc_analyze/3d/divergence_whole_domain_plot.py $style
 
 import os
 
@@ -21,7 +20,7 @@ config = AnalysisConfig()
 grid = GridHandler(config)
 F = config.f
 
-OUTPUT_DIR = f"./fig/3d/whole_domain/divergence/"
+OUTPUT_DIR = "./fig/3d/whole_domain/divergence/"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
@@ -32,6 +31,14 @@ vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
 
 def process_t(t):
+    """
+    Process a single time step to create divergence plots.
+
+    Parameters
+    ----------
+    t : int
+        Time step index
+    """
     data_z = np.memmap(
         f"./data/3d/divergence/div_t{str(t).zfill(3)}.npy",
         dtype=np.float32,

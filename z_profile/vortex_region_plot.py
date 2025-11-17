@@ -1,3 +1,4 @@
+"""Plot vertical profile over vortex region for specified variable."""
 # python $WORK/tc_analyze/z_profile/vortex_region_plot.py varname $style
 
 import os

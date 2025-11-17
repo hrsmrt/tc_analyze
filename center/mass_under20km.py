@@ -1,3 +1,4 @@
+"""Calculate and plot mass below 20km altitude."""
 # python $WORK/tc_analyze/center/mass_under20km.py $style
 import os
 
