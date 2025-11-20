@@ -7,3 +7,4 @@ specific/
 *.backup
 pylint*
 memo.md
+sample/
