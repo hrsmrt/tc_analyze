@@ -17,7 +17,8 @@ from utils.grid import GridHandler
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-os.makedirs("./data/3d/relative_u", exist_ok=True)
+OUTPUT_FOLDER = config.get_data_path("3d", "relative_u")
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 x_axis = np.arange(0.5 * config.dx, config.nx * config.dx, config.dx) * 1e-3
 y_axis = np.arange(0.5 * config.dy, config.ny * config.dy, config.dy) * 1e-3
@@ -42,8 +43,8 @@ def process_t(t):
     """指定された時刻tのrelative_uを計算する"""
     data = data_memmap[t, :, :, :]
     data_rel = data - center_u_list[t]
-    np.save(f"./data/3d/relative_u/t{str(t).zfill(3)}.npy", data_rel)
-    print(f"Saved: ./data/3d/relative_u/t{str(t).zfill(3)}.npy")
+    np.save(f"{OUTPUT_FOLDER}/t{str(t).zfill(3)}.npy", data_rel)
+    print(f"Saved: {OUTPUT_FOLDER}/t{str(t).zfill(3)}.npy")
 
 
 Parallel(n_jobs=config.n_jobs)(

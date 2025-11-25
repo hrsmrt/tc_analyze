@@ -19,13 +19,19 @@ class AnalysisConfig:
     Attributes:
         glevel (int): グリッドレベル
         nt (int): 時間ステップ数
+        t_first (int): 解析開始時刻のインデックス
+        t_last (int): 解析終了時刻のインデックス
+        t_step (int): 時間ループのステップ間隔
         dt_output (int): 出力時間間隔（秒）
+        dt_hour (int): 出力時間間隔（時間）
         triangle_size (float): 三角形サイズ
         nz (int): 鉛直レベル数
         f (float): コリオリパラメータ
         input_folder (str): 入力データフォルダパス
         work_dir (str): 作業ディレクトリ
         vgrid_filepath (str): 鉛直グリッドファイルパス
+        data_dir (str): データ出力の基底ディレクトリ
+        fig_dir (str): 図出力の基底ディレクトリ
     """
 
     # デフォルト定数（全ファイルで共通のハードコード値）
@@ -84,6 +90,11 @@ class AnalysisConfig:
         return self._data.get("t_last", self.nt)
 
     @property
+    def t_step(self) -> int:
+        """時間ループのステップ間隔"""
+        return self._data.get("t_step", 1)
+
+    @property
     def dt_output(self) -> int:
         """出力時間間隔（秒）"""
         return self._data["dt_output"]
@@ -91,7 +102,7 @@ class AnalysisConfig:
     @property
     def dt_hour(self) -> int:
         """出力時間間隔（時間）"""
-        return int(self.dt_output / 3600)
+        return self._data.get("dt_hour", int(self.dt_output / 3600))
 
     @property
     def triangle_size(self) -> float:
@@ -132,6 +143,16 @@ class AnalysisConfig:
     def n_jobs(self) -> int:
         """並列処理のジョブ数"""
         return self._data.get("n_jobs", 1)
+
+    @property
+    def data_dir(self) -> str:
+        """データ出力の基底ディレクトリ"""
+        return self._data.get("data_dir", "./data")
+
+    @property
+    def fig_dir(self) -> str:
+        """図出力の基底ディレクトリ"""
+        return self._data.get("fig_dir", "./fig")
 
     # === 計算された設定値 ===
 
@@ -181,7 +202,8 @@ class AnalysisConfig:
         if not hasattr(self, "_center_x"):
             import numpy as np
 
-            self._center_x = np.loadtxt("./data/ss_slp_center_x.txt", ndmin=1)
+            center_x_path = os.path.join(self.data_dir, "ss_slp_center_x.txt")
+            self._center_x = np.loadtxt(center_x_path, ndmin=1)
         return self._center_x
 
     @property
@@ -190,8 +212,43 @@ class AnalysisConfig:
         if not hasattr(self, "_center_y"):
             import numpy as np
 
-            self._center_y = np.loadtxt("./data/ss_slp_center_y.txt", ndmin=1)
+            center_y_path = os.path.join(self.data_dir, "ss_slp_center_y.txt")
+            self._center_y = np.loadtxt(center_y_path, ndmin=1)
         return self._center_y
+
+    # === パス生成用のヘルパーメソッド ===
+
+    def get_data_path(self, *paths: str) -> str:
+        """
+        データディレクトリ配下のパスを生成
+
+        Args:
+            *paths: パスの構成要素（例: "3d", "relative_wind_radial"）
+
+        Returns:
+            str: 完全なパス（例: "./data/3d/relative_wind_radial"）
+
+        Example:
+            >>> config.get_data_path("3d", "relative_wind_radial")
+            "./data/3d/relative_wind_radial"
+        """
+        return os.path.join(self.data_dir, *paths)
+
+    def get_fig_path(self, *paths: str) -> str:
+        """
+        図ディレクトリ配下のパスを生成
+
+        Args:
+            *paths: パスの構成要素（例: "3d", "vortex_region", "relative_wind_radial"）
+
+        Returns:
+            str: 完全なパス（例: "./fig/3d/vortex_region/relative_wind_radial"）
+
+        Example:
+            >>> config.get_fig_path("3d", "vortex_region", "relative_wind_radial")
+            "./fig/3d/vortex_region/relative_wind_radial"
+        """
+        return os.path.join(self.fig_dir, *paths)
 
     # === 領域計算用のヘルパーメソッド ===
 

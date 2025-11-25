@@ -31,7 +31,7 @@ EXTENT = 500e3
 center_x_list = config.center_x
 center_y_list = config.center_y
 
-DIR = f"./fig/2d/vortex_region/{VARNAME}/"
+DIR = config.get_fig_path("2d", "vortex_region", VARNAME)
 os.makedirs(DIR, exist_ok=True)
 
 X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)
@@ -371,7 +371,7 @@ def process_t(t):
     set_vortex_region_ticks_km_empty(ax, EXTENT)
     ax.set_title(title)
     ax.set_aspect("equal", "box")
-    fig.savefig(f"{DIR}t{str(config.time_list[t]).zfill(3)}.png")
+    fig.savefig(os.path.join(DIR, f"t{str(config.time_list[t]).zfill(3)}.png"))
     plt.close()
 
 

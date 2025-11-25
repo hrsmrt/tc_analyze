@@ -20,15 +20,15 @@ sounding = np.zeros(config.nz)
 sounding_T = np.zeros(config.nz)
 sounding_p = np.zeros(config.nz)
 
-outdata_dir = "./data/sounding"
-outfig_dir = "./fig/sounding"
+outdata_dir = config.get_data_path("sounding")
+outfig_dir = config.get_fig_path("sounding")
 if not os.path.exists(outdata_dir):
     os.makedirs(outdata_dir)
 if not os.path.exists(outfig_dir):
     os.makedirs(outfig_dir)
 
 count_timesteps = 0
-for t in range(config.t_last - int(24 / config.dt_hour), config.nt):
+for t in range(config.t_last - config.t_step, config.nt):
     count_timesteps += 1
     for z in range(config.nz):
         count = config.nx * config.ny

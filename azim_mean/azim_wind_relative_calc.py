@@ -14,8 +14,8 @@ r_max = 1000e3
 
 X, Y = grid.X, grid.Y
 
-output_folder1 = f"./data/azim/wind_relative_radial/"
-output_folder2 = f"./data/azim/wind_relative_tangential/"
+output_folder1 = config.get_data_path("azim", "wind_relative_radial")
+output_folder2 = config.get_data_path("azim", "wind_relative_tangential")
 
 os.makedirs(output_folder1, exist_ok=True)
 os.makedirs(output_folder2, exist_ok=True)
@@ -55,8 +55,8 @@ def process_t(t):
 
     count_r = np.bincount(bin_idx, minlength=max_bin)
 
-    data_u = np.load(f"./data/3d/relative_u/t{str(t).zfill(3)}.npy")
-    data_v = np.load(f"./data/3d/relative_v/t{str(t).zfill(3)}.npy")
+    data_u = np.load(f"{config.get_data_path('3d', 'relative_u')}/t{str(t).zfill(3)}.npy")
+    data_v = np.load(f"{config.get_data_path('3d', 'relative_v')}/t{str(t).zfill(3)}.npy")
 
     valid_data_u = data_u[:, mask]
     valid_data_v = data_v[:, mask]

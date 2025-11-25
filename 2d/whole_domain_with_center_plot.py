@@ -25,7 +25,7 @@ custom_rainbow = ListedColormap(colors)
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-OUTPUT_DIR = f"./fig/2d/whole_domain_with_center/{VARNAME}/"
+OUTPUT_DIR = config.get_fig_path("2d", "whole_domain_with_center", VARNAME)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 center_x_list = config.center_x
@@ -386,7 +386,7 @@ def process_t(t):
     # ax.set_ylabel("y [km]")
     ax.grid(False)
     ax.set_aspect("equal", "box")
-    fig.savefig(f"{OUTPUT_DIR}t{str(config.time_list[t]).zfill(4)}.png")
+    fig.savefig(os.path.join(OUTPUT_DIR, f"t{str(config.time_list[t]).zfill(4)}.png"))
     plt.close()
 
 

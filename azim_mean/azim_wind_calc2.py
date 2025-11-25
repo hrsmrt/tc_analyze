@@ -14,13 +14,13 @@ r_max = 1000e3
 
 X, Y = grid.X, grid.Y
 
-folder1 = "./data/azim/wind_radial2/"
-folder2 = "./data/azim/wind_tangential2/"
+folder1 = config.get_data_path("azim", "wind_radial2")
+folder2 = config.get_data_path("azim", "wind_tangential2")
 
 os.makedirs(folder1, exist_ok=True)
 os.makedirs(folder2, exist_ok=True)
 
-center_list = np.loadtxt("./data/low_2.txt", delimiter=",", skiprows=1)
+center_list = np.loadtxt(os.path.join(config.get_data_path(), "low_2.txt"), delimiter=",", skiprows=1)
 center_x_list = center_list[:, 1] * config.dx
 center_y_list = center_list[:, 2] * config.dy
 # center_x_list = config.center_x

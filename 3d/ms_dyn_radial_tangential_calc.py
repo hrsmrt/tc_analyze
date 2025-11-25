@@ -24,8 +24,8 @@ x = (np.arange(config.nx) + 0.5) * config.dx
 y = (np.arange(config.ny) + 0.5) * config.dy
 grid.X, grid.Y = np.meshgrid(x, y)
 
-FOLDER1 = "./data/3d/dyn_radial/"
-FOLDER2 = "./data/3d/dyn_tangential/"
+FOLDER1 = config.get_data_path("3d", "dyn_radial")
+FOLDER2 = config.get_data_path("3d", "dyn_tangential")
 
 os.makedirs(FOLDER1, exist_ok=True)
 os.makedirs(FOLDER2, exist_ok=True)

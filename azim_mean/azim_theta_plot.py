@@ -17,12 +17,12 @@ mpl_style_sheet = parse_style_argument()
 
 vgrid = np.loadtxt(config.vgrid_filepath)
 
-output_folder = "./fig/azim/theta/"
+output_folder = config.get_fig_path("azim", "theta")
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"./data/azim/theta/t{str(t).zfill(3)}.npy")
+    data = np.load(f"{config.get_data_path('azim', 'theta')}/t{str(t).zfill(3)}.npy")
     # データの形状から半径方向のグリッドを作成
     nr = data.shape[1]
     xgrid = np.arange(nr) * config.dx

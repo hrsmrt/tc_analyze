@@ -11,7 +11,7 @@ from utils.plotting import parse_style_argument
 mpl_style_sheet = parse_style_argument()
 config = AnalysisConfig()
 
-folder = f"./fig/azim/wind10m_tangential/"
+folder = config.get_fig_path("azim", "wind10m_tangential")
 
 os.makedirs(folder, exist_ok=True)
 
@@ -19,7 +19,7 @@ os.makedirs(folder, exist_ok=True)
 # メインループ
 def process_t(t):
     # データの読み込み
-    data = np.load(f"./data/azim/wind10m_tangential/t{str(t).zfill(3)}.npy")
+    data = np.load(f"{config.get_data_path('azim', 'wind10m_tangential')}/t{str(t).zfill(3)}.npy")
 
     # プロット
     plt.style.use(mpl_style_sheet)

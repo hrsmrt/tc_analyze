@@ -17,7 +17,7 @@ r_max = 1000e3
 
 X, Y = grid.X, grid.Y
 
-folder = f"./data/azim/{varname}/"
+folder = config.get_data_path("azim", "{varname}")
 
 os.makedirs(folder, exist_ok=True)
 

@@ -18,14 +18,14 @@ time_list = config.time_list
 
 vgrid = np.loadtxt(config.vgrid_filepath)
 
-folder = f"./fig/azim/{varname}/"
+folder = config.get_fig_path("azim", "{varname}")
 
 os.makedirs(folder, exist_ok=True)
 
 
 def process_t(t):
     # データの読み込み
-    data = np.load(f"./data/azim/{varname}/t{str(t).zfill(3)}.npy")
+    data = np.load(f"{config.get_data_path('azim', '{varname}')}/t{str(t).zfill(3)}.npy")
     # データの形状から半径方向のグリッドを作成
     nr = data.shape[1]
     xgrid = np.arange(nr) * config.dx

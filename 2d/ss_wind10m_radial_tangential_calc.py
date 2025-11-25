@@ -12,8 +12,8 @@ from utils.grid import GridHandler
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-folder1 = "./data/2d/wind10m_radial/"
-folder2 = "./data/2d/wind10m_tangential/"
+folder1 = config.get_data_path("2d", "wind10m_radial")
+folder2 = config.get_data_path("2d", "wind10m_tangential")
 
 os.makedirs(folder1, exist_ok=True)
 os.makedirs(folder2, exist_ok=True)
@@ -56,8 +56,8 @@ def process_t(t):
     v_radial = data_u * np.cos(theta) + data_v * np.sin(theta)
     v_tangential = -data_u * np.sin(theta) + data_v * np.cos(theta)
 
-    np.save(f"{folder1}t{str(t).zfill(3)}.npy", v_radial)
-    np.save(f"{folder2}t{str(t).zfill(3)}.npy", v_tangential)
+    np.save(os.path.join(folder1, f"t{str(t).zfill(3)}.npy"), v_radial)
+    np.save(os.path.join(folder2, f"t{str(t).zfill(3)}.npy"), v_tangential)
     print(f"t: {t} done")
 
 

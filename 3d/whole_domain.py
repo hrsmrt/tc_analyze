@@ -21,11 +21,12 @@ mpl_style_sheet = parse_style_argument()
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-os.makedirs(str(f"./fig/3d/whole_domain/{VARNAME}"), exist_ok=True)
+OUTPUT_DIR = config.get_fig_path("3d", "whole_domain", VARNAME)
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
 for z in z_list:
-    os.makedirs(f"./fig/3d/whole_domain/{VARNAME}/z{str(z).zfill(2)}", exist_ok=True)
+    os.makedirs(os.path.join(OUTPUT_DIR, f"z{str(z).zfill(2)}"), exist_ok=True)
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
@@ -128,12 +129,12 @@ def process_t(t):
         ax.grid(False)
         ax.set_aspect("equal", "box")
         fig.savefig(
-            f"./fig/3d/whole_domain/{VARNAME}/z{str(z).zfill(2)}/t{str(t).zfill(3)}.png"
+            os.path.join(OUTPUT_DIR, f"z{str(z).zfill(2)}", f"t{str(t).zfill(3)}.png")
         )
         plt.close()
 
 
 Parallel(n_jobs=config.n_jobs)(
     delayed(process_t)(t)
-    for t in range(config.t_first, config.t_last, int(24 / config.dt_hour))
+    for t in range(config.t_first, config.t_last + 1, config.t_step)
 )

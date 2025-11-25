@@ -17,8 +17,8 @@ config = AnalysisConfig()
 grid = GridHandler(config)
 
 # 出力フォルダの作成
-FOLDER_RADIAL = "./data/3d/wind_radial/"
-FOLDER_TANGENTIAL = "./data/3d/wind_tangential/"
+FOLDER_RADIAL = config.get_data_path("3d", "wind_radial")
+FOLDER_TANGENTIAL = config.get_data_path("3d", "wind_tangential")
 os.makedirs(FOLDER_RADIAL, exist_ok=True)
 os.makedirs(FOLDER_TANGENTIAL, exist_ok=True)
 

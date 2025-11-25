@@ -1,5 +1,6 @@
 """Find low-pressure centers in sea level pressure field."""
 # python $WORK/tc_analyze/center/find_lows.py
+import os
 import pickle
 
 import numpy as np
@@ -38,7 +39,7 @@ def main():
         )
         print(f"Time {t}: Found {len(lows)} low pressure centers")
         lows_all.append(lows)
-    with open("./data/ss_slp_lows.pkl", "wb") as f:
+    with open(os.path.join(config.get_data_path(), "ss_slp_lows.pkl"), "wb") as f:
         pickle.dump(lows_all, f)
 
 

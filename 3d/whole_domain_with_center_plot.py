@@ -26,7 +26,7 @@ mpl_style_sheet = parse_style_argument()
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-OUTPUT_DIR = "./fig/3d/whole_domain_with_center/"
+OUTPUT_DIR = config.get_fig_path("3d", "whole_domain_with_center")
 os.makedirs(str(f"{OUTPUT_DIR}{VARNAME}"), exist_ok=True)
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
@@ -145,5 +145,5 @@ def process_t(t):
 
 Parallel(n_jobs=config.n_jobs)(
     delayed(process_t)(t)
-    for t in range(config.t_first, config.t_last, int(24 / config.dt_hour))
+    for t in range(config.t_first, config.t_last + 1, config.t_step)
 )

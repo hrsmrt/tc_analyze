@@ -18,7 +18,7 @@ x = (np.arange(config.nx) + 0.5) * config.dx
 y = (np.arange(config.ny) + 0.5) * config.dy
 X, Y = np.meshgrid(x, y)
 
-folder = f"./data/azim_q8/{varname}/"
+folder = config.get_data_path("azim_q8", varname)
 
 os.makedirs(folder, exist_ok=True)
 

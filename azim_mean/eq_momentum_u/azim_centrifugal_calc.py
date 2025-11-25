@@ -16,13 +16,13 @@ nr = int(radius / config.dx)
 
 rgrid = grid.create_radial_grid(radius)
 
-output_folder = "./data/azim/eq_momentum_u/centrifugal/"
+output_folder = config.get_data_path("azim", "eq_momentum_u", "centrifugal")
 
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"./data/azim/wind_relative_tangential/t{str(t).zfill(3)}.npy")
+    data = np.load(f"{config.get_data_path('azim', 'wind_relative_tangential')}/t{str(t).zfill(3)}.npy")
     centrifugal = -(data**2)
     for r in range(nr):
         centrifugal[:, r] = centrifugal[:, r] / (rgrid[r])

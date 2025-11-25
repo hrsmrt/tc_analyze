@@ -16,14 +16,14 @@ grid = GridHandler(config)
 
 vgrid = grid.create_vertical_grid()
 
-output_folder = "./data/azim/stream/"
+output_folder = config.get_data_path("azim", "stream")
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    rho = np.load(f"./data/azim/ms_rho/t{str(t).zfill(3)}.npy")
-    u = np.load(f"./data/azim/wind_relative_radial/t{str(t).zfill(3)}.npy")
-    w = np.load(f"./data/azim/ms_w/t{str(t).zfill(3)}.npy")
+    rho = np.load(f"{config.get_data_path('azim', 'ms_rho')}/t{str(t).zfill(3)}.npy")
+    u = np.load(f"{config.get_data_path('azim', 'wind_relative_radial')}/t{str(t).zfill(3)}.npy")
+    w = np.load(f"{config.get_data_path('azim', 'ms_w')}/t{str(t).zfill(3)}.npy")
     # データの形状から半径方向のビン数を取得
     nr = rho.shape[1]
     R = (np.arange(nr) + 0.5) * config.dx

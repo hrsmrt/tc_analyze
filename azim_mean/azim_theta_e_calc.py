@@ -1,7 +1,7 @@
 # python $WORK/tc_analyze/azim_mean/azim_theta_e_calc.py
-# input: f"./data/azim/ms_tem/t{str(t).zfill(3)}.npy" 温度
-# input: f"./data/azim/ms_pres/t{str(t).zfill(3)}.npy" 気圧
-# input: f"./data/azim/ms_qv/t{str(t).zfill(3)}.npy" 比湿
+# input: f"{config.get_data_path('azim', 'ms_tem')}/t{str(t).zfill(3)}.npy" 温度
+# input: f"{config.get_data_path('azim', 'ms_pres')}/t{str(t).zfill(3)}.npy" 気圧
+# input: f"{config.get_data_path('azim', 'ms_qv')}/t{str(t).zfill(3)}.npy" 比湿
 # output: 相当温位 θ_e = T(Ps/P)^(Rd/Cp) * exp(Lv*rv/(Cp*T))
 
 import os
@@ -13,7 +13,7 @@ from utils.config import AnalysisConfig
 
 config = AnalysisConfig()
 
-OUTPUT_FOLDER = "./data/azim/theta_e/"
+OUTPUT_FOLDER = config.get_data_path("azim", "theta_e")
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 # 物理定数
@@ -24,9 +24,9 @@ LATENT_HEAT = 2.5e6  # 蒸発潜熱 J/kg
 
 
 def process_t(t):
-    temperature = np.load(f"./data/azim/ms_tem/t{str(t).zfill(3)}.npy")
-    pressure = np.load(f"./data/azim/ms_pres/t{str(t).zfill(3)}.npy")
-    specific_humidity = np.load(f"./data/azim/ms_qv/t{str(t).zfill(3)}.npy")
+    temperature = np.load(f"{config.get_data_path('azim', 'ms_tem')}/t{str(t).zfill(3)}.npy")
+    pressure = np.load(f"{config.get_data_path('azim', 'ms_pres')}/t{str(t).zfill(3)}.npy")
+    specific_humidity = np.load(f"{config.get_data_path('azim', 'ms_qv')}/t{str(t).zfill(3)}.npy")
     mixing_ratio = specific_humidity / (1 - specific_humidity)
     theta_e = (
         temperature

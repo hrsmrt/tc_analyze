@@ -19,13 +19,13 @@ colors = original_cmap(np.linspace(0, 1, 256))  # 元のカラーマップの色
 colors[:40] = [1, 1, 1, 1]  # 0に相当する位置（真ん中）を白に変更
 custom_cmap = ListedColormap(colors)
 
-FOLDER_INPUT = "./data/2d/wind10m_tangential/"
-OUTPUT_DIR = "./fig/2d/vortex_region/wind10m_tangential/"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-
 # 設定の初期化
 config = AnalysisConfig()
 grid = GridHandler(config)
+
+FOLDER_INPUT = config.get_data_path("2d", "wind10m_tangential")
+OUTPUT_DIR = config.get_fig_path("2d", "vortex_region", "wind10m_tangential")
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 EXTENT = 500e3
 
 center_x_list = config.center_x
@@ -38,7 +38,7 @@ X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)
 def process_t(t):
     center_x = center_x_list[t]
     center_y = center_y_list[t]
-    data = np.load(f"{FOLDER_INPUT}t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(FOLDER_INPUT, f"t{str(t).zfill(3)}.npy"))
     data_cut = grid.extract_vortex_region(data, center_x, center_y, EXTENT)
 
     plt.style.use(mpl_style_sheet)
@@ -63,7 +63,7 @@ def process_t(t):
     # ax.set_ylabel("y [km]")
 
     ax.set_aspect("equal", "box")
-    fig.savefig(f"{OUTPUT_DIR}t{str(t).zfill(3)}.png")
+    fig.savefig(os.path.join(OUTPUT_DIR, f"t{str(t).zfill(3)}.png"))
     plt.close()
 
 

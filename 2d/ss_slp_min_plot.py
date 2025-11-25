@@ -13,11 +13,11 @@ mpl_style_sheet = parse_style_argument()
 # 設定の初期化
 config = AnalysisConfig()
 
-folder = "./fig/center/"
+folder = config.get_fig_path("center")
 os.makedirs(folder, exist_ok=True)
 
 # データの読み込み
-data = np.load("./data/ss_slp_min.npy")
+data = np.load(os.path.join(config.get_data_path(), "ss_slp_min.npy"))
 
 # プロット
 plt.style.use(mpl_style_sheet)
@@ -26,5 +26,5 @@ ax.plot(config.time_list, data * 1e-2)
 ax.set_xticks(config.time_ticks)
 ax.set_xlabel("時間 [hour]")
 ax.set_ylabel("最低海面気圧 [hPa]")
-fig.savefig(f"{folder}ss_slp_min.png")
+fig.savefig(os.path.join(folder, "ss_slp_min.png"))
 plt.close()

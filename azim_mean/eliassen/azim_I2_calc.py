@@ -19,7 +19,7 @@ R = (np.arange(nr) + 0.5) * config.dx
 R_wall = (np.arange(1, nr)) * config.dx
 f = 3.77468e-5
 
-output_folder = "./data/azim/eliassen/I2/"
+output_folder = config.get_data_path("azim", "eliassen", "I2")
 os.makedirs(output_folder, exist_ok=True)
 
 pres_s = 100000  # 基準気圧 Pa
@@ -33,8 +33,8 @@ g = 9.80665
 
 
 def process_t(t):
-    xi = np.load(f"./data/azim/eliassen/xi/t{str(t).zfill(3)}.npy")
-    v = np.load(f"./data/azim/wind_relative_tangential/t{str(t).zfill(3)}.npy")
+    xi = np.load(f"{config.get_data_path('azim', 'eliassen')}/xi/t{str(t).zfill(3)}.npy")
+    v = np.load(f"{config.get_data_path('azim', 'wind_relative_tangential')}/t{str(t).zfill(3)}.npy")
     dv_dr = (v[:, 1:] - v[:, :-1]) / config.dx
     I2 = (
         (xi[:, 1:] + xi[:, :-1])

@@ -14,8 +14,8 @@ r_max = 1000e3
 
 X, Y = grid.X, grid.Y
 
-folder1 = f"./data/azim/wind_radial/"
-folder2 = f"./data/azim/wind_tangential/"
+folder1 = config.get_data_path("azim", "wind_radial")
+folder2 = config.get_data_path("azim", "wind_tangential")
 
 os.makedirs(folder1, exist_ok=True)
 os.makedirs(folder2, exist_ok=True)

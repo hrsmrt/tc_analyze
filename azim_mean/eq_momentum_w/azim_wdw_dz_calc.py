@@ -17,13 +17,13 @@ nr = int(radius / config.dx)
 # rgrid generated via grid.create_radial_vertical_meshgrid * 1e-3
 vgrid = np.loadtxt(config.vgrid_filepath)
 
-output_folder = "./data/azim/eq_momentum_w/wdw_dz/"
+output_folder = config.get_data_path("azim", "eq_momentum_w", "wdw_dz")
 
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"./data/azim/ms_w/t{str(t).zfill(3)}.npy")
+    data = np.load(f"{config.get_data_path('azim', 'ms_w')}/t{str(t).zfill(3)}.npy")
     wdu_dz = np.empty((config.nz - 1, nr))
     for z in range(config.nz - 1):
         wdu_dz[z, :] = (

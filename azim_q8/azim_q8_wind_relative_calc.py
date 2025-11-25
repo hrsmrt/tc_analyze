@@ -15,8 +15,8 @@ x = (np.arange(config.nx) + 0.5) * config.dx
 y = (np.arange(config.ny) + 0.5) * config.dy
 X, Y = np.meshgrid(x, y)
 
-output_folder1 = "./data/azim_q8/wind_relative_radial/"
-output_folder2 = "./data/azim_q8/wind_relative_tangential/"
+output_folder1 = config.get_data_path("azim_q8", "wind_relative_radial")
+output_folder2 = config.get_data_path("azim_q8", "wind_relative_tangential")
 
 os.makedirs(output_folder1, exist_ok=True)
 os.makedirs(output_folder2, exist_ok=True)
@@ -55,8 +55,8 @@ def process_t(t):
     count_r_tangential = np.zeros((max_bin, 8), dtype=np.int64)
 
     # データを読み込む
-    data_u = np.load(f"./data/3d/relative_u/t{str(t).zfill(3)}.npy", mmap_mode="r")
-    data_v = np.load(f"./data/3d/relative_v/t{str(t).zfill(3)}.npy", mmap_mode="r")
+    data_u = np.load(f"{config.get_data_path('3d', 'relative_u')}/t{str(t).zfill(3)}.npy", mmap_mode="r")
+    data_v = np.load(f"{config.get_data_path('3d', 'relative_v')}/t{str(t).zfill(3)}.npy", mmap_mode="r")
 
     # === メモリ削減: 1点ごとに加算 ===
     idxs = np.where(mask.ravel())[0]  # 2D→1D index

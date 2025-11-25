@@ -19,15 +19,15 @@ colors = original_cmap(np.linspace(0, 1, 256))  # 元のカラーマップの色
 colors[:20] = [1, 1, 1, 1]  # 下限の20色を白に設定
 custom_cmap = ListedColormap(colors)
 
-OUTPUT_DIR = "./fig/2d/vortex_region2/wind10m_abs/"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-
 # 設定の初期化
 config = AnalysisConfig()
 grid = GridHandler(config)
+
+OUTPUT_DIR = config.get_fig_path("2d", "vortex_region2", "wind10m_abs")
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 EXTENT = 500e3
 
-center_list = np.loadtxt("./data/low_2.txt", delimiter=",", skiprows=1)
+center_list = np.loadtxt(os.path.join(config.get_data_path(), "low_2.txt"), delimiter=",", skiprows=1)
 center_x_list = center_list[:, 1] * config.dx
 center_y_list = center_list[:, 2] * config.dy
 
@@ -82,7 +82,7 @@ def process_t(t):
     # ax.set_ylabel("y [km]")
 
     ax.set_aspect("equal", "box")
-    fig.savefig(f"{OUTPUT_DIR}t{str(t).zfill(3)}.png")
+    fig.savefig(os.path.join(OUTPUT_DIR, f"t{str(t).zfill(3)}.png"))
     plt.close()
 
 

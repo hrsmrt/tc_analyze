@@ -17,11 +17,11 @@ config = AnalysisConfig()
 mpl_style_sheet = parse_style_argument()
 
 # 出力ディレクトリ
-output_dir = "./fig/z_profile/hf/"
+output_dir = config.get_fig_path("z_profile", "hf")
 os.makedirs(output_dir, exist_ok=True)
 
 # データの読み込み
-hf_all = np.load("./data/z_profile/hf.npy")
+hf_all = np.load(f"{config.get_data_path('z_profile')}/hf.npy")
 vgrid = np.loadtxt(config.vgrid_filepath)
 
 # 統計量の計算
@@ -42,7 +42,7 @@ def process_t(t):
 
 
 Parallel(n_jobs=config.n_jobs)(
-    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last + 1)
 )
 
 # 時系列プロット（全体平均）

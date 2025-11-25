@@ -14,7 +14,7 @@ r_max = 1000e3
 
 X, Y = grid.X, grid.Y
 
-folder = f"./data/azim/vorticity_z/"
+folder = config.get_data_path("azim", "vorticity_z")
 
 os.makedirs(folder, exist_ok=True)
 
@@ -40,7 +40,7 @@ def process_t(t):
 
     azim_mean = np.full((config.nz, max_bin), np.nan)
 
-    data = np.load(f"./data/3d/vorticity_z/vor_t{str(t).zfill(3)}.npy")
+    data = np.load(f"{config.get_data_path('3d', 'vorticity_z')}/vor_t{str(t).zfill(3)}.npy")
     print(f"3d data t: {t}, max: {data.max()}, min: {data.min()}")
 
     valid_data = data[:, mask]

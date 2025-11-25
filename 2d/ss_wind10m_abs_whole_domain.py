@@ -19,12 +19,12 @@ colors = original_cmap(np.linspace(0, 1, 256))  # 元のカラーマップの色
 colors[:20] = [1, 1, 1, 1]  # 下限の20色を白に設定
 custom_cmap = ListedColormap(colors)
 
-OUTPUT_DIR = "./fig/2d/whole_domain/wind10m_abs/"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-
 # 設定の初期化
 config = AnalysisConfig()
 grid = GridHandler(config)
+
+OUTPUT_DIR = config.get_fig_path("2d", "whole_domain", "wind10m_abs")
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 ss_u10m = np.fromfile(f"{config.input_folder}ss_u10m.grd", dtype=">f4").reshape(
     config.nt, config.ny, config.nx
 )
@@ -55,7 +55,7 @@ def process_t(t):
     ax.set_title(f"10m風速 t = {config.time_list[t]} h")
     ax.set_aspect("equal", "box")
     ax.grid(False)
-    fig.savefig(f"{OUTPUT_DIR}t{str(t).zfill(3)}.png")
+    fig.savefig(os.path.join(OUTPUT_DIR, f"t{str(t).zfill(3)}.png"))
     plt.close()
 
 

@@ -18,13 +18,13 @@ mpl_style_sheet = parse_style_argument()
 # グリッド設定
 vgrid = grid.create_vertical_grid()
 
-output_folder = "./fig/azim/wind_relative_tangential_max_z/"
+output_folder = config.get_fig_path("azim", "wind_relative_tangential_max_z")
 
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"./data/azim/wind_relative_tangential/t{str(t).zfill(3)}.npy")
+    data = np.load(f"{config.get_data_path('azim', 'wind_relative_tangential')}/t{str(t).zfill(3)}.npy")
     max_z_data = np.nanmax(data, axis=1)  # 各高度での最大値を計算
 
     plt.style.use(mpl_style_sheet)

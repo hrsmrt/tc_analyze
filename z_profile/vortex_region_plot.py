@@ -19,11 +19,11 @@ varname = sys.argv[1]
 mpl_style_sheet = parse_style_argument()
 
 # 出力ディレクトリ
-output_dir = f"./fig/z_profile/vortex_region/{varname}/"
+output_dir = config.get_fig_path("z_profile", "vortex_region", varname)
 os.makedirs(output_dir, exist_ok=True)
 
 # データの読み込み
-data_all = np.load(f"./data/z_profile/vortex_region/z_{varname}.npy")
+data_all = np.load(f"{config.get_data_path('z_profile', 'vortex_region')}/z_{varname}.npy")
 vgrid = np.loadtxt(config.vgrid_filepath)
 
 
@@ -42,7 +42,7 @@ def process_t(t):
 
 
 Parallel(n_jobs=config.n_jobs)(
-    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last + 1)
 )
 
 print(f"✅ Saved plots to {output_dir}")

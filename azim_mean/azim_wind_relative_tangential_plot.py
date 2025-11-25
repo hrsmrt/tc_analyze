@@ -15,18 +15,18 @@ grid = GridHandler(config)
 mpl_style_sheet = parse_style_argument()
 
 # グリッド設定：データから実際のビン数を取得
-sample_data = np.load(f"./data/azim/wind_relative_tangential/t{str(config.t_first).zfill(3)}.npy")
+sample_data = np.load(f"{config.get_data_path('azim', 'wind_relative_tangential')}/t{str(config.t_first).zfill(3)}.npy")
 nr = sample_data.shape[1]
 R_MAX = nr * config.dx
 r_mesh, z_mesh = grid.create_radial_vertical_meshgrid(R_MAX)
 
-OUTPUT_FOLDER = "./fig/azim/wind_relative_tangential/"
+OUTPUT_FOLDER = config.get_fig_path("azim", "wind_relative_tangential")
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 
 def process_t(t):
     tangential_wind_data = np.load(
-        f"./data/azim/wind_relative_tangential/t{str(t).zfill(3)}.npy"
+        f"{config.get_data_path('azim', 'wind_relative_tangential')}/t{str(t).zfill(3)}.npy"
     )
 
     plt.style.use(mpl_style_sheet)

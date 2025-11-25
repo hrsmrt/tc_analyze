@@ -1,5 +1,5 @@
 # python $WORK/tc_analyze/azim_mean/eliassen/azim_N2_calc.py
-# input: f"./data/azim/buoyancy/t{str(t).zfill(3)}.npy" 温度
+# input: f"{config.get_data_path('azim', 'buoyancy')}/t{str(t).zfill(3)}.npy" 温度
 # output: N^2 = dB/dz
 
 import os
@@ -20,7 +20,7 @@ R = (np.arange(nr) + 0.5) * config.dx
 vgrid = grid.create_vertical_grid()
 f = 3.77468e-5
 
-output_folder = "./data/azim/eliassen/N2/"
+output_folder = config.get_data_path("azim", "eliassen", "N2")
 os.makedirs(output_folder, exist_ok=True)
 
 pres_s = 100000  # 基準気圧 Pa
@@ -34,7 +34,7 @@ g = 9.80665
 
 
 def process_t(t):
-    b = np.load(f"./data/azim/eliassen/buoyancy/t{str(t).zfill(3)}.npy")
+    b = np.load(f"{config.get_data_path('azim', 'eliassen', 'buoyancy')}/t{str(t).zfill(3)}.npy")
     db_dz = np.zeros((config.nz - 1, nr))
     for z in range(config.nz - 1):
         db_dz[z, :] = (b[z + 1, :] - b[z, :]) / (vgrid[z + 1] - vgrid[z])

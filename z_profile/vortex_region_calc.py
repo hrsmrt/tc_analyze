@@ -14,7 +14,7 @@ varname = sys.argv[1]
 
 config = AnalysisConfig()
 
-output_dir = "./data/z_profile/vortex_region/"
+output_dir = config.get_data_path("z_profile", "vortex_region")
 os.makedirs(output_dir, exist_ok=True)
 
 center_x_list = config.center_x
@@ -57,7 +57,7 @@ def process_t(t):
 
 # === 並列実行 ===
 results = Parallel(n_jobs=config.n_jobs, verbose=5)(
-    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last + 1)
 )
 
 # === 結果をまとめる ===

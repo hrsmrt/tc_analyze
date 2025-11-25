@@ -14,17 +14,17 @@ nr = int(radius / config.dx)
 
 # rgrid generated via grid.create_radial_vertical_meshgrid
 
-output_folder = "./data/azim/eq_momentum_u/gradient_wind_eq/"
+output_folder = config.get_data_path("azim", "eq_momentum_u", "gradient_wind_eq")
 
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
     centrifugal = np.load(
-        f"./data/azim/eq_momentum_u/centrifugal/t{str(t).zfill(3)}.npy"
+        f"{config.get_data_path('azim', 'eq_momentum_u', 'centrifugal')}/t{str(t).zfill(3)}.npy"
     )
-    coriolis = np.load(f"./data/azim/eq_momentum_u/coriolis/t{str(t).zfill(3)}.npy")
-    grad_p = np.load(f"./data/azim/eq_momentum_u/grad_p/t{str(t).zfill(3)}.npy")
+    coriolis = np.load(f"{config.get_data_path('azim', 'eq_momentum_u', 'coriolis')}/t{str(t).zfill(3)}.npy")
+    grad_p = np.load(f"{config.get_data_path('azim', 'eq_momentum_u', 'grad_p')}/t{str(t).zfill(3)}.npy")
     gradient_wind_eq = centrifugal[:, 1:-1] + coriolis[:, 1:-1] - grad_p
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", gradient_wind_eq)
 

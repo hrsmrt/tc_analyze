@@ -17,12 +17,12 @@ mpl_style_sheet = parse_style_argument()
 
 vgrid = grid.create_vertical_grid()
 
-output_folder = "./fig/azim/stream2/"
+output_folder = config.get_fig_path("azim", "stream2")
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"./data/azim/stream2/t{str(t).zfill(3)}.npy")
+    data = np.load(f"{config.get_data_path('azim', 'stream2')}/t{str(t).zfill(3)}.npy")
     # データの形状から半径方向のグリッドを作成
     nr = data.shape[1]
     rgrid = (np.arange(nr) + 0.5) * config.dx

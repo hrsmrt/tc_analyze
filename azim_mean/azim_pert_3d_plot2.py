@@ -29,14 +29,14 @@ xgrid = np.arange(nr) * config.dx * 1e-3
 
 X, Y = np.meshgrid(xgrid, vgrid * 1e-3)
 
-folder = f"./fig/azim_pert2/{varname}/"
+folder = config.get_fig_path("azim_pert2", varname)
 
 os.makedirs(folder, exist_ok=True)
 
 
 def process_t(t):
     # データの読み込み
-    data = np.load(f"./data/azim_pert2/{varname}/t{str(t).zfill(3)}.npy")
+    data = np.load(f"{config.get_data_path('azim_pert2', varname)}/t{str(t).zfill(3)}.npy")
 
     # プロット
     plt.style.use(mpl_style_sheet)

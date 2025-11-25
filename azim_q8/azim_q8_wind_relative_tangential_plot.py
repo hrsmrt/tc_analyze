@@ -16,7 +16,7 @@ mpl_style_sheet = parse_style_argument()
 
 # グリッド設定：データから実際のサイズを取得
 sample_data = np.load(
-    f"./data/azim_q8/wind_relative_tangential/t{str(config.t_first).zfill(3)}.npy"
+    f"{config.get_data_path('azim_q8', 'wind_relative_tangential')}/t{str(config.t_first).zfill(3)}.npy"
 )
 nz_data, nr, n_sectors = sample_data.shape
 R_MAX = nr * config.dx
@@ -27,7 +27,7 @@ vgrid = grid.create_vertical_grid() * 1e-3  # km単位
 
 X, Y = np.meshgrid(rgrid, vgrid)
 
-folder = "./fig/azim_q8/wind_relative_tangential/"
+folder = config.get_fig_path("azim_q8", "wind_relative_tangential")
 
 os.makedirs(folder, exist_ok=True)
 
@@ -36,7 +36,7 @@ sector_names = [f"sector{s}" for s in range(8)]
 
 def process_t(t):
     # データの読み込み
-    data = np.load(f"./data/azim_q8/wind_relative_tangential/t{str(t).zfill(3)}.npy")
+    data = np.load(f"{config.get_data_path('azim_q8', 'wind_relative_tangential')}/t{str(t).zfill(3)}.npy")
 
     # 各sectorごとにプロット
     for s in range(8):

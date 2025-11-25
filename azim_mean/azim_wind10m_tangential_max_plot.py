@@ -12,15 +12,15 @@ config = AnalysisConfig()
 grid = GridHandler(config)
 mpl_style_sheet = parse_style_argument()
 
-folder = f"./fig/azim/wind10m_tangential/"
+folder = config.get_fig_path("azim", "wind10m_tangential")
 
 os.makedirs(folder, exist_ok=True)
 
 wind10m_tangential_max = np.load(
-    f"./data/azim/wind10m_tangential/wind10m_tangential_max.npy"
+    f"{config.get_data_path('azim', 'wind10m_tangential')}/wind10m_tangential_max.npy"
 )
 wind10m_tangential_rmw = np.load(
-    f"./data/azim/wind10m_tangential/wind10m_tangential_rmw.npy"
+    f"{config.get_data_path('azim', 'wind10m_tangential')}/wind10m_tangential_rmw.npy"
 )
 
 plt.style.use(mpl_style_sheet)

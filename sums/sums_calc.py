@@ -20,7 +20,7 @@ z_max = 60
 center_x_list = config.center_x
 center_y_list = config.center_y
 
-os.makedirs("./data/sums/", exist_ok=True)
+os.makedirs(config.get_data_path("sums"), exist_ok=True)
 
 x = np.arange(0, config.x_width, config.dx)
 y = np.arange(0, config.y_width, config.dy)
@@ -51,4 +51,4 @@ sum_results = Parallel(n_jobs=config.n_jobs)(
     delayed(process_t)(t) for t in range(config.t_first, config.t_last)
 )
 
-np.save(f"./data/sums/{varname}_sum.npy", sum_results)
+np.save(f"{config.get_data_path('sums')}/{varname}_sum.npy", sum_results)

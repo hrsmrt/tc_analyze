@@ -1,5 +1,5 @@
 # python $WORK/tc_analyze/azim_mean/azim_momentum_calc.py
-# input: f"./data/azim/wind_tangential/t{str(t).zfill(3)}.npy"
+# input: f"{config.get_data_path('azim', 'wind_tangential')}/t{str(t).zfill(3)}.npy"
 # output: 単位質量あたりの角運動量 M = rv + f r^2/2
 
 import os
@@ -13,12 +13,12 @@ config = AnalysisConfig()
 
 CORIOLIS_PARAM = config.f
 
-OUTPUT_FOLDER = "./data/azim/momentum/"
+OUTPUT_FOLDER = config.get_data_path("azim", "momentum")
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 
 def process_t(t):
-    u_tangential = np.load(f"./data/azim/wind_tangential/t{str(t).zfill(3)}.npy")
+    u_tangential = np.load(f"{config.get_data_path('azim', 'wind_tangential')}/t{str(t).zfill(3)}.npy")
     # データの形状から半径方向のビン数を取得
     nr = u_tangential.shape[1]
     rgrid = (np.arange(nr) + 0.5) * config.dx

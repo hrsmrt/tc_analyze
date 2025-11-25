@@ -19,7 +19,7 @@ config = AnalysisConfig()
 grid = GridHandler(config)
 F = config.f
 
-OUTPUT_DIR = "./fig/3d/whole_domain/vorticity_z_absolute/"
+OUTPUT_DIR = config.get_fig_path("3d", "whole_domain", "vorticity_z_absolute")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
@@ -39,7 +39,7 @@ def process_t(t):
         Time step index
     """
     data_z = np.memmap(
-        f"./data/3d/vorticity_z/vor_t{str(t).zfill(3)}.npy",
+        f"{config.get_data_path("3d", "vorticity_z")}/vor_t{str(t).zfill(3)}.npy",
         dtype=np.float32,
         mode="r",
         shape=(config.nz, config.ny, config.nx),
@@ -64,5 +64,5 @@ def process_t(t):
 
 Parallel(n_jobs=config.n_jobs)(
     delayed(process_t)(t)
-    for t in range(config.t_first, config.t_last, int(24 / config.dt_hour))
+    for t in range(config.t_first, config.t_last + 1, config.t_step)
 )

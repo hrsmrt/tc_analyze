@@ -268,6 +268,12 @@ run_cmd "python ${TC_ANALYZE}/3d/theta_e_plot_whole_region.py ${STYLE}"
 run_cmd "python ${TC_ANALYZE}/3d/psi_calc.py"
 run_cmd "python ${TC_ANALYZE}/3d/psi_plot.py ${STYLE}"
 
+run_cmd "sh ${TC_ANALYZE}/z_profile/z_profile_calc.sh"
+run_cmd "sh ${TC_ANALYZE}/z_profile/z_profile_plot.sh"
+run_cmd "python ${TC_ANALYZE}/z_profile/hf_calc.py"
+run_cmd "python ${TC_ANALYZE}/z_profile/hf_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/z_profile/sounding_rh_from_qv.py ${STYLE}"
+
 # center
 log_section "Center Analysis"
 run_cmd "python ${TC_ANALYZE}/center/ss_slp_center_calc.py"
@@ -280,6 +286,7 @@ run_cmd "python ${TC_ANALYZE}/center/mass.py ${STYLE}"
 # 3d
 log_section "3D Analysis"
 run_cmd "sh ${TC_ANALYZE}/3d/vortex_region.sh"
+run_cmd "sh $WORK/tc_analyze/3d/whole_domain_with_center_plot.sh"
 run_cmd "python ${TC_ANALYZE}/3d/vortex_region_wind_uv_abs_plot.py ${STYLE}"
 run_cmd "python ${TC_ANALYZE}/3d/ms_wind_radial_tangential_calc.py"
 run_cmd "python ${TC_ANALYZE}/3d/ms_wind_tangential_plot.py ${STYLE}"
@@ -339,6 +346,9 @@ run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_radial_plot.py ${STYLE}"
 #run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_calc2.py"
 #run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_radial_plot2.py ${STYLE}"
 #run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_tangential_plot2.py ${STYLE}"
+
+run_cmd "sh ${TC_ANALYZE}/z_profile/vortex_region_calc.sh"
+run_cmd "sh ${TC_ANALYZE}/z_profile/vortex_region_plot.sh"
 
 # ============================================================================
 # 完了メッセージ

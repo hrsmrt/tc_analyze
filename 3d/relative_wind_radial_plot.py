@@ -22,7 +22,8 @@ grid = GridHandler(config)
 mpl_style_sheet = parse_style_argument()
 
 # 出力フォルダの作成
-os.makedirs("./fig/3d/vortex_region/relative_wind_radial/", exist_ok=True)
+output_folder = config.get_fig_path("3d", "vortex_region", "relative_wind_radial")
+os.makedirs(output_folder, exist_ok=True)
 
 # 描画設定
 RADIAL_MAX = 500e3
@@ -45,7 +46,7 @@ R = np.sqrt((RADIAL_MAX - X_cut) ** 2 + (RADIAL_MAX - Y_cut) ** 2)
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
 for z in z_list:
     os.makedirs(
-        f"./fig/3d/vortex_region/relative_wind_radial/z{str(z).zfill(2)}", exist_ok=True
+        os.path.join(output_folder, f"z{str(z).zfill(2)}"), exist_ok=True
     )
 
 
@@ -56,7 +57,7 @@ def process_t(t):
     Args:
         t (int): 時刻ステップ
     """
-    data_t = np.load(f"./data/3d/relative_wind_radial/t{str(t).zfill(3)}.npy")
+    data_t = np.load(f"{config.get_data_path('3d', 'relative_wind_radial')}/t{str(t).zfill(3)}.npy")
 
     # 中心座標をインデックスに変換
     center_x = int(center_x_list[t] / config.dx)
@@ -106,7 +107,7 @@ def process_t(t):
 
         # 保存
         fig.savefig(
-            f"./fig/3d/vortex_region/relative_wind_radial/z{str(z).zfill(2)}/t{str(config.time_list[t]).zfill(3)}.png"
+            os.path.join(output_folder, f"z{str(z).zfill(2)}", f"t{str(config.time_list[t]).zfill(3)}.png")
         )
         plt.close()
 
@@ -114,5 +115,5 @@ def process_t(t):
 # 並列処理で全時刻を処理（24時間ごと）
 Parallel(n_jobs=config.n_jobs)(
     delayed(process_t)(t)
-    for t in range(config.t_first, config.t_last, int(24 / config.dt_hour))
+    for t in range(config.t_first, config.t_last + 1, config.t_step)
 )

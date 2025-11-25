@@ -25,13 +25,13 @@ rgrid = np.array([r * config.dx + config.dx / 2 for r in range(int(nr))]) * 1e-3
 
 X, Y = np.meshgrid(rgrid, vgrid_wall)
 
-output_folder = "./fig/azim/eq_momentum_w/wdw_dz/"
+output_folder = config.get_fig_path("azim", "eq_momentum_w", "wdw_dz")
 
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"./data/azim/eq_momentum_w/wdw_dz/t{str(t).zfill(3)}.npy")
+    data = np.load(f"{config.get_data_path('azim', 'eq_momentum_w')}/wdw_dz/t{str(t).zfill(3)}.npy")
 
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(5, 2))

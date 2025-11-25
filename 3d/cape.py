@@ -35,10 +35,10 @@ config = AnalysisConfig()
 
 vgrid = np.loadtxt(config.vgrid_filepath)
 
-OUT_DIR = "./fig/cape/"
+OUT_DIR = config.get_fig_path("cape")
 os.makedirs(OUT_DIR, exist_ok=True)
-os.makedirs(f"{OUT_DIR}parcel_T", exist_ok=True)
-os.makedirs(f"{OUT_DIR}parcel_rho", exist_ok=True)
+os.makedirs(os.path.join(OUT_DIR, "parcel_T"), exist_ok=True)
+os.makedirs(os.path.join(OUT_DIR, "parcel_rho"), exist_ok=True)
 
 # 環境場
 T_env = np.zeros(config.nz)

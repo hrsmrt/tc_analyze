@@ -13,13 +13,13 @@ from utils.config import AnalysisConfig
 
 config = AnalysisConfig()
 
-FOLDER = "./data/3d/psi/"
+FOLDER = config.get_data_path("3d", "psi")
 os.makedirs(FOLDER, exist_ok=True)
 
 
 def process_t(t):
     """指定された時刻tの流線関数を計算する"""
-    data = np.load(f"./data/3d/vorticity_z/vor_t{str(t).zfill(3)}.npy")
+    data = np.load(f"{config.get_data_path('3d', 'vorticity_z')}/vor_t{str(t).zfill(3)}.npy")
     psi = np.zeros((config.nz, config.ny, config.nx), dtype=np.float32)
     for z in range(config.nz):
         psi[z] = streamfunction_twisted(data[z], config.dx, config.dy)

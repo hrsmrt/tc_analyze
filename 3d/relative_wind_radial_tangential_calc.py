@@ -17,8 +17,8 @@ config = AnalysisConfig()
 grid = GridHandler(config)
 
 # 出力フォルダの作成
-FOLDER_RADIAL = "./data/3d/relative_wind_radial/"
-FOLDER_TANGENTIAL = "./data/3d/relative_wind_tangential/"
+FOLDER_RADIAL = config.get_data_path("3d", "relative_wind_radial")
+FOLDER_TANGENTIAL = config.get_data_path("3d", "relative_wind_tangential")
 os.makedirs(FOLDER_RADIAL, exist_ok=True)
 os.makedirs(FOLDER_TANGENTIAL, exist_ok=True)
 
@@ -40,8 +40,8 @@ def process_t(t):
     cy = center_y_list[t]
 
     # データ読み込み (config.nz, config.ny, config.nx)
-    data_u = np.load(f"./data/3d/relative_u/t{str(t).zfill(3)}.npy")
-    data_v = np.load(f"./data/3d/relative_v/t{str(t).zfill(3)}.npy")
+    data_u = np.load(f"{config.get_data_path('3d', 'relative_u')}/t{str(t).zfill(3)}.npy")
+    data_v = np.load(f"{config.get_data_path('3d', 'relative_v')}/t{str(t).zfill(3)}.npy")
 
     # 直交座標系から極座標系への変換
     v_radial, v_tangential = grid.uv_to_radial_tangential(data_u, data_v, cx, cy)

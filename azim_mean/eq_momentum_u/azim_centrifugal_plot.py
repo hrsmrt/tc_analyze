@@ -20,13 +20,13 @@ nr = int(radius / config.dx)
 
 X, Y = grid.create_radial_vertical_meshgrid(1000e3)
 
-output_folder = "./fig/azim/eq_momentum_u/centrifugal/"
+output_folder = config.get_fig_path("azim", "eq_momentum_u", "centrifugal")
 
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"./data/azim/eq_momentum_u/centrifugal/t{str(t).zfill(3)}.npy")
+    data = np.load(f"{config.get_data_path('azim', 'eq_momentum_u', 'centrifugal')}/t{str(t).zfill(3)}.npy")
 
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(5, 2))

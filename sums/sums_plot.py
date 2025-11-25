@@ -13,11 +13,11 @@ varname = sys.argv[1]
 
 mpl_style_sheet = parse_style_argument()
 
-folder = "./fig/sums/"
+folder = config.get_fig_path("sums")
 os.makedirs(folder, exist_ok=True)
 
 # データの読み込み
-data = np.load(f"./data/sums/{varname}_sum.npy")
+data = np.load(f"{config.get_data_path('sums')}/{varname}_sum.npy")
 
 # プロット
 plt.style.use(mpl_style_sheet)

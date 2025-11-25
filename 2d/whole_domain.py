@@ -31,7 +31,7 @@ grid = GridHandler(config)
 custom_rainbow = create_custom_colormap("rainbow", 3)
 
 # 出力ディレクトリの作成
-OUTPUT_DIR = f"./fig/2d/whole_domain/{VARNAME}/"
+OUTPUT_DIR = config.get_fig_path("2d", "whole_domain", VARNAME)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # データの読み込み
@@ -154,7 +154,7 @@ for t in range(config.t_first, config.t_last):
     ax.set_aspect("equal", "box")
 
     # 保存
-    fig.savefig(f"{OUTPUT_DIR}t{str(config.time_list[t]).zfill(4)}.png")
+    fig.savefig(os.path.join(OUTPUT_DIR, f"t{str(config.time_list[t]).zfill(4)}.png"))
     plt.close()
 
 print(f"プロット完了: {OUTPUT_DIR}")

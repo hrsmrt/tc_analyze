@@ -18,12 +18,12 @@ mpl_style_sheet = parse_style_argument()
 vgrid = np.loadtxt(config.vgrid_filepath)
 f = config.f
 
-output_folder = "./fig/azim/vorticity_z_absolute/"
+output_folder = config.get_fig_path("azim", "vorticity_z_absolute")
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"./data/azim/vorticity_z/t{str(t).zfill(3)}.npy")
+    data = np.load(f"{config.get_data_path('azim', 'vorticity_z')}/t{str(t).zfill(3)}.npy")
     data += f
     # データの形状から半径方向のグリッドを作成
     nr = data.shape[1]

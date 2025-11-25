@@ -31,16 +31,16 @@ X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
-OUTPUT_DIR = "./fig/3d/vortex_region/dyn_radial"
+OUTPUT_DIR = config.get_fig_path("3d", "vortex_region", "dyn_radial")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
 for z in z_list:
-    os.makedirs(f"{OUTPUT_DIR}/z{str(z).zfill(2)}", exist_ok=True)
+    os.makedirs(os.path.join(OUTPUT_DIR, f"z{str(z).zfill(2)}"), exist_ok=True)
 
 
 def process_t(t):
     """指定された時刻tのms_dyn_radialをプロットする"""
-    data_t = np.load(f"./data/3d/wind_radial/t{str(t).zfill(3)}.npy")
+    data_t = np.load(f"{config.get_data_path('3d', 'wind_radial')}/t{str(t).zfill(3)}.npy")
     center_x = center_x_list[t]
     center_y = center_y_list[t]
     for z in z_list:
@@ -63,12 +63,12 @@ def process_t(t):
         ax.set_ylabel("y [km]")
         ax.set_aspect("equal", "box")
         fig.savefig(
-            f"{OUTPUT_DIR}/z{str(z).zfill(2)}/t{str(config.time_list[t]).zfill(3)}.png"
+            os.path.join(OUTPUT_DIR, f"z{str(z).zfill(2)}", f"t{str(config.time_list[t]).zfill(3)}.png")
         )
         plt.close()
 
 
 Parallel(n_jobs=config.n_jobs)(
     delayed(process_t)(t)
-    for t in range(config.t_first, config.t_last, int(24 / config.dt_hour))
+    for t in range(config.t_first, config.t_last + 1, config.t_step)
 )

@@ -10,7 +10,7 @@ from utils.grid import GridHandler
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-output_dir = "./data/z_profile_q4/zeta/"
+output_dir = config.get_data_path("z_profile_q4", "zeta")
 
 center_x_list = config.center_x
 center_y_list = config.center_y
@@ -22,7 +22,7 @@ z_profile_q = np.zeros((config.nt, config.nz, 4))
 
 for t in range(config.t_first, config.t_last):
     # 3Dデータを読み込む (nz, ny, nx)
-    data_3d = np.load(f"./data/3d/vorticity_z/vor_t{str(t).zfill(3)}.npy")
+    data_3d = np.load(f"{config.get_data_path('3d', 'vorticity_z')}/vor_t{str(t).zfill(3)}.npy")
 
     cx = center_x_list[t]
     cy = center_y_list[t]

@@ -13,7 +13,7 @@ config = AnalysisConfig()
 varname = sys.argv[1]
 
 # 出力ディレクトリ
-output_dir = "./data/z_profile/"
+output_dir = config.get_data_path("z_profile")
 os.makedirs(output_dir, exist_ok=True)
 
 # データの読み込みと処理

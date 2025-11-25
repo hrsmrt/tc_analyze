@@ -15,7 +15,7 @@ grid = GridHandler(config)
 mpl_style_sheet = parse_style_argument()
 
 # グリッド設定：データから実際のサイズを取得
-sample_data = np.load(f"./data/azim/eq_momentum_u/grad_p/t{str(config.t_first).zfill(3)}.npy")
+sample_data = np.load(f"{config.get_data_path('azim', 'eq_momentum_u', 'grad_p')}/t{str(config.t_first).zfill(3)}.npy")
 nz_data, nr_data = sample_data.shape
 
 # vgrid と rgrid を作成 (shifted cell center: r=1+0.5, 2+0.5, ...)
@@ -24,13 +24,13 @@ rgrid_wall = ((np.arange(nr_data) + 1) * config.dx + config.dx / 2) * 1e-3
 
 X, Y = np.meshgrid(rgrid_wall, vgrid)
 
-output_folder = "./fig/azim/eq_momentum_u/grad_p/"
+output_folder = config.get_fig_path("azim", "eq_momentum_u", "grad_p")
 
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"./data/azim/eq_momentum_u/grad_p/t{str(t).zfill(3)}.npy")
+    data = np.load(f"{config.get_data_path('azim', 'eq_momentum_u', 'grad_p')}/t{str(t).zfill(3)}.npy")
 
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(5, 2))

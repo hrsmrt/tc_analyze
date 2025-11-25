@@ -22,7 +22,7 @@ R_MAX = 1000e3
 NR = int(R_MAX / config.dx)
 CORIOLIS_PARAM = 3.77468e-5
 
-OUTPUT_FOLDER = "./data/3d/theta_e/"
+OUTPUT_FOLDER = config.get_data_path("3d", "theta_e")
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 PRES_S = 100000  # 基準気圧 Pa

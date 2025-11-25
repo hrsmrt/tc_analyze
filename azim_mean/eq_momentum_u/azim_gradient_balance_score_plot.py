@@ -16,7 +16,7 @@ mpl_style_sheet = parse_style_argument()
 
 # グリッド設定：データから実際のサイズを取得
 sample_data = np.load(
-    f"./data/azim/eq_momentum_u/gradient_balance_score/t{str(config.t_first).zfill(3)}.npy"
+    f"{config.get_data_path('azim', 'eq_momentum_u', 'gradient_balance_score')}/t{str(config.t_first).zfill(3)}.npy"
 )
 nz_data, nr_data = sample_data.shape
 
@@ -26,14 +26,14 @@ rgrid_wall = ((np.arange(nr_data) + 1) * config.dx + config.dx / 2) * 1e-3
 
 X, Y = np.meshgrid(rgrid_wall, vgrid)
 
-output_folder = "./fig/azim/eq_momentum_u/gradient_balance_score/"
+output_folder = config.get_fig_path("azim", "eq_momentum_u", "gradient_balance_score")
 
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
     data = np.load(
-        f"./data/azim/eq_momentum_u/gradient_balance_score/t{str(t).zfill(3)}.npy"
+        f"{config.get_data_path('azim', 'eq_momentum_u', 'gradient_balance_score')}/t{str(t).zfill(3)}.npy"
     )
 
     plt.style.use(mpl_style_sheet)

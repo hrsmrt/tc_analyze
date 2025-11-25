@@ -14,12 +14,12 @@ grid = GridHandler(config)
 
 mpl_style_sheet = parse_style_argument()
 
-output_folder = "./fig/azim/stream/"
+output_folder = config.get_fig_path("azim", "stream")
 os.makedirs(output_folder, exist_ok=True)
 
 max_phi = []
 for t in range(config.t_first, config.t_last):
-    data = np.load(f"./data/azim/stream/t{str(t).zfill(3)}.npy")
+    data = np.load(f"{config.get_data_path('azim', 'stream')}/t{str(t).zfill(3)}.npy")
     print(f"t={t} max: {np.nanmax(data)}")
     max_phi.append(np.nanmax(data))
 

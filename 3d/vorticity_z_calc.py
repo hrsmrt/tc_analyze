@@ -15,7 +15,7 @@ from utils.config import AnalysisConfig
 # 設定とグリッドの初期化
 config = AnalysisConfig()
 
-FOLDER = "./data/3d/vorticity_z/"
+FOLDER = config.get_data_path("3d", "vorticity_z")
 
 os.makedirs(FOLDER, exist_ok=True)
 

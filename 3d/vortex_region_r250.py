@@ -30,14 +30,14 @@ EXTENT = 250e3
 center_x_list = config.center_x
 center_y_list = config.center_y
 
-OUTPUT_FOLDER = f"./fig/3d/vortex_region_r250/{VARNAME}/"
+OUTPUT_FOLDER = config.get_fig_path("3d", "vortex_region_r250", VARNAME)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
 for z in z_list:
-    os.makedirs(f"{OUTPUT_FOLDER}z{str(z).zfill(2)}", exist_ok=True)
+    os.makedirs(os.path.join(OUTPUT_FOLDER, f"z{str(z).zfill(2)}"), exist_ok=True)
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
@@ -130,5 +130,5 @@ def process_t(t):
 
 Parallel(n_jobs=config.n_jobs)(
     delayed(process_t)(t)
-    for t in range(config.t_first, config.t_last, int(24 / config.dt_hour))
+    for t in range(config.t_first, config.t_last + 1, config.t_step)
 )

@@ -18,11 +18,11 @@ r_max = 1000e3
 
 X, Y = grid.X, grid.Y
 
-folder = f"./data/azim_pert2/{varname}/"
+folder = config.get_data_path("azim_pert2", varname)
 
 os.makedirs(folder, exist_ok=True)
 
-center_list = np.loadtxt("./data/low_2.txt", delimiter=",", skiprows=1)
+center_list = np.loadtxt(os.path.join(config.get_data_path(), "low_2.txt"), delimiter=",", skiprows=1)
 center_x_list = center_list[:, 1] * config.dx
 center_y_list = center_list[:, 2] * config.dy
 

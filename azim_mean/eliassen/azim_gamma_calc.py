@@ -16,7 +16,7 @@ nr = int(r_max / config.dx)
 R = (np.arange(nr) + 0.5) * config.dx
 f = 3.77468e-5
 
-output_folder = "./data/azim/eliassen/gamma/"
+output_folder = config.get_data_path("azim", "eliassen", "gamma")
 os.makedirs(output_folder, exist_ok=True)
 
 pres_s = 100000  # 基準気圧 Pa
@@ -28,7 +28,7 @@ g = 9.80665
 
 
 def process_t(t):
-    v = np.load(f"./data/azim/wind_relative_tangential/t{str(t).zfill(3)}.npy")
+    v = np.load(f"{config.get_data_path('azim', 'wind_relative_tangential')}/t{str(t).zfill(3)}.npy")
     gamma = (v[:, :] ** 2 / R[:] + f * v[:, :]) / g
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", gamma)
     print(f"t={t} done")

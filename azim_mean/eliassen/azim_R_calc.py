@@ -16,7 +16,7 @@ nr = int(r_max / config.dx)
 R = (np.arange(nr) + 0.5) * config.dx
 f = 3.77468e-5
 
-output_folder = "./data/azim/eliassen/R/"
+output_folder = config.get_data_path("azim", "eliassen", "R")
 os.makedirs(output_folder, exist_ok=True)
 
 pres_s = 100000  # 基準気圧 Pa
@@ -30,8 +30,8 @@ g = 9.80665
 
 
 def process_t(t):
-    rho = np.load(f"./data/azim/ms_rho/t{str(t).zfill(3)}.npy")
-    theta = np.load(f"./data/azim/theta/t{str(t).zfill(3)}.npy")
+    rho = np.load(f"{config.get_data_path('azim', 'ms_rho')}/t{str(t).zfill(3)}.npy")
+    theta = np.load(f"{config.get_data_path('azim', 'theta')}/t{str(t).zfill(3)}.npy")
     R_eliassen = R * rho * theta
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", R_eliassen)
     print(f"t={t} done")

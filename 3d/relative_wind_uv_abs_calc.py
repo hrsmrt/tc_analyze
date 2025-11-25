@@ -24,7 +24,7 @@ x = (np.arange(config.nx) + 0.5) * config.dx
 y = (np.arange(config.ny) + 0.5) * config.dy
 grid.X, grid.Y = np.meshgrid(x, y)
 
-OUTPUT_FOLDER = "./data/3d/relative_wind_uv_abs/"
+OUTPUT_FOLDER = config.get_data_path("3d", "relative_wind_uv_abs")
 
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
@@ -47,10 +47,10 @@ def process_t(t):
 
     # (config.nz, config.ny, config.nx) の配列を取得
     data_u = np.load(
-        f"./data/3d/relative_u/t{str(t).zfill(3)}.npy"
+        f"{config.get_data_path('3d', 'relative_u')}/t{str(t).zfill(3)}.npy"
     )  # shape: (config.nz, config.ny, config.nx)
     data_v = np.load(
-        f"./data/3d/relative_v/t{str(t).zfill(3)}.npy"
+        f"{config.get_data_path('3d', 'relative_v')}/t{str(t).zfill(3)}.npy"
     )  # shape: (config.nz, config.ny, config.nx)
 
     # ブロードキャストで一括計算

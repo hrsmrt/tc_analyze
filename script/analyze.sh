@@ -20,11 +20,12 @@
 #   --stop-on-error       エラーが発生したら停止 (デフォルト: 継続)
 #
 # カテゴリ:
-#   center             - 中心位置の計算とプロット
 #   3d                 - 3次元解析
 #   2d                 - 2次元解析
-#   azim               - 方位平均解析
 #   z_profile          - 鉛直プロファイル
+#   center             - 中心位置の計算とプロット
+#   vortex_region      - 渦領域解析 (3d, 2d, z_profile)
+#   azim               - 方位平均解析
 #   azim_eliassen      - 方位平均解析 (Eliassen)
 #   azim_eq_momentum_u - 方位平均解析 (運動量方程式 u)
 #   azim_eq_momentum_w - 方位平均解析 (運動量方程式 w)
@@ -123,11 +124,12 @@ TC Analysis Pipeline Script
   --stop-on-error       エラーが発生したら停止 (デフォルト: 継続)
 
 カテゴリ:
-  center             - 中心位置の計算とプロット
   3d                 - 3次元解析
   2d                 - 2次元解析
-  azim               - 方位平均解析
   z_profile          - 鉛直プロファイル
+  center             - 中心位置の計算とプロット
+  vortex_region      - 渦領域解析 (3d, 2d, z_profile)
+  azim               - 方位平均解析
   azim_eliassen      - 方位平均解析 (Eliassen)
   azim_eq_momentum_u - 方位平均解析 (運動量方程式 u)
   azim_eq_momentum_w - 方位平均解析 (運動量方程式 w)
@@ -150,11 +152,12 @@ EOF
 
 list_categories() {
     echo -e "${COLOR_BOLD}利用可能なカテゴリ:${COLOR_RESET}"
-    echo "  center             - 中心位置の計算とプロット"
     echo "  3d                 - 3次元解析"
     echo "  2d                 - 2次元解析"
-    echo "  azim               - 方位平均解析"
     echo "  z_profile          - 鉛直プロファイル"
+    echo "  center             - 中心位置の計算とプロット"
+    echo "  vortex_region      - 渦領域解析 (3d, 2d, z_profile)"
+    echo "  azim               - 方位平均解析"
     echo "  azim_eliassen      - 方位平均解析 (Eliassen)"
     echo "  azim_eq_momentum_u - 方位平均解析 (運動量方程式 u)"
     echo "  azim_eq_momentum_w - 方位平均解析 (運動量方程式 w)"
@@ -312,31 +315,38 @@ run_center() {
     run_cmd "python ${TC_ANALYZE}/center/mass_all.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/center/mass_under20km.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/center/mass.py ${STYLE}"
+    run_cmd "sh ${TC_ANALYZE}/3d/whole_domain_with_center_plot.sh"
+    run_cmd "sh ${TC_ANALYZE}/2d/whole_domain_with_center_plot.sh"
+}
+
+run_2d() {
+    log_section "2D Analysis"
+    run_cmd "sh ${TC_ANALYZE}/2d/whole_domain.sh"
+    run_cmd "sh ${TC_ANALYZE}/2d/y_ave.sh"
+    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_abs_whole_domain.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_max_calc.py"
+    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_max_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_radial_tangential_calc.py"
+    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_tangential_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_radial_plot.py ${STYLE}"
 }
 
 run_3d() {
     log_section "3D Analysis"
     run_cmd "sh ${TC_ANALYZE}/3d/whole_domain.sh"
-    run_cmd "sh ${TC_ANALYZE}/3d/whole_domain_with_center_plot.sh"
-    run_cmd "sh ${TC_ANALYZE}/3d/vortex_region.sh"
-    run_cmd "sh ${TC_ANALYZE}/3d/vortex_region_r250.sh"
     run_cmd "python ${TC_ANALYZE}/3d/streamplot_whole_domain.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/vortex_region_wind_uv_abs_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/3d/whole_domain_wind_uv_abs_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/3d/ms_wind_radial_tangential_calc.py"
     run_cmd "python ${TC_ANALYZE}/3d/ms_wind_tangential_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/3d/ms_wind_radial_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/3d/vorticity_z_calc.py"
-    run_cmd "python ${TC_ANALYZE}/3d/vorticity_z_vortex_region_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/3d/vorticity_z_absolute_whole_domain_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/3d/divergence_calc.py"
-    run_cmd "python ${TC_ANALYZE}/3d/divergence_vortex_region_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/3d/divergence_whole_domain_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/3d/theta_e_calc.py"
-    run_cmd "python ${TC_ANALYZE}/3d/theta_e_plot_vortex_region.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/3d/theta_e_plot_whole_region.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/3d/psi_calc.py"
     run_cmd "python ${TC_ANALYZE}/3d/psi_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/3d/psi_plot_vortex_region.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/3d/psi_plot_r200.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/3d/ms_dyn_radial_tangential_calc.py"
     run_cmd "python ${TC_ANALYZE}/3d/ms_dyn_tangential_plot.py ${STYLE}"
@@ -351,19 +361,19 @@ run_3d() {
     run_cmd "python ${TC_ANALYZE}/3d/cape.py ${STYLE}"
 }
 
-run_2d() {
-    log_section "2D Analysis"
-    run_cmd "sh ${TC_ANALYZE}/2d/whole_domain.sh"
-    run_cmd "sh ${TC_ANALYZE}/2d/whole_domain_with_center_plot.sh"
-    run_cmd "sh ${TC_ANALYZE}/2d/vortex_region.sh"
-    run_cmd "sh ${TC_ANALYZE}/2d/y_ave.sh"
-    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_abs_whole_domain.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_abs_vortex_region.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_max_calc.py"
-    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_max_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_radial_tangential_calc.py"
-    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_tangential_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_radial_plot.py ${STYLE}"
+run_z_profile() {
+    log_section "Z Profile Analysis"
+    run_cmd "sh ${TC_ANALYZE}/z_profile/z_profile_calc.sh"
+    run_cmd "sh ${TC_ANALYZE}/z_profile/z_profile_plot.sh"
+    run_cmd "python ${TC_ANALYZE}/z_profile/hf_calc.py"
+    run_cmd "python ${TC_ANALYZE}/z_profile/hf_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/z_profile/sounding_rh_from_qv.py ${STYLE}"
+}
+
+run_sums() {
+    log_section "Sums Analysis"
+    run_cmd "sh ${TC_ANALYZE}/sums/sums_calc.sh"
+    run_cmd "sh ${TC_ANALYZE}/sums/sums_plot.sh"
 }
 
 run_azim() {
@@ -420,17 +430,6 @@ run_azim() {
     #run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_calc2.py"
     #run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_radial_plot2.py ${STYLE}"
     #run_cmd "python ${TC_ANALYZE}/azim_mean/azim_wind_tangential_plot2.py ${STYLE}"
-}
-
-run_z_profile() {
-    log_section "Z Profile Analysis"
-    run_cmd "sh ${TC_ANALYZE}/z_profile/z_profile_calc.sh"
-    run_cmd "sh ${TC_ANALYZE}/z_profile/z_profile_plot.sh"
-    run_cmd "sh ${TC_ANALYZE}/z_profile/vortex_region_calc.sh"
-    run_cmd "sh ${TC_ANALYZE}/z_profile/vortex_region_plot.sh"
-    run_cmd "python ${TC_ANALYZE}/z_profile/hf_calc.py"
-    run_cmd "python ${TC_ANALYZE}/z_profile/hf_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/z_profile/sounding_rh_from_qv.py ${STYLE}"
 }
 
 run_azim_eliassen() {
@@ -492,12 +491,6 @@ run_azim_q8() {
     run_cmd "python ${TC_ANALYZE}/azim_q8/azim_q8_wind_relative_tangential_plot.py ${STYLE}"
 }
 
-run_sums() {
-    log_section "Sums Analysis"
-    run_cmd "sh ${TC_ANALYZE}/sums/sums_calc.sh"
-    run_cmd "sh ${TC_ANALYZE}/sums/sums_plot.sh"
-}
-
 run_symmetrisity() {
     log_section "Symmetrisity Analysis"
     run_cmd "sh ${TC_ANALYZE}/symmetrisity/3d_calc.sh"
@@ -514,6 +507,21 @@ run_z_profile_q4() {
     run_cmd "python ${TC_ANALYZE}/z_profile_q4/vorticity_z_plot.py ${STYLE}"
 }
 
+run_vortex_region() {
+    log_section "Vortex Region Analysis"
+    run_cmd "sh ${TC_ANALYZE}/3d/vortex_region.sh"
+    run_cmd "sh ${TC_ANALYZE}/3d/vortex_region_r250.sh"
+    run_cmd "python ${TC_ANALYZE}/3d/vortex_region_wind_uv_abs_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/3d/vorticity_z_vortex_region_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/3d/divergence_vortex_region_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/3d/theta_e_plot_vortex_region.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/3d/psi_plot_vortex_region.py ${STYLE}"
+    run_cmd "sh ${TC_ANALYZE}/2d/vortex_region.sh"
+    run_cmd "python ${TC_ANALYZE}/2d/ss_wind10m_abs_vortex_region.py ${STYLE}"
+    run_cmd "sh ${TC_ANALYZE}/z_profile/vortex_region_calc.sh"
+    run_cmd "sh ${TC_ANALYZE}/z_profile/vortex_region_plot.sh"
+}
+
 # ============================================================================
 # カテゴリの実行
 # ============================================================================
@@ -522,20 +530,20 @@ ERROR_COUNT=0
 
 for category in "${CATEGORIES[@]}"; do
     case "${category}" in
-        center)
-            run_center
-            ;;
         3d)
             run_3d
             ;;
         2d)
             run_2d
             ;;
-        azim)
-            run_azim
-            ;;
         z_profile)
             run_z_profile
+            ;;
+        center)
+            run_center
+            ;;
+        azim)
+            run_azim
             ;;
         azim_eliassen)
             run_azim_eliassen
@@ -558,12 +566,16 @@ for category in "${CATEGORIES[@]}"; do
         z_profile_q4)
             run_z_profile_q4
             ;;
+        vortex_region)
+            run_vortex_region
+            ;;
         all)
-            run_center
             run_3d
             run_2d
-            run_azim
             run_z_profile
+            run_center
+            run_vortex_region
+            run_azim
             run_azim_eliassen
             run_azim_eq_momentum_u
             run_azim_eq_momentum_w
