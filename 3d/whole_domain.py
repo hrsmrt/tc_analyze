@@ -3,6 +3,8 @@
 import os
 import sys
 
+import matplotlib
+matplotlib.use('Agg')  # ✅ 高速化: GUI描画のオーバーヘッド削減
 import matplotlib.pyplot as plt
 import numpy as np
 from joblib import Parallel, delayed
@@ -41,100 +43,104 @@ data_memmap = np.memmap(
     shape=(config.nt, config.nz, config.ny, config.nx),
 )
 
+# ✅ 高速化: levelsを事前計算（毎回np.arange()を呼ばないように）
+LEVELS_U_V = np.arange(-40, 45, 5)
+LEVELS_W = np.arange(-4, 4.5, 0.5)
+LEVELS_TEM_Z0 = np.arange(295, 305, 1)
+LEVELS_RH = np.arange(0, 1.2, 0.1)
+LEVELS_QV_Z0 = np.arange(0.005, 0.027, 0.002)
 
-def process_t(t):
-    for z in z_list:
-        data = data_memmap[t, z, :, :]
-        plt.style.use(mpl_style_sheet)
-        fig, ax = plt.subplots(figsize=(5, 4))
-        match VARNAME:
-            case "ms_u":
+
+def process_t_z(t, z):
+    """✅ 高速化: (t,z)ペアで並列化（より細かい粒度）"""
+    data = data_memmap[t, z, :, :]
+    plt.style.use(mpl_style_sheet)
+    fig, ax = plt.subplots(figsize=(5, 4))
+
+    match VARNAME:
+        case "ms_u":
+            c = ax.contourf(
+                grid.X,
+                grid.Y,
+                data,
+                levels=LEVELS_U_V,
+                cmap="bwr",
+                extend="both",
+            )
+        case "ms_v":
+            c = ax.contourf(
+                grid.X,
+                grid.Y,
+                data,
+                levels=LEVELS_U_V,
+                cmap="bwr",
+                extend="both",
+            )
+        case "ms_w":
+            c = ax.contourf(
+                grid.X,
+                grid.Y,
+                data,
+                levels=LEVELS_W,
+                cmap="bwr",
+                extend="both",
+            )
+        case "ms_tem":
+            if z == 0:
                 c = ax.contourf(
                     grid.X,
                     grid.Y,
                     data,
-                    levels=np.arange(-40, 45, 5),
-                    cmap="bwr",
-                    extend="both",
-                )
-            case "ms_v":
-                c = ax.contourf(
-                    grid.X,
-                    grid.Y,
-                    data,
-                    levels=np.arange(-40, 45, 5),
-                    cmap="bwr",
-                    extend="both",
-                )
-            case "ms_w":
-                c = ax.contourf(
-                    grid.X,
-                    grid.Y,
-                    data,
-                    levels=np.arange(-4, 4.5, 0.5),
-                    cmap="bwr",
-                    extend="both",
-                )
-            case "ms_tem":
-                if z == 0:
-                    c = ax.contourf(
-                        grid.X,
-                        grid.Y,
-                        data,
-                        levels=np.arange(295, 305, 1),
-                        cmap="rainbow",
-                        extend="both",
-                    )
-                else:
-                    c = ax.contourf(grid.X, grid.Y, data, cmap="rainbow", extend="both")
-            case "ms_rh":
-                c = ax.contourf(
-                    grid.X,
-                    grid.Y,
-                    data,
-                    levels=np.arange(0, 1.2, 0.1),
+                    levels=LEVELS_TEM_Z0,
                     cmap="rainbow",
                     extend="both",
                 )
-            case "ms_qv":
-                if z == 0:
-                    c = ax.contourf(
-                        grid.X,
-                        grid.Y,
-                        data,
-                        levels=np.arange(0.005, 0.027, 0.002),
-                        cmap="rainbow",
-                        extend="both",
-                    )
-                else:
-                    c = ax.contourf(grid.X, grid.Y, data, cmap="rainbow", extend="both")
-            case _:
-                c = ax.contourf(grid.X, grid.Y, data, cmap="rainbow")
-        divider = make_axes_locatable(ax)
-        cax = divider.append_axes(
-            "right", size="5%", pad=0.1
-        )  # size: colorbar幅, pad: 図との距離
-        fig.colorbar(c, cax=cax)
-        ax.set_title(f"t={config.time_list[t]:3d}h,z={int(vgrid[z] * 1e-2) * 1e-1}km")
-        ax.set_xticks(
-            [0, config.x_width / 2, config.x_width],
-            ["", "", ""],
-        )
-        ax.set_yticks(
-            [0, config.y_width / 2, config.y_width],
-            ["", "", ""],
-        )
-        # ax.set_xlabel("x [km]")
-        # ax.set_ylabel("y [km]")
-        ax.grid(False)
-        ax.set_aspect("equal", "box")
-        fig.savefig(
-            os.path.join(OUTPUT_DIR, f"z{str(z).zfill(2)}", f"t{str(t).zfill(3)}.png")
-        )
-        plt.close()
+            else:
+                c = ax.contourf(grid.X, grid.Y, data, cmap="rainbow", extend="both")
+        case "ms_rh":
+            c = ax.contourf(
+                grid.X,
+                grid.Y,
+                data,
+                levels=LEVELS_RH,
+                cmap="rainbow",
+                extend="both",
+            )
+        case "ms_qv":
+            if z == 0:
+                c = ax.contourf(
+                    grid.X,
+                    grid.Y,
+                    data,
+                    levels=LEVELS_QV_Z0,
+                    cmap="rainbow",
+                    extend="both",
+                )
+            else:
+                c = ax.contourf(grid.X, grid.Y, data, cmap="rainbow", extend="both")
+        case _:
+            c = ax.contourf(grid.X, grid.Y, data, cmap="rainbow")
+
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="5%", pad=0.1)
+    fig.colorbar(c, cax=cax)
+    ax.set_title(f"t={config.time_list[t]:3d}h,z={vgrid[z] * 1e-3:.1f}km")
+    ax.set_xticks([0, config.x_width / 2, config.x_width], ["", "", ""])
+    ax.set_yticks([0, config.y_width / 2, config.y_width], ["", "", ""])
+    ax.grid(False)
+    ax.set_aspect("equal", "box")
+    fig.savefig(
+        os.path.join(OUTPUT_DIR, f"z{str(z).zfill(2)}", f"t{str(t).zfill(3)}.png")
+    )
+    plt.close()
+    print(f"t={t}, z={z} done")
 
 
+# ✅ 高速化: (t, z)のペアで並列化（より多くの並列度）
 Parallel(n_jobs=config.n_jobs)(
-    delayed(process_t)(t)
+    delayed(process_t_z)(t, z)
     for t in range(config.t_first, config.t_last + 1, config.t_step)
+    for z in z_list
 )
+
+print(f"✅ 完了: {OUTPUT_DIR}")

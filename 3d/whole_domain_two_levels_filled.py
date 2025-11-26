@@ -169,7 +169,7 @@ def process_t(t):
     ]
     ax.legend(handles=legend_elements, loc='upper left', fontsize=8)
 
-    fig.savefig(os.path.join(OUTPUT_DIR, f"t{str(t).zfill(3)}.png"), dpi=150, bbox_inches='tight')
+    fig.savefig(os.path.join(OUTPUT_DIR, f"t{str(t).zfill(3)}.png"), bbox_inches='tight')
     plt.close()
     print(f"t={t} done")
 
