@@ -7,6 +7,8 @@ whole_domain_wind_uv_abs のプロット
 # python $WORK/tc_analyze/3d/whole_domain_wind_uv_abs_plot.py $style
 import os
 
+import matplotlib
+matplotlib.use('Agg')  # GUI描画のオーバーヘッド削減
 import matplotlib.pyplot as plt
 import numpy as np
 from joblib import Parallel, delayed
@@ -65,8 +67,10 @@ def process_t(t):
         ax.set_xticks([0, config.x_width * 1 / 2, config.x_width], ["", "", ""])
         ax.set_yticks([0, config.y_width * 1 / 2, config.y_width], ["", "", ""])
         ax.set_aspect("equal", "box")
+        z_folder = os.path.join(OUTPUT_FOLDER, f"z{str(z).zfill(2)}")
+        os.makedirs(z_folder, exist_ok=True)
         fig.savefig(
-            f"{OUTPUT_FOLDER}z{str(z).zfill(2)}/t{str(config.time_list[t]).zfill(3)}.png"
+            os.path.join(z_folder, f"t{str(config.time_list[t]).zfill(3)}.png")
         )
         plt.close()
 

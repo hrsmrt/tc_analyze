@@ -2,6 +2,8 @@
 # python $WORK/tc_analyze/analyze/2d/ss_wind10m_max_plot.py $style
 import os
 
+import matplotlib
+matplotlib.use('Agg')  # GUI描画のオーバーヘッド削減
 import matplotlib.pyplot as plt
 import numpy as np
 

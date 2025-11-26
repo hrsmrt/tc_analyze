@@ -7,6 +7,8 @@ psi_vortex_region のプロット
 # python $WORK/tc_analyze/3d/psi_plot_vortex_region.py $style
 import os
 
+import matplotlib
+matplotlib.use('Agg')  # GUI描画のオーバーヘッド削減
 import matplotlib.pyplot as plt
 import numpy as np
 from joblib import Parallel, delayed

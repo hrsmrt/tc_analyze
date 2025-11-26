@@ -2,6 +2,8 @@
 # python $WORK/tc_analyze/3d/streamplot_whole_domain.py $style
 import os
 
+import matplotlib
+matplotlib.use('Agg')  # GUI描画のオーバーヘッド削減
 import matplotlib.pyplot as plt
 import numpy as np
 from joblib import Parallel, delayed
@@ -60,8 +62,10 @@ def process_t(t):
         ax.set_ylabel("y [km]")
         ax.grid(False)
         ax.set_aspect("equal", "box")
+        z_folder = os.path.join(FOLDER, f"z{str(z).zfill(2)}")
+        os.makedirs(z_folder, exist_ok=True)
         fig.savefig(
-            os.path.join(OUTPUT_DIR, f"z{str(z).zfill(2)}", f"t{str(t).zfill(3)}.png")
+            os.path.join(z_folder, f"t{str(t).zfill(3)}.png")
         )
         plt.close()
     print(f"t: {t} done")

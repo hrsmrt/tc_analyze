@@ -122,8 +122,10 @@ def process_t(t):
         # ax.set_xlabel("x [km]")
         # ax.set_ylabel("y [km]")
         ax.set_aspect("equal", "box")
+        z_folder = os.path.join(OUTPUT_FOLDER, f"z{str(z).zfill(2)}")
+        os.makedirs(z_folder, exist_ok=True)
         fig.savefig(
-            f"{OUTPUT_FOLDER}z{str(z).zfill(2)}/t{str(config.time_list[t]).zfill(3)}.png"
+            os.path.join(z_folder, f"t{str(config.time_list[t]).zfill(3)}.png")
         )
         plt.close()
 

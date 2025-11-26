@@ -2,6 +2,8 @@
 import os
 import sys
 
+import matplotlib
+matplotlib.use('Agg')  # GUI描画のオーバーヘッド削減
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -21,7 +23,7 @@ data = np.load(f"{config.get_data_path('sums')}/{varname}_sum.npy")
 
 # プロット
 plt.style.use(mpl_style_sheet)
-plt.plot(config.time_list[1:], data[1:] * 1e-2)
+plt.plot(config.time_list[config.t_first:config.t_first+len(data)], data * 1e-2)
 plt.xlabel("時間 [hour]")
 # plt.ylabel("最低海面気圧 [hPa]")
 plt.savefig(f"{folder}{varname}_sum.png")

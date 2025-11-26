@@ -7,6 +7,8 @@ relative_wind_uv_abs のプロット
 # python $WORK/tc_analyze/3d/relative_wind_uv_abs_plot.py $style
 import os
 
+import matplotlib
+matplotlib.use('Agg')  # GUI描画のオーバーヘッド削減
 import matplotlib.pyplot as plt
 import numpy as np
 from joblib import Parallel, delayed
@@ -40,7 +42,7 @@ vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
 
 def process_t(t):
-    data_t = np.load(f"{config.get_data_path("3d", "relative_wind_uv_abs")}/t{str(t).zfill(3)}.npy")
+    data_t = np.load(f"{config.get_data_path('3d', 'relative_wind_uv_abs')}/t{str(t).zfill(3)}.npy")
     center_x = center_x_list[t]
     center_y = center_y_list[t]
     for z in z_list:
@@ -81,7 +83,7 @@ def process_t(t):
         ax.set_title(f"t={t}h, z={round(vgrid[z] * 1e-3, 1):.1f}km")
         ax.set_aspect("equal", "box")
         fig.savefig(
-            f"{OUTPUT_FOLDER}z{str(z).zfill(2)}/t{str(config.time_list[t]).zfill(3)}.png"
+            os.path.join(OUTPUT_FOLDER, f"z{str(z).zfill(2)}", f"t{str(config.time_list[t]).zfill(3)}.png")
         )
         plt.close()
 

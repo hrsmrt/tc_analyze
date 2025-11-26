@@ -7,6 +7,8 @@ ms_dyn_tangential のプロット
 # python $WORK/tc_analyze/3d/ms_dyn_tangential_plot.py $style
 import os
 
+import matplotlib
+matplotlib.use('Agg')  # GUI描画のオーバーヘッド削減
 import matplotlib.pyplot as plt
 import numpy as np
 from joblib import Parallel, delayed

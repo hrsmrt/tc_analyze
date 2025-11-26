@@ -51,16 +51,22 @@ def tetens(T):
     es : float or ndarray
         Saturation vapor pressure [Pa]
     """
-    if T > 273.15:
-        A = 7.5
-        B = 237.3
-    else:
-        A = 9.5
-        B = 265.5
+    # ベクトル化対応: スカラーと配列の両方に対応
+    T = np.asarray(T)
+    scalar_input = T.ndim == 0
+    T = np.atleast_1d(T)
+
+    # 水上（T > 273.15）と氷上（T <= 273.15）で係数を切り替え
+    A = np.where(T > 273.15, 7.5, 9.5)
+    B = np.where(T > 273.15, 237.3, 265.5)
+
     T0 = 273.15
     p0 = 6.1078e2  # Pa
     T_ = T - T0
     es = p0 * np.power(10, A * T_ / (B + T_))
+
+    if scalar_input:
+        return es.item()
     return es
 # Goff-Gratch formula, Satoh(2013) p256
 def goff_gratch(T):

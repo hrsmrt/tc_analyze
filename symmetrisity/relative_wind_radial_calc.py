@@ -43,7 +43,7 @@ def process_t(t):
     print(f"3d data t: {t}, max: {data.max()}, min: {data.min()}")
 
     valid_data = data[:, mask]
-    azim_sum = np.zeros((config.nz, max_bin))
+    azim_sum = np.zeros((config.nz, max_bin), dtype=np.float32)
     count_r = np.zeros(max_bin, dtype=int)
 
     for i, b in enumerate(bin_idx):

@@ -1,5 +1,7 @@
 """Plot tropical cyclone center trajectory on sea level pressure field."""
 # python $WORK/tc_analyze/center/ss_slp_center_plot.py $style
+import matplotlib
+matplotlib.use('Agg')  # GUI描画のオーバーヘッド削減
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import cm
@@ -30,7 +32,7 @@ fig, ax = plt.subplots(figsize=(5, 4))
 sc = ax.scatter(
     x_c_evo,
     y_c_evo,
-    c=np.arange(config.t_first, config.t_last),
+    c=np.arange(len(x_c_evo)),
     cmap=cmap,
     norm=norm,
     s=20,

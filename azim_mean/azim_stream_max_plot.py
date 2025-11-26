@@ -2,6 +2,8 @@
 
 import os
 
+import matplotlib
+matplotlib.use('Agg')  # GUI描画のオーバーヘッド削減
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -25,7 +27,7 @@ for t in range(config.t_first, config.t_last):
 
 plt.style.use(mpl_style_sheet)
 fig, ax = plt.subplots(figsize=(5, 2))
-plt.plot(config.time_list, max_phi)
+plt.plot(config.time_list[config.t_first:config.t_last], max_phi)
 ax.set_title("流線関数の最大値")
 ax.set_xlabel("時間 [hour]")
 ax.set_ylabel("最大値")

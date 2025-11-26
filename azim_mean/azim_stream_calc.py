@@ -28,15 +28,18 @@ def process_t(t):
     nr = rho.shape[1]
     R = (np.arange(nr) + 0.5) * config.dx
     phi = np.zeros_like(rho)
-    for z in range(1, config.nz):
-        phi[z, 0] = phi[z - 1, 0] - 0.5 * (
-            rho[z, 0] * u[z, 0] * R[0] + rho[z - 1, 0] * u[z - 1, 0] * R[0]
-        ) * (vgrid[z] - vgrid[z - 1])
-    for z in range(config.nz):
-        for r in range(1, nr):
-            phi[z, r] = phi[z, r - 1] + 0.5 * (
-                rho[z, r] * w[z, r] * R[r] + rho[z, r - 1] * w[z, r - 1] * R[r - 1]
-            ) * (R[r] - R[r - 1])
+
+    # ベクトル化版：z方向の積分（r=0の列）
+    # 従来版: for z in range(1, config.nz): phi[z, 0] = phi[z - 1, 0] - ...
+    dz = np.diff(vgrid)
+    integrand_z = -0.5 * (rho[1:, 0] * u[1:, 0] + rho[:-1, 0] * u[:-1, 0]) * R[0] * dz
+    phi[1:, 0] = np.cumsum(integrand_z)
+
+    # ベクトル化版：r方向の積分（各z層）
+    # 従来版: for z in range(config.nz): for r in range(1, nr): phi[z, r] = phi[z, r - 1] + ...
+    dr = np.diff(R)
+    integrand_r = 0.5 * (rho[:, 1:] * w[:, 1:] * R[1:] + rho[:, :-1] * w[:, :-1] * R[:-1]) * dr
+    phi[:, 1:] = phi[:, :1] + np.cumsum(integrand_r, axis=1)
 
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", phi)
     print(f"t={t} done")
