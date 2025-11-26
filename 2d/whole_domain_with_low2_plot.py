@@ -1,5 +1,5 @@
 """Plot 2D whole domain data with a low-pressure center marked."""
-# python $WORK/tc_analyze/analyze/2d/whole_domain_with_low2_plot.py varname $style
+# python $WORK/tc_analyze/2d/whole_domain_with_low2_plot.py varname $style
 import os
 import sys
 

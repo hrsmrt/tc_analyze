@@ -1,5 +1,5 @@
 """Calculate maximum 10m wind speed at each time step."""
-# python $WORK/tc_analyze/analyze/2d/ss_wind10m_max_calc.py
+# python $WORK/tc_analyze/2d/ss_wind10m_max_calc.py
 import os
 
 import numpy as np

@@ -1,5 +1,5 @@
 """Plot y-averaged 2D data."""
-# python $WORK/tc_analyze/analyze/2d/y_ave.py varname $style
+# python $WORK/tc_analyze/2d/y_ave.py varname $style
 import os
 import sys
 

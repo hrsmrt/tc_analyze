@@ -4,7 +4,7 @@ whole_domain copy
 解析処理を実行します。
 """
 
-# python $WORK/tc_analyze/3d/whole_domain.py varname $style
+# python $WORK/tc_analyze/3d/whole_domain\ copy.py varname $style
 import os
 import sys
 

@@ -1,5 +1,5 @@
 """Plot time series of maximum 10m wind speed."""
-# python $WORK/tc_analyze/analyze/2d/ss_wind10m_max_plot.py $style
+# python $WORK/tc_analyze/2d/ss_wind10m_max_plot.py $style
 import os
 
 import matplotlib

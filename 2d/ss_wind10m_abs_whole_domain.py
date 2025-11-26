@@ -1,5 +1,5 @@
 """Plot 10m wind speed over whole domain."""
-# python $WORK/tc_analyze/analyze/2d/ss_wind10m_abs_whole_domain.py $style
+# python $WORK/tc_analyze/2d/ss_wind10m_abs_whole_domain.py $style
 import os
 
 import matplotlib.pyplot as plt
