@@ -1,4 +1,9 @@
-"""Plot equivalent potential temperature over vortex region."""
+"""
+theta_e_vortex_region のプロット
+
+✅ ストレージ節約版: オンデマンド計算を使用
+データを保存せず、必要時に計算することで数GB〜数百GBのストレージを節約
+"""
 # python $WORK/tc_analyze/3d/theta_e_plot_vortex_region.py $style
 import os
 
@@ -11,6 +16,7 @@ from joblib import Parallel, delayed
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 from utils.plotting import parse_style_argument, set_vortex_region_ticks_empty
+from utils.thermodynamics import calculate_theta_e_from_memmap
 
 # スタイルシートの解析
 mpl_style_sheet = parse_style_argument()
@@ -35,9 +41,30 @@ for z in z_list:
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
+# ✅ オンデマンド計算: メモリマップを開く
+data_tem = np.memmap(
+    f"{config.input_folder}ms_tem.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_pres = np.memmap(
+    f"{config.input_folder}ms_pres.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_qv = np.memmap(
+    f"{config.input_folder}ms_qv.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+
 
 def process_t(t):
-    data_t = np.load(os.path.join(config.get_data_path("3d", "theta_e"), f"t{str(t).zfill(3)}.npy"))
+    # ✅ オンデマンド計算: 必要時にその場で計算（保存データ不要）
+    data_t = calculate_theta_e_from_memmap(data_tem, data_pres, data_qv, t)
     center_x = center_x_list[t]
     center_y = center_y_list[t]
     for z in z_list:
