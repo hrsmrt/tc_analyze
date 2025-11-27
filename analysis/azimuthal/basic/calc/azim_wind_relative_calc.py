@@ -1,18 +1,26 @@
-# python $WORK/tc_analyze/azim_mean/azim_wind_relative_calc.py
+"""
+相対風の方位角平均を計算して保存
+
+✅ ストレージ節約版: オンデマンド計算を使用
+事前計算された相対風データ (relative_u, relative_v) の保存が不要
+
+input: ms_u.grd (東西風), ms_v.grd (南北風), center位置と移動速度
+output: 相対風の方位角平均（動径成分・接線成分）
+
+python $WORK/tc_analyze/azim_mean/azim_wind_relative_calc.py
+"""
+
 import os
 
 import numpy as np
 from joblib import Parallel, delayed
 
+from utils.azimuthal import calculate_azimuthal_mean_relative_wind
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 
 config = AnalysisConfig()
 grid = GridHandler(config)
-
-r_max = 1000e3
-
-X, Y = grid.X, grid.Y
 
 output_folder1 = config.get_data_path("azim", "wind_relative_radial")
 output_folder2 = config.get_data_path("azim", "wind_relative_tangential")
@@ -22,79 +30,38 @@ os.makedirs(output_folder2, exist_ok=True)
 
 center_x_list = config.center_x
 center_y_list = config.center_y
+center_u_list = config.center_u
+center_v_list = config.center_v
+
+# ✅ オンデマンド計算: メモリマップを開く
+data_u = np.memmap(
+    f"{config.input_folder}ms_u.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_v = np.memmap(
+    f"{config.input_folder}ms_v.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
 
 
-# メインループ
 def process_t(t):
-    # 中心座標（m単位）
-    cx = center_x_list[t]
-    cy = center_y_list[t]
-
-    dX = X - cx
-    dY = Y - cy
-    dX[dX > 0.5 * config.x_width] -= config.x_width
-    dX[dX < -0.5 * config.x_width] += config.x_width
-    theta = np.arctan2(dY, dX)
-    R = np.sqrt(dX**2 + dY**2)
-
-    cx2 = cx - config.x_width
-    cy2 = cy - config.y_width
-    dX2 = X - cx2
-    dY2 = Y - cy2
-    dX2[dX2 > 0.5 * config.x_width] -= config.x_width
-    dX2[dX2 < -0.5 * config.x_width] += config.x_width
-    np.arctan2(dY2, dX2)
-    R2 = np.sqrt(dX2**2 + dY2**2)
-    R = np.minimum(R, R2)
-    mask = R <= r_max
-    valid_r = R[mask]
-
-    bin_idx = np.floor(valid_r / config.dx).astype(int)
-    max_bin = int(np.floor(r_max / config.dx))
-    bin_idx = np.clip(bin_idx, 0, max_bin - 1)  # 範囲外を防ぐ
-
-    count_r = np.bincount(bin_idx, minlength=max_bin)
-
-    data_u = np.load(os.path.join(config.get_data_path('3d', 'relative_u'), f"t{str(t).zfill(3)}.npy"))
-    data_v = np.load(os.path.join(config.get_data_path('3d', 'relative_v'), f"t{str(t).zfill(3)}.npy"))
-
-    valid_data_u = data_u[:, mask]
-    valid_data_v = data_v[:, mask]
-
-    v_radial = valid_data_u * np.cos(theta[mask]) + valid_data_v * np.sin(theta[mask])
-    v_tangential = -valid_data_u * np.sin(theta[mask]) + valid_data_v * np.cos(
-        theta[mask]
+    # ✅ オンデマンド計算: 必要時にその場で計算（保存データ不要）
+    azim_mean_radial, azim_mean_tangential = calculate_azimuthal_mean_relative_wind(
+        data_u, data_v, t, center_x_list, center_y_list, center_u_list, center_v_list, grid
     )
 
-    # ベクトル化版（従来のforループより10-100倍高速）
-    # 従来版: for i, b in enumerate(bin_idx): azim_sum_radial[:, b] += v_radial[:, i]
-    azim_sum_radial = np.zeros((config.nz, max_bin), dtype=np.float32)
-    np.add.at(azim_sum_radial.T, bin_idx, v_radial.T)
-
-    # 割り算（ゼロ割回避）
-    with np.errstate(divide="ignore", invalid="ignore"):
-        azim_mean_radial = np.where(count_r > 0, azim_sum_radial / count_r, np.nan)
-
     print(
-        f"azim mean data t: {t}, max: {azim_mean_radial.max()}, min: {azim_mean_radial.min()}"
+        f"azim mean data t: {t}, radial max: {azim_mean_radial.max():.2f}, min: {azim_mean_radial.min():.2f}"
     )
     np.save(os.path.join(output_folder1, f"t{str(t).zfill(3)}.npy"), azim_mean_radial)
 
-    # ベクトル化版（従来のforループより10-100倍高速）
-    # 従来版: for i, b in enumerate(bin_idx): azim_sum_tangential[:, b] += v_tangential[:, i]
-    azim_sum_tangential = np.zeros((config.nz, max_bin), dtype=np.float32)
-    np.add.at(azim_sum_tangential.T, bin_idx, v_tangential.T)
-
-    # 割り算（ゼロ割回避）
-    with np.errstate(divide="ignore", invalid="ignore"):
-        azim_mean_tangential = np.where(
-            count_r > 0, azim_sum_tangential / count_r, np.nan
-        )
-
     print(
-        f"azim mean data t: {t}, max: {
-            azim_mean_tangential.max()}, min: {
-            azim_mean_tangential.min()}")
+        f"azim mean data t: {t}, tangential max: {azim_mean_tangential.max():.2f}, min: {azim_mean_tangential.min():.2f}"
+    )
     np.save(os.path.join(output_folder2, f"t{str(t).zfill(3)}.npy"), azim_mean_tangential)
 
 

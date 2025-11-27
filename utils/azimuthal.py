@@ -293,6 +293,16 @@ def calculate_azimuthal_mean_relative_wind(
     theta = np.arctan2(dY, dX)
     R = np.sqrt(dX**2 + dY**2)
 
+    # 周期境界条件を考慮した距離計算（領域端に近い場合）
+    cx2 = cx - config.x_width
+    cy2 = cy - config.y_width
+    dX2 = X - cx2
+    dY2 = Y - cy2
+    dX2[dX2 > 0.5 * config.x_width] -= config.x_width
+    dX2[dX2 < -0.5 * config.x_width] += config.x_width
+    R2 = np.sqrt(dX2**2 + dY2**2)
+    R = np.minimum(R, R2)
+
     # r_max 以内のマスク
     mask = R <= r_max
     valid_r = R[mask]
