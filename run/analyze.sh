@@ -336,27 +336,24 @@ run_3d() {
     run_cmd "sh ${TC_ANALYZE}/analysis/spatial/3d/whole_domain.sh"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/streamplot_whole_domain.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/whole_domain_wind_uv_abs_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/calc/ms_wind_radial_tangential_calc.py"
+    # オンデマンド計算に移行: ms_wind は plot ファイルで直接計算
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/ms_wind_tangential_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/ms_wind_radial_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/calc/vorticity_z_calc.py"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/vorticity_z_absolute_whole_domain_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/calc/divergence_calc.py"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/divergence_whole_domain_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/calc/theta_e_calc.py"
+    # オンデマンド計算に移行: theta_e は plot ファイルで直接計算
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/theta_e_plot_whole_region.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/calc/psi_calc.py"
+    # オンデマンド計算に移行: psi は plot ファイルで直接計算
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/psi_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/psi_plot_r200.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/calc/ms_dyn_radial_tangential_calc.py"
+    # オンデマンド計算に移行: ms_dyn は plot ファイルで直接計算（ms_wind と同じ）
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/ms_dyn_tangential_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/ms_dyn_radial_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_u.py"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_v.py"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/calc/relative_wind_radial_tangential_calc.py"
+    # オンデマンド計算に移行: relative_wind は plot ファイルで直接計算
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_wind_tangential_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_wind_radial_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/calc/relative_wind_uv_abs_calc.py"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_wind_uv_abs_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/cape.py ${STYLE}"
 }
