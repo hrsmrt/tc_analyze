@@ -4,7 +4,10 @@
 ✅ ストレージ節約版: オンデマンド計算を使用
 事前計算された相対風データ (relative_u, relative_v) の保存が不要
 
-input: ms_u.grd (東西風), ms_v.grd (南北風), center位置と移動速度
+✅ 中心移動速度を2次中心差分で自動計算
+center_x, center_y から中心の移動速度を導出（config不要）
+
+input: ms_u.grd (東西風), ms_v.grd (南北風), center位置
 output: 相対風の方位角平均（動径成分・接線成分）
 
 python $WORK/tc_analyze/azim_mean/azim_wind_relative_calc.py
@@ -17,7 +20,7 @@ from joblib import Parallel, delayed
 
 from utils.azimuthal import calculate_azimuthal_mean_relative_wind
 from utils.config import AnalysisConfig
-from utils.grid import GridHandler
+from utils.grid import GridHandler, calculate_center_velocity
 
 config = AnalysisConfig()
 grid = GridHandler(config)
@@ -30,8 +33,11 @@ os.makedirs(output_folder2, exist_ok=True)
 
 center_x_list = config.center_x
 center_y_list = config.center_y
-center_u_list = config.center_u
-center_v_list = config.center_v
+
+# ✅ 台風中心の移動速度を2次中心差分で計算
+center_u_list, center_v_list = calculate_center_velocity(
+    center_x_list, center_y_list, config.dt_output
+)
 
 # ✅ オンデマンド計算: メモリマップを開く
 data_u = np.memmap(
