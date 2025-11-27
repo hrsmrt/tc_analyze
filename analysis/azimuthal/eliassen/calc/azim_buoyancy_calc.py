@@ -7,7 +7,7 @@ import os
 import numpy as np
 from joblib import Parallel, delayed
 
-from utils.basic import PRES_S, Rd, Cp, Lv, g0
+from utils.basic import PRES_S, Rd, Cp, Lv, g
 from utils.config import AnalysisConfig
 
 config = AnalysisConfig()
@@ -21,7 +21,6 @@ R = (np.arange(nr) + 0.5) * config.dx
 f = config.f
 pres_s = PRES_S
 L = Lv
-g = g0
 
 output_folder = config.get_data_path("azim", "eliassen", "buoyancy")
 os.makedirs(output_folder, exist_ok=True)

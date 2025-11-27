@@ -17,7 +17,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-from utils.basic import Cp, Lv, Rd, Rv, g0, tetens
+from utils.basic import Cp, Lv, Rd, Rv, g, tetens
 from utils.config import AnalysisConfig
 from utils.plotting import parse_style_argument
 

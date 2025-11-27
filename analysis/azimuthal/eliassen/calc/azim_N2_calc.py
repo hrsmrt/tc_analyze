@@ -7,7 +7,7 @@ import os
 import numpy as np
 from joblib import Parallel, delayed
 
-from utils.basic import PRES_S, Rd, Cp, Lv, g0
+from utils.basic import PRES_S, Rd, Cp, Lv, g
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 
@@ -24,7 +24,6 @@ vgrid = grid.create_vertical_grid()
 f = config.f
 pres_s = PRES_S
 L = Lv
-g = g0
 
 output_folder = config.get_data_path("azim", "eliassen", "N2")
 os.makedirs(output_folder, exist_ok=True)

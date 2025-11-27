@@ -7,10 +7,10 @@
 
 import numpy as np
 
-from .basic import PRES_S, RD, Cp, L
+from .basic import PRES_S, Rd, Cp, Lv
 
 # 事前計算
-RD_CP = RD / Cp
+Rd_Cp = Rd / Cp
 
 
 def calculate_theta_e(tem, pres, qv):
@@ -42,7 +42,7 @@ def calculate_theta_e(tem, pres, qv):
     rv = qv / (1.0 - qv)
 
     # θ_e = T(Ps/P)^(Rd/Cp) * exp(Lv*rv/(Cp*T))
-    theta_e = tem * (PRES_S / pres) ** RD_CP * np.exp(L * rv / (Cp * tem))
+    theta_e = tem * (PRES_S / pres) ** Rd_Cp * np.exp(Lv * rv / (Cp * tem))
 
     return theta_e.astype(np.float32)
 
