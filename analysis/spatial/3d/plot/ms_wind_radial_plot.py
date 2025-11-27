@@ -1,4 +1,9 @@
-"""Plot radial wind component over vortex region."""
+"""
+Plot radial wind component over vortex region.
+
+✅ ストレージ節約版: オンデマンド計算を使用
+データを保存せず、必要時に計算することでストレージを節約
+"""
 # python $WORK/tc_analyze/3d/ms_wind_radial_plot.py $style
 import os
 
@@ -11,6 +16,7 @@ from joblib import Parallel, delayed
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 from utils.plotting import parse_style_argument, set_vortex_region_ticks_km
+from utils.wind import calculate_absolute_wind_radial_tangential
 
 # スタイルシートの解析
 mpl_style_sheet = parse_style_argument()
@@ -23,6 +29,20 @@ EXTENT = 500e3
 
 center_x_list = config.center_x
 center_y_list = config.center_y
+
+# ✅ オンデマンド計算: メモリマップを開く（保存データ不要）
+data_u = np.memmap(
+    os.path.join(config.input_folder, "ms_u.grd"),
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_v = np.memmap(
+    os.path.join(config.input_folder, "ms_v.grd"),
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
 
 OUTPUT_DIR = config.get_fig_path("3d", "vortex_region", "wind_radial")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -45,7 +65,11 @@ def process_t(t):
     t : int
         Time step index
     """
-    data_t = np.load(os.path.join(config.get_data_path('3d', 'wind_radial'), f"t{str(t).zfill(3)}.npy"))
+    # ✅ オンデマンド計算: 必要時にその場で計算（保存データ不要）
+    v_radial, _ = calculate_absolute_wind_radial_tangential(
+        data_u, data_v, t, center_x_list, center_y_list, grid
+    )
+    data_t = v_radial
     center_x = center_x_list[t]
     center_y = center_y_list[t]
     for z in z_list:

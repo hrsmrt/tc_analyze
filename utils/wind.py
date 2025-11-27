@@ -198,3 +198,51 @@ def calculate_relative_wind_radial_tangential(
     )
 
     return v_radial, v_tangential
+
+
+def calculate_absolute_wind_radial_tangential(
+    data_u, data_v, t, center_x_list, center_y_list, grid_handler
+):
+    """
+    絶対風の動径・接線成分を計算（オンデマンド）
+
+    台風の移動を考慮しない絶対座標系での風の極座標成分
+
+    Parameters
+    ----------
+    data_u : memmap
+        u風のメモリマップ (nt, nz, ny, nx)
+    data_v : memmap
+        v風のメモリマップ (nt, nz, ny, nx)
+    t : int
+        時刻インデックス
+    center_x_list : ndarray
+        台風中心のx座標リスト [m]
+    center_y_list : ndarray
+        台風中心のy座標リスト [m]
+    grid_handler : GridHandler
+        グリッドハンドラー
+
+    Returns
+    -------
+    v_radial : ndarray (nz, ny, nx)
+        絶対風の動径成分 [m/s]
+    v_tangential : ndarray (nz, ny, nx)
+        絶対風の接線成分 [m/s]
+
+    Notes
+    -----
+    - メモリマップから直接読み込んで極座標変換
+    - 中間データ（wind_radial, wind_tangential）を保存不要
+    - ストレージ節約
+    """
+    # メモリマップからデータを取得
+    u = data_u[t]
+    v = data_v[t]
+
+    # 極座標成分に変換
+    v_radial, v_tangential = calculate_radial_tangential_wind(
+        u, v, center_x_list[t], center_y_list[t], grid_handler
+    )
+
+    return v_radial, v_tangential
