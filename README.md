@@ -32,6 +32,7 @@
 - ✅ **モジュール化** - 共通機能を`utils/`パッケージに集約し、保守性が高い
 - ✅ **物理定数の標準化** - 教科書・論文と一致した物理定数の命名規則
 - ✅ **充実したドキュメント** - 物理計算のリファレンス、アーキテクチャ設計書、コマンドリファレンスなど
+- ✅ **CLIツール** - データ管理、設定確認、可視化を簡単に行えるコマンドラインインターフェース
 
 ### 技術スタック
 
@@ -39,6 +40,7 @@
 - **NumPy** - 数値計算
 - **Matplotlib** - 可視化
 - **Joblib** - 並列処理
+- **Typer** - CLIフレームワーク
 
 ---
 
@@ -72,6 +74,8 @@ pip install -e .
 
 ### 3. 解析の実行
 
+#### シェルスクリプトによる実行（バッチ処理）
+
 ```bash
 # 作業ディレクトリに移動（setting.jsonがある場所）
 cd /path/to/workdir
@@ -84,6 +88,22 @@ sh $WORK/tc_analyze/run/analyze.sh 3d
 
 # または全ての解析を実行
 sh $WORK/tc_analyze/run/analyze.sh all
+```
+
+#### CLIツールによる実行（データ管理・確認）
+
+```bash
+# 設定情報を表示
+tc-analyze config show --config run/setting.json
+
+# データファイル一覧
+tc-analyze data list --config run/setting.json
+
+# TC中心軌道をプロット
+tc-analyze center plot --method ss_slp --config run/setting.json
+
+# ヘルプを表示
+tc-analyze --help
 ```
 
 詳細は[COMMAND_REFERENCE.md](./COMMAND_REFERENCE.md)を参照してください。
@@ -204,6 +224,8 @@ ls fig/     # プロット結果（.png）
 
 ### よく使うコマンド
 
+#### シェルスクリプト
+
 ```bash
 # 利用可能なカテゴリ一覧を表示
 sh $WORK/tc_analyze/run/analyze.sh --list
@@ -216,6 +238,29 @@ sh $WORK/tc_analyze/run/analyze.sh --style dark_background 3d
 
 # バックグラウンド実行（ログ付き）
 nohup sh $WORK/tc_analyze/run/analyze.sh --log ./logs/run01 &
+```
+
+#### CLIツール
+
+```bash
+# 設定の確認と検証
+tc-analyze config show --config run/setting.json
+tc-analyze config validate --config run/setting.json
+
+# データ管理
+tc-analyze data list --config run/setting.json
+tc-analyze data info center/ss_slp/center.npz --config run/setting.json
+tc-analyze data stats center/ss_slp/center.npz --config run/setting.json
+
+# 可視化
+tc-analyze center plot --method ss_slp --config run/setting.json
+tc-analyze center plot --method ms_pres --z-level 10 --config run/setting.json
+
+# ヘルプ
+tc-analyze --help
+tc-analyze data --help
+tc-analyze config --help
+tc-analyze center --help
 ```
 
 詳細は[COMMAND_REFERENCE.md](./COMMAND_REFERENCE.md)を参照してください。
@@ -287,7 +332,15 @@ tc_analyze/
 │   ├── wind.py              # 風速場計算（相対風、極座標変換）
 │   ├── azimuthal.py         # 方位角平均計算
 │   ├── streamfunction.py    # 流線関数計算（Poisson方程式ソルバー）
+│   ├── metadata.py          # メタデータ読み込み（.npz/.npy）
 │   └── optimize_*.py        # 最適化ユーティリティ
+│
+├── tc_analyze/               # CLIツール
+│   ├── cli.py               # メインCLIアプリケーション
+│   └── commands/            # サブコマンド
+│       ├── data.py          # データ管理（list, info, stats）
+│       ├── config_cmd.py    # 設定管理（show, validate）
+│       └── center.py        # 中心解析（plot）
 │
 ├── docs/                     # ドキュメント
 │   └── UTILS_PHYSICS_REFERENCE.md  # 物理計算リファレンス
@@ -438,6 +491,15 @@ sh $WORK/tc_analyze/run/analyze.sh center
 ---
 
 ## 📅 更新履歴
+
+### v2.2.0 (2025-11-28) - 進行中
+- CLIツールの実装開始（`tc-analyze`コマンド）
+  - データ管理コマンド（list, info, stats）
+  - 設定管理コマンド（show, validate）
+  - 中心解析コマンド（plot）
+- utils/metadata.pyを追加（.npz/.npyメタデータ読み込み）
+- 中心座標の柔軟な読み込み機能（2d/3d、カスタムパス指定）
+- 中心座標の出力形式を.npzに統一（メタデータ保存）
 
 ### v2.1.0 (2025-11-27)
 - 物理定数の命名規則を統一（物理記号優先）

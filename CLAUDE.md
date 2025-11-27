@@ -63,7 +63,7 @@ sh $WORK/tc_analyze/run/analyze.sh center 3d azim
 sh $WORK/tc_analyze/run/analyze.sh --list
 ```
 
-### utilsモジュール（13ファイル、2,679行）
+### utilsモジュール（14ファイル、2,800+行）
 ```python
 from utils.config import AnalysisConfig      # 設定管理（中心座標読み込み含む）
 from utils.grid import GridHandler           # グリッド計算
@@ -74,6 +74,23 @@ from utils.thermodynamics import calculate_theta_e  # 相当温位
 from utils.wind import calculate_relative_wind      # 相対風
 from utils.azimuthal import calculate_azimuthal_mean_3d  # 方位角平均
 from utils.streamfunction import solve_poisson_jacobi    # 流線関数
+from utils.metadata import read_data_metadata, get_data_statistics  # メタデータ読み込み
+```
+
+### CLIツール（`tc-analyze`コマンド）
+```bash
+# データ管理
+tc-analyze data list --config run/setting.json
+tc-analyze data info center/ss_slp/center.npz --config run/setting.json
+tc-analyze data stats center/ss_slp/center.npz --config run/setting.json
+
+# 設定管理
+tc-analyze config show --config run/setting.json
+tc-analyze config validate --config run/setting.json
+
+# 可視化
+tc-analyze center plot --method ss_slp --config run/setting.json
+tc-analyze center plot --method ms_pres --z-level 10 --config run/setting.json
 ```
 
 ### 物理定数の命名規則（2025-11-27統一）
@@ -84,12 +101,19 @@ from utils.streamfunction import solve_poisson_jacobi    # 流線関数
 ### ディレクトリ構成
 ```
 tc_analyze/
-├── utils/          # 共通モジュール（13ファイル、2,679行）
+├── utils/          # 共通モジュール（14ファイル、2,800+行）
 │   ├── config.py, grid.py, plotting.py  # コア機能
 │   ├── center.py                        # 中心検出アルゴリズム
 │   ├── basic.py, thermodynamics.py      # 物理定数・計算
 │   ├── wind.py, azimuthal.py            # 風速・方位角平均
-│   └── streamfunction.py                # 流線関数
+│   ├── streamfunction.py                # 流線関数
+│   └── metadata.py                      # メタデータ読み込み（.npz/.npy）
+├── tc_analyze/     # CLIツール（6ファイル）
+│   ├── cli.py                           # メインCLIアプリケーション
+│   └── commands/                        # サブコマンド
+│       ├── data.py                      # データ管理（list, info, stats）
+│       ├── config_cmd.py                # 設定管理（show, validate）
+│       └── center.py                    # 中心解析（plot）
 ├── analysis/       # 解析スクリプト（170ファイル、13,484行）
 │   ├── whole_domain/  # 領域全体（31、中心位置非依存: 3d: 19, 2d: 12）
 │   ├── vortex_region/ # 渦領域（25、中心位置依存: 3d: 18, 2d: 7）
@@ -128,18 +152,28 @@ tc_analyze/
 ### 最近の主要変更
 
 #### 2025-11-28
+- ✅ **CLIツールの実装開始**（`tc-analyze`コマンド）
+  - `tc_analyze/cli.py`: Typerベースのメインアプリケーション
+  - データ管理コマンド: `data list`, `data info`, `data stats`
+  - 設定管理コマンド: `config show`, `config validate`
+  - 可視化コマンド: `center plot` (2d/3d対応)
+  - setup.pyにエントリーポイント追加、システム全体で使用可能
+- ✅ **utils/metadata.py作成**: .npz/.npyファイルのメタデータ読み込み
+  - `read_data_metadata()`: ファイル形式、サイズ、shape、パラメータを取得
+  - `get_data_statistics()`: min/max/mean/std/NaN数の計算
+- ✅ **中心座標出力を.npz形式に統一**: メタデータ保存に対応
+  - 2d: shape (nt, 2) - x, y座標を統合
+  - 3d: shape (nt, nz, 2) - z面ごとの中心を保存
+  - メタデータ: r_max_ite, max_iterations, convergence_threshold, actual_iterations
 - ✅ **中心座標の柔軟な読み込み機能**: center_type ("2d"/"3d"), center_path を設定可能
   - setting.json、コマンドライン引数、コード内で指定可能
   - 優先順位: 引数 > コマンドライン > setting.json > デフォルト
+  - 読み込み優先度: .npz > .npy > .txt（後方互換性維持）
 - ✅ **utils/center.py作成**: 低気圧中心検出アルゴリズムを関数化
-  - `find_pressure_center()`: 重み付き重心法による汎用関数
+  - `find_pressure_center()`: 重み付き重心法、収束判定、iteration数を返す
   - `create_coordinate_meshgrid()`: 座標メッシュグリッド生成
 - ✅ **ms_pres_center_calc.py作成**: 3次元圧力データから各z面の中心を検出
   - `--z-first`, `--z-last` でz面範囲を指定可能
-- ✅ **中心座標出力の統一**: .npy形式 (2d: nt×2, 3d: nt×nz×2)
-  - 1ファイルに x, y 座標を統合
-  - I/O効率の向上
-- ✅ **後方互換性の維持**: 旧形式(.txt)も引き続きサポート
 
 #### 2025-11-27
 - ✅ **物理定数の命名規則統一**: `g0`→`g`, `K_B`, `N_A`など（教科書表記に準拠）
@@ -184,14 +218,16 @@ config = AnalysisConfig(center_type="3d", center_path="center/ms_pres")
 ### データ形式
 
 #### 2d（デフォルト）
-- ファイル: `{data_dir}/{center_path}/center.npy`
+- ファイル: `{data_dir}/{center_path}/center.npz`（推奨）または `center.npy`
 - shape: `(nt, 2)` - 全z面で同じ中心を使用
 - アクセス: `config.center_x[t]`, `config.center_y[t]`
+- メタデータ（.npz）: r_max_ite, max_iterations, convergence_threshold_x/y, actual_iterations
 
 #### 3d
-- ファイル: `{data_dir}/{center_path}/center.npy`
+- ファイル: `{data_dir}/{center_path}/center.npz`（推奨）または `center.npy`
 - shape: `(nt, nz, 2)` - z面ごとに異なる中心を使用
 - アクセス: `config.center_x[t, z]`, `config.center_y[t, z]`
+- メタデータ（.npz）: r_max_ite, max_iterations, convergence_threshold_x/y, actual_iterations, z_first, z_last
 
 ### 使用例
 
@@ -221,6 +257,10 @@ center_x = config.center_x[t, z]  # shape: (nt, nz)
 | やりたいこと | 参照先 |
 |------------|--------|
 | **コマンド実行方法を知りたい** | [docs/COMMAND_REFERENCE.md](./docs/COMMAND_REFERENCE.md) |
+| **CLIツールを使いたい** | このページの「CLIツール」セクション、または `tc-analyze --help` |
+| **データファイル情報を確認したい** | `tc-analyze data list/info/stats` コマンド |
+| **設定を確認・検証したい** | `tc-analyze config show/validate` コマンド |
+| **中心軌道をプロットしたい** | `tc-analyze center plot` コマンド |
 | **システム構成を理解したい** | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
 | **物理計算・定数を確認したい** | [docs/UTILS_PHYSICS_REFERENCE.md](./docs/UTILS_PHYSICS_REFERENCE.md) |
 | **中心座標を指定したい** | このページの「中心座標の柔軟な読み込み機能」セクション |
