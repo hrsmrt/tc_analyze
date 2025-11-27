@@ -43,7 +43,7 @@ def process_t(t):
     """指定された時刻tのrelative_uを計算する"""
     data = data_memmap[t, :, :, :]
     data_rel = data - center_u_list[t]
-    np.save(f"{OUTPUT_FOLDER}/t{str(t).zfill(3)}.npy", data_rel)
+    np.save(os.path.join(OUTPUT_FOLDER, f"t{str(t).zfill(3)}.npy"), data_rel)
     print(f"Saved: {OUTPUT_FOLDER}/t{str(t).zfill(3)}.npy")
 
 

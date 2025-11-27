@@ -42,7 +42,7 @@ for z in z_list:
 
 def process_t(t):
     """指定された時刻tのms_dyn_radialをプロットする"""
-    data_t = np.load(f"{config.get_data_path('3d', 'wind_radial')}/t{str(t).zfill(3)}.npy")
+    data_t = np.load(os.path.join(config.get_data_path('3d', 'wind_radial'), f"t{str(t).zfill(3)}.npy"))
     center_x = center_x_list[t]
     center_y = center_y_list[t]
     for z in z_list:

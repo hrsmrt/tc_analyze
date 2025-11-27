@@ -23,8 +23,8 @@ os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"{config.get_data_path('azim', 'wind_relative_radial')}/t{str(t).zfill(3)}.npy")
-    data_w = np.load(f"{config.get_data_path('azim', 'ms_w')}/t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('azim', 'wind_relative_radial'), f"t{str(t).zfill(3)}.npy"))
+    data_w = np.load(os.path.join(config.get_data_path('azim', 'ms_w'), f"t{str(t).zfill(3)}.npy"))
     wdu_dz = np.empty((config.nz - 1, nr))
     for z in range(config.nz - 1):
         wdu_dz[z, :] = (
@@ -33,7 +33,7 @@ def process_t(t):
             * (data[z + 1, :] - data[z, :])
             / (vgrid[z + 1] - vgrid[z])
         )
-    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", wdu_dz)
+    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), wdu_dz)
 
 
 Parallel(n_jobs=config.n_jobs)(

@@ -22,11 +22,11 @@ os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"{config.get_data_path('azim', 'wind_relative_tangential')}/t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('azim', 'wind_relative_tangential'), f"t{str(t).zfill(3)}.npy"))
     centrifugal = -(data**2)
     for r in range(nr):
         centrifugal[:, r] = centrifugal[:, r] / (rgrid[r])
-    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", centrifugal)
+    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), centrifugal)
 
 
 Parallel(n_jobs=config.n_jobs)(

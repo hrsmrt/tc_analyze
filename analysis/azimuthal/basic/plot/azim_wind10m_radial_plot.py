@@ -21,7 +21,7 @@ os.makedirs(folder, exist_ok=True)
 # メインループ
 def process_t(t):
     # データの読み込み
-    data = np.load(f"{config.get_data_path('azim', 'wind10m_radial')}/t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('azim', 'wind10m_radial'), f"t{str(t).zfill(3)}.npy"))
 
     # プロット
     plt.style.use(mpl_style_sheet)
@@ -29,7 +29,7 @@ def process_t(t):
     ax.plot(data)
     ax.set_xlabel("半径 [km]")
 
-    fig.savefig(f"{folder}/t{str(t).zfill(3)}.png")
+    fig.savefig(os.path.join(folder, f"t{str(t).zfill(3)}.png"))
     plt.close()
 
 

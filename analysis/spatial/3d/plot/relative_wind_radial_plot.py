@@ -59,7 +59,7 @@ def process_t(t):
     Args:
         t (int): 時刻ステップ
     """
-    data_t = np.load(f"{config.get_data_path('3d', 'relative_wind_radial')}/t{str(t).zfill(3)}.npy")
+    data_t = np.load(os.path.join(config.get_data_path('3d', 'relative_wind_radial'), f"t{str(t).zfill(3)}.npy"))
 
     # 中心座標をインデックスに変換
     center_x = int(center_x_list[t] / config.dx)

@@ -20,13 +20,13 @@ FOLDER = config.get_data_path("3d", "vorticity_z")
 os.makedirs(FOLDER, exist_ok=True)
 
 data_all_u = np.memmap(
-    f"{config.input_folder}/ms_u.grd",
+    os.path.join(config.input_folder, "ms_u.grd"),
     dtype=">f4",
     mode="r",
     shape=(config.nt, config.nz, config.ny, config.nx),
 )
 data_all_v = np.memmap(
-    f"{config.input_folder}/ms_v.grd",
+    os.path.join(config.input_folder, "ms_v.grd"),
     dtype=">f4",
     mode="r",
     shape=(config.nt, config.nz, config.ny, config.nx),
@@ -71,7 +71,7 @@ def process_t(t):
 
     vor = dv_dx - du_dy
 
-    np.save(f"{FOLDER}/vor_t{str(t).zfill(3)}.npy", vor)
+    np.save(os.path.join(FOLDER, f"vor_t{str(t).zfill(3)}.npy"), vor)
     print(f"t: {t} vorticity calc done")
 
 

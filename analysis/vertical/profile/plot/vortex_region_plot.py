@@ -25,7 +25,7 @@ output_dir = config.get_fig_path("z_profile", "vortex_region", varname)
 os.makedirs(output_dir, exist_ok=True)
 
 # データの読み込み
-data_all = np.load(f"{config.get_data_path('z_profile', 'vortex_region')}/z_{varname}.npy")
+data_all = np.load(os.path.join(config.get_data_path('z_profile', 'vortex_region'), f"z_{varname}.npy"))
 vgrid = np.loadtxt(config.vgrid_filepath)
 
 

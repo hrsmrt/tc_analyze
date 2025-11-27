@@ -18,7 +18,7 @@ grid = GridHandler(config)
 
 # グリッド設定：データから実際のサイズを取得
 sample_data = np.load(
-    f"{config.get_data_path('symmetrisity', 'relative_wind_radial')}/t{str(config.t_first).zfill(3)}.npy"
+    os.path.join(config.get_data_path('symmetrisity', 'relative_wind_radial'), f"t{str(config.t_first).zfill(3)}.npy")
 )
 nr = sample_data.shape[1]
 R_MAX = nr * config.dx
@@ -31,7 +31,7 @@ os.makedirs(output_folder, exist_ok=True)
 
 def process_t(t):
     # データの読み込み
-    data = np.load(f"{config.get_data_path('symmetrisity', 'relative_wind_radial')}/t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('symmetrisity', 'relative_wind_radial'), f"t{str(t).zfill(3)}.npy"))
 
     # プロット
     plt.style.use(mpl_style_sheet)
@@ -50,7 +50,7 @@ def process_t(t):
     ax.set_xlabel("半径 [km]")
     ax.set_ylabel("高度 [km]")
 
-    fig.savefig(f"{output_folder}/t{str(t).zfill(3)}.png")
+    fig.savefig(os.path.join(output_folder, f"t{str(t).zfill(3)}.png"))
     plt.close()
 
 

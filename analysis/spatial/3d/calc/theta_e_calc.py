@@ -57,7 +57,7 @@ def process_t(t):
     qv = data_qv[t]
     rv = qv / (1 - qv)
     theta_e = tem * (PRES_S / pres) ** (RD / CP) * np.exp(L * rv / (CP * tem))
-    np.save(f"{OUTPUT_FOLDER}t{str(t).zfill(3)}.npy", theta_e)
+    np.save(os.path.join(OUTPUT_FOLDER, f"t{str(t).zfill(3)}.npy"), theta_e)
     print(f"t={t} done")
 
 

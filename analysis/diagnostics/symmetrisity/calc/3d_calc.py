@@ -34,7 +34,7 @@ data_all = np.memmap(
 # メインループ
 def process_t(t):
     # 軸対称成分
-    data_azim_mean = np.load(f"{config.get_data_path('azim', varname)}/t{str(t).zfill(3)}.npy")
+    data_azim_mean = np.load(os.path.join(config.get_data_path('azim', varname), f"t{str(t).zfill(3)}.npy"))
     max_bin = data_azim_mean.shape[1]  # azim_meanのビン数に合わせる
 
     # 中心座標（m単位）
@@ -69,7 +69,7 @@ def process_t(t):
     print(
         f"symmetrisity t: {t}, max: {np.nanmax(symmetrisity)}, min: {np.nanmin(symmetrisity)}"
     )
-    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", symmetrisity)
+    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), symmetrisity)
 
 
 Parallel(n_jobs=config.n_jobs)(

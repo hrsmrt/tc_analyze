@@ -19,7 +19,7 @@ os.makedirs(FOLDER, exist_ok=True)
 
 def process_t(t):
     """指定された時刻tの流線関数を計算する（ベクトル化版: 5-10倍高速）"""
-    data = np.load(f"{config.get_data_path('3d', 'vorticity_z')}/vor_t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('3d', 'vorticity_z'), f"vor_t{str(t).zfill(3)}.npy"))
 
     # ❌ 従来版（遅い）: Z方向のループ
     # psi = np.zeros((config.nz, config.ny, config.nx), dtype=np.float32)
@@ -29,7 +29,7 @@ def process_t(t):
     # ✅ ベクトル化版（5-10倍高速）: 全Z方向を一度に処理
     psi = np.array([streamfunction_twisted(data[z], config.dx, config.dy) for z in range(config.nz)])
 
-    np.save(f"{FOLDER}/psi_t{str(t).zfill(3)}.npy", psi)
+    np.save(os.path.join(FOLDER, f"psi_t{str(t).zfill(3)}.npy"), psi)
     print(f"t: {t} psi calc done")
 
 

@@ -27,7 +27,7 @@ os.makedirs(folder, exist_ok=True)
 
 def process_t(t):
     # データの読み込み
-    data = np.load(f"{config.get_data_path('azim', varname)}/t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('azim', varname), f"t{str(t).zfill(3)}.npy"))
     # データの形状から半径方向のグリッドを作成
     nr = data.shape[1]
     xgrid = np.arange(nr) * config.dx
@@ -84,7 +84,7 @@ def process_t(t):
     ax.set_xlabel("半径 [km]")
     ax.set_ylabel("高度 [km]")
 
-    fig.savefig(f"{folder}/t{str(t).zfill(3)}.png")
+    fig.savefig(os.path.join(folder, f"t{str(t).zfill(3)}.png"))
     plt.close()
 
 

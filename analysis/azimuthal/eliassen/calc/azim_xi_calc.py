@@ -30,9 +30,9 @@ g = 9.80665
 
 
 def process_t(t):
-    v = np.load(f"{config.get_data_path('azim', 'wind_relative_tangential')}/t{str(t).zfill(3)}.npy")
+    v = np.load(os.path.join(config.get_data_path('azim', 'wind_relative_tangential'), f"t{str(t).zfill(3)}.npy"))
     xi = 2 * v / R + f
-    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", xi)
+    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), xi)
     print(f"t={t} done")
 
 

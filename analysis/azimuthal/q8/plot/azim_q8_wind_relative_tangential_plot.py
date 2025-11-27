@@ -18,7 +18,7 @@ mpl_style_sheet = parse_style_argument()
 
 # グリッド設定：データから実際のサイズを取得
 sample_data = np.load(
-    f"{config.get_data_path('azim_q8', 'wind_relative_tangential')}/t{str(config.t_first).zfill(3)}.npy"
+    os.path.join(config.get_data_path('azim_q8', 'wind_relative_tangential'), f"t{str(config.t_first).zfill(3)}.npy")
 )
 nz_data, nr, n_sectors = sample_data.shape
 R_MAX = nr * config.dx
@@ -38,7 +38,7 @@ sector_names = [f"sector{s}" for s in range(8)]
 
 def process_t(t):
     # データの読み込み
-    data = np.load(f"{config.get_data_path('azim_q8', 'wind_relative_tangential')}/t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('azim_q8', 'wind_relative_tangential'), f"t{str(t).zfill(3)}.npy"))
 
     # 各sectorごとにプロット
     for s in range(8):
@@ -64,7 +64,7 @@ def process_t(t):
 
         sec_folder = os.path.join(folder, sector_names[s])
         os.makedirs(sec_folder, exist_ok=True)
-        fig.savefig(f"{sec_folder}/t{str(t).zfill(3)}.png")
+        fig.savefig(os.path.join(sec_folder, f"t{str(t).zfill(3)}.png"))
         plt.close()
 
 

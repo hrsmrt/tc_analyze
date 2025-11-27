@@ -72,7 +72,7 @@ def process_t(t):
         azim_mean = np.where(count_r > 0, azim_sum / count_r, np.nan)
     azim_mean -= mean_outside[:, np.newaxis]
     print(f"azim mean data t: {t}, max: {azim_mean.max()}, min: {azim_mean.min()}")
-    np.save(f"{folder}/t{str(t).zfill(3)}.npy", azim_mean)
+    np.save(os.path.join(folder, f"t{str(t).zfill(3)}.npy"), azim_mean)
 
 
 Parallel(n_jobs=config.n_jobs)(

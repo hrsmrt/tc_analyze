@@ -40,7 +40,7 @@ def process_t(t):
 
     azim_mean = np.full((config.nz, max_bin), np.nan)
 
-    data = np.load(f"{config.get_data_path('3d', 'vorticity_z')}/vor_t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('3d', 'vorticity_z'), f"vor_t{str(t).zfill(3)}.npy"))
     print(f"3d data t: {t}, max: {data.max()}, min: {data.min()}")
 
     valid_data = data[:, mask]
@@ -55,7 +55,7 @@ def process_t(t):
         azim_mean = np.where(count_r > 0, azim_sum / count_r, np.nan)
 
     print(f"azim mean data t: {t}, max: {azim_mean.max()}, min: {azim_mean.min()}")
-    np.save(f"{folder}/t{str(t).zfill(3)}.npy", azim_mean)
+    np.save(os.path.join(folder, f"t{str(t).zfill(3)}.npy"), azim_mean)
 
 
 Parallel(n_jobs=config.n_jobs)(

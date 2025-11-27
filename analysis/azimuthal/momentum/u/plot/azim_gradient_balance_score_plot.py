@@ -18,7 +18,7 @@ mpl_style_sheet = parse_style_argument()
 
 # グリッド設定：データから実際のサイズを取得
 sample_data = np.load(
-    f"{config.get_data_path('azim', 'eq_momentum_u', 'gradient_balance_score')}/t{str(config.t_first).zfill(3)}.npy"
+    os.path.join(config.get_data_path('azim', 'eq_momentum_u', 'gradient_balance_score'), f"t{str(config.t_first).zfill(3)}.npy")
 )
 nz_data, nr_data = sample_data.shape
 
@@ -35,7 +35,7 @@ os.makedirs(output_folder, exist_ok=True)
 
 def process_t(t):
     data = np.load(
-        f"{config.get_data_path('azim', 'eq_momentum_u', 'gradient_balance_score')}/t{str(t).zfill(3)}.npy"
+        os.path.join(config.get_data_path('azim', 'eq_momentum_u', 'gradient_balance_score'), f"t{str(t).zfill(3)}.npy")
     )
 
     plt.style.use(mpl_style_sheet)
@@ -50,7 +50,7 @@ def process_t(t):
     ax.set_xlabel("半径 [km]")
     ax.set_ylabel("高度 [km]")
     # plt.xticks([0,nr/5-1,nr/5*2-1,nr/5*3-1,nr/5*4-1,nr-1],[int(config.dx*1e-3),int(radius*1e-3/5),int(radius*1e-3/5*2),int(radius*1e-3/5*3),int(radius*1e-3/5*4),int(radius*1e-3)])
-    plt.savefig(f"{output_folder}/t{str(t).zfill(3)}.png")
+    plt.savefig(os.path.join(output_folder, f"t{str(t).zfill(3)}.png"))
     plt.close()
 
 

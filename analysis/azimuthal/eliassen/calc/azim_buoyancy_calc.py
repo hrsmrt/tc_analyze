@@ -1,5 +1,5 @@
 # python $WORK/tc_analyze/azim_mean/eliassen/azim_buoyancy_calc.py
-# input: f"{config.get_data_path('azim', 'theta')}/t{str(t).zfill(3)}.npy" 温度
+# input: os.path.join(config.get_data_path('azim', 'theta'), f"t{str(t).zfill(3)}.npy") 温度
 # output: 浮力 b = g ln(θ/θ_ref)
 
 import os
@@ -31,9 +31,9 @@ g = 9.80665
 
 
 def process_t(t):
-    theta = np.load(f"{config.get_data_path('azim', 'theta')}/t{str(t).zfill(3)}.npy")
+    theta = np.load(os.path.join(config.get_data_path('azim', 'theta'), f"t{str(t).zfill(3)}.npy"))
     b = g * np.log(theta / theta_ref)
-    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", b)
+    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), b)
     print(f"t={t} done")
 
 

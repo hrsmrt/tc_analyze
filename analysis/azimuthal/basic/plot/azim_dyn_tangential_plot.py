@@ -24,7 +24,7 @@ grid = GridHandler(config)
 mpl_style_sheet = parse_style_argument()
 
 # グリッド設定：データから実際のビン数を取得
-sample_data = np.load(f"{config.get_data_path('azim', 'dyn_tangential')}/t{str(config.t_first).zfill(3)}.npy")
+sample_data = np.load(os.path.join(config.get_data_path('azim', 'dyn_tangential'), f"t{str(config.t_first).zfill(3)}.npy"))
 nr = sample_data.shape[1]
 R_MAX = nr * config.dx
 r_mesh, z_mesh = grid.create_radial_vertical_meshgrid(R_MAX)
@@ -35,7 +35,7 @@ os.makedirs(folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"{config.get_data_path('azim', 'dyn_tangential')}/t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('azim', 'dyn_tangential'), f"t{str(t).zfill(3)}.npy"))
 
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(5, 2))
@@ -46,7 +46,7 @@ def process_t(t):
     set_azimuthal_plot_ticks(ax, r_max=R_MAX, z_max=20e3)
     # ax.set_xlabel("半径 [km]")
     # ax.set_ylabel("高度 [km]")
-    plt.savefig(f"{folder}/t{str(t).zfill(3)}.png")
+    plt.savefig(os.path.join(folder, f"t{str(t).zfill(3)}.png"))
     plt.close()
 
 

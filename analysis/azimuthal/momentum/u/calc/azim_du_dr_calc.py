@@ -20,9 +20,9 @@ os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"{config.get_data_path('azim', 'wind_relative_radial')}/t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('azim', 'wind_relative_radial'), f"t{str(t).zfill(3)}.npy"))
     du_dr = (data[:, 1:] - data[:, :-1]) / config.dx
-    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", du_dr)
+    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), du_dr)
 
 
 Parallel(n_jobs=config.n_jobs)(

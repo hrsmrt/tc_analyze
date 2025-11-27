@@ -23,7 +23,7 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 def process_t(t):
     # 運動量データの読み込み
-    momentum_data = np.load(f"{config.get_data_path('azim', 'momentum')}/t{str(t).zfill(3)}.npy")
+    momentum_data = np.load(os.path.join(config.get_data_path('azim', 'momentum'), f"t{str(t).zfill(3)}.npy"))
 
     # グリッド設定：データから実際のビン数を取得
     nr = momentum_data.shape[1]
@@ -48,7 +48,7 @@ def process_t(t):
     fig.colorbar(contour_filled, ax=ax)
 
     # 相当温位データの読み込みと等値線プロット
-    theta_e_data = np.load(f"{config.get_data_path('azim', 'theta_e')}/t{str(t).zfill(3)}.npy")
+    theta_e_data = np.load(os.path.join(config.get_data_path('azim', 'theta_e'), f"t{str(t).zfill(3)}.npy"))
 
     # theta_eのデータサイズが異なる場合は、theta_e用のグリッドを生成
     if theta_e_data.shape[1] != nr:
@@ -74,7 +74,7 @@ def process_t(t):
     ax.set_title(f"t = {config.time_list[t]} hour")
     ax.set_xlabel("半径 [km]")
     ax.set_ylabel("高度 [km]")
-    fig.savefig(f"{OUTPUT_FOLDER}t{str(t).zfill(3)}.png")
+    fig.savefig(os.path.join(OUTPUT_FOLDER, f"t{str(t).zfill(3)}.png"))
     plt.close()
     print(f"t={t} done")
 

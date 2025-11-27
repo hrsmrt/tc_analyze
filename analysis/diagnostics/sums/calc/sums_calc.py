@@ -51,4 +51,4 @@ sum_results = Parallel(n_jobs=config.n_jobs)(
     delayed(process_t)(t) for t in range(config.t_first, config.t_last + 1)
 )
 
-np.save(f"{config.get_data_path('sums')}/{varname}_sum.npy", sum_results)
+np.save(os.path.join(config.get_data_path('sums'), os.path.join(varname, "_sum.npy")), sum_results)

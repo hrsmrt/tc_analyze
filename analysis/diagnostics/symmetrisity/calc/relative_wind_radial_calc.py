@@ -23,7 +23,7 @@ center_y_list = config.center_y
 # メインループ
 def process_t(t):
     # 軸対称成分
-    data_azim_mean = np.load(f"{config.get_data_path('azim', 'wind_relative_radial')}/t{str(t).zfill(3)}.npy")
+    data_azim_mean = np.load(os.path.join(config.get_data_path('azim', 'wind_relative_radial'), f"t{str(t).zfill(3)}.npy"))
     max_bin = data_azim_mean.shape[1]  # azim_meanのビン数に合わせる
 
     # 中心座標（m単位）
@@ -39,7 +39,7 @@ def process_t(t):
     bin_idx = np.floor(valid_r / config.dx).astype(int)
     bin_idx = np.clip(bin_idx, 0, max_bin - 1)
 
-    data = np.load(f"{config.get_data_path('3d', 'relative_wind_radial')}/t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('3d', 'relative_wind_radial'), f"t{str(t).zfill(3)}.npy"))
     print(f"3d data t: {t}, max: {data.max()}, min: {data.min()}")
 
     valid_data = data[:, mask]
@@ -58,7 +58,7 @@ def process_t(t):
     print(
         f"symmetrisity t: {t}, max: {np.nanmax(symmetrisity)}, min: {np.nanmin(symmetrisity)}"
     )
-    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", symmetrisity)
+    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), symmetrisity)
 
 
 Parallel(n_jobs=config.n_jobs)(

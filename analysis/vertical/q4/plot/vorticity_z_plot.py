@@ -27,9 +27,9 @@ X, Y = np.meshgrid(time_list, vgrid)
 output_dir = config.get_fig_path("z_profile_q4", "zeta")
 os.makedirs(output_dir, exist_ok=True)
 for q in range(4):
-    os.makedirs(f"{output_dir}/q{q}/", exist_ok=True)
+    os.makedirs(os.path.join(output_dir, f"q{q}"), exist_ok=True)
 
-data_all = np.load(f"{config.get_data_path('z_profile_q4', 'zeta')}/z_zeta_quadrants.npy")
+data_all = np.load(os.path.join(config.get_data_path('z_profile_q4', 'zeta'), "z_zeta_quadrants.npy"))
 
 for q in range(4):
     plt.style.use(mpl_style_sheet)
@@ -63,6 +63,6 @@ for q in range(4):
         ax.set_ylabel("高度 [km]")
         ax.set_xlabel("")
         ax.set_title(f"t = {time_list[i]} hour")
-        fig.savefig(f"{output_dir}/q{q}/t{int(time_list[i]):04d}h.png")
+        fig.savefig(os.path.join(output_dir, f"q{q}/t{int(time_list[i]):04d}h.png"))
         plt.close()
         print(f"q{q} t={t} done")

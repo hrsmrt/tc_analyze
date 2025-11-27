@@ -37,7 +37,7 @@ os.makedirs(output_folder, exist_ok=True)
 
 def process_t(t):
     # データの読み込み
-    data = np.load(f"{config.get_data_path('azim2', varname)}/t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('azim2', varname), f"t{str(t).zfill(3)}.npy"))
 
     # プロット
     plt.style.use(mpl_style_sheet)
@@ -90,7 +90,7 @@ def process_t(t):
     ax.set_xlabel("半径 [km]")
     ax.set_ylabel("高度 [km]")
 
-    fig.savefig(f"{output_folder}/t{str(t).zfill(3)}.png")
+    fig.savefig(os.path.join(output_folder, f"t{str(t).zfill(3)}.png"))
     plt.close()
 
 

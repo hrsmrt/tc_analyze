@@ -20,13 +20,13 @@ FOLDER = config.get_data_path("3d", "divergence")
 os.makedirs(FOLDER, exist_ok=True)
 
 data_all_u = np.memmap(
-    f"{config.input_folder}/ms_u.grd",
+    os.path.join(config.input_folder, "ms_u.grd"),
     dtype=">f4",
     mode="r",
     shape=(config.nt, config.nz, config.ny, config.nx),
 )
 data_all_v = np.memmap(
-    f"{config.input_folder}/ms_v.grd",
+    os.path.join(config.input_folder, "ms_v.grd"),
     dtype=">f4",
     mode="r",
     shape=(config.nt, config.nz, config.ny, config.nx),
@@ -72,7 +72,7 @@ def process_t(t):
 
     div = du_dx + dv_dy
 
-    np.save(f"{FOLDER}/div_t{str(t).zfill(3)}.npy", div)
+    np.save(os.path.join(FOLDER, f"div_t{str(t).zfill(3)}.npy"), div)
     print(f"t: {t} divergence calc done")
 
 

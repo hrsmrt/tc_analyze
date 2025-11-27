@@ -24,7 +24,7 @@ os.makedirs(folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"{config.get_data_path('azim', 'wind_tangential2')}/t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('azim', 'wind_tangential2'), f"t{str(t).zfill(3)}.npy"))
     # データの形状から半径方向のグリッドを作成
     nr = data.shape[1]
     rgrid = (np.arange(nr) + 0.5) * config.dx
@@ -41,7 +41,7 @@ def process_t(t):
     set_azimuthal_plot_ticks(ax, r_max=1000e3, z_max=20e3)
     ax.set_xlabel("半径 [km]")
     ax.set_ylabel("高度 [km]")
-    plt.savefig(f"{folder}/t{str(t).zfill(3)}.png")
+    plt.savefig(os.path.join(folder, f"t{str(t).zfill(3)}.png"))
     plt.close()
 
 

@@ -22,7 +22,7 @@ z_profile_q = np.zeros((config.nt, config.nz, 4))
 
 for t in range(config.t_first, config.t_last + 1):
     # 3Dデータを読み込む (nz, ny, nx)
-    data_3d = np.load(f"{config.get_data_path('3d', 'vorticity_z')}/vor_t{str(t).zfill(3)}.npy")
+    data_3d = np.load(os.path.join(config.get_data_path('3d', 'vorticity_z'), f"vor_t{str(t).zfill(3)}.npy"))
 
     cx = center_x_list[t]
     cy = center_y_list[t]
@@ -68,5 +68,5 @@ for t in range(config.t_first, config.t_last + 1):
 
 # --- 保存 ---
 os.makedirs(output_dir, exist_ok=True)
-np.save(f"{output_dir}/z_zeta_quadrants.npy", z_profile_q)
+np.save(os.path.join(output_dir, "z_zeta_quadrants.npy"), z_profile_q)
 print(f"✅ Saved quadrant profiles for zeta to {output_dir}z_zeta_quadrants.npy")

@@ -1,6 +1,7 @@
 """Calculate tropical cyclone center from sea level pressure minimum."""
 # python $WORK/tc_analyze/center/ss_slp_center_calc.py
 
+import os
 import numpy as np
 from joblib import Parallel, delayed
 
@@ -41,8 +42,8 @@ def main():
 
     # 保存
     OUTPUT_DIR = config.get_data_path("")
-    np.savetxt(f"{OUTPUT_DIR}/ss_slp_center_x.txt", x_c_evo)
-    np.savetxt(f"{OUTPUT_DIR}/ss_slp_center_y.txt", y_c_evo)
+    np.savetxt(os.path.join(OUTPUT_DIR, "ss_slp_center_x.txt"), x_c_evo)
+    np.savetxt(os.path.join(OUTPUT_DIR, "ss_slp_center_y.txt"), y_c_evo)
     
 def process_t(t):
     data = data_memmap[t]

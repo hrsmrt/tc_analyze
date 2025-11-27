@@ -28,7 +28,7 @@ os.makedirs(folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"{config.get_data_path('azim', 'wind_tangential')}/t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('azim', 'wind_tangential'), f"t{str(t).zfill(3)}.npy"))
     # データの形状から半径方向のグリッドを作成
     nr = data.shape[1]
     rgrid = (np.arange(nr) + 0.5) * config.dx
@@ -48,7 +48,7 @@ def process_t(t):
     # ax.set_ylabel("高度 [km]")
     ax.set_aspect("equal", "box")
     # plt.xticks([0,nr/5-1,nr/5*2-1,nr/5*3-1,nr/5*4-1,nr-1],[int(config.dx*1e-3),int(radius*1e-3/5),int(radius*1e-3/5*2),int(radius*1e-3/5*3),int(radius*1e-3/5*4),int(radius*1e-3)])
-    plt.savefig(f"{folder}/t{str(t).zfill(3)}.png")
+    plt.savefig(os.path.join(folder, f"t{str(t).zfill(3)}.png"))
     plt.close()
 
 

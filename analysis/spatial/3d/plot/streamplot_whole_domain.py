@@ -37,13 +37,13 @@ for z in z_list:
     os.makedirs(os.path.join(FOLDER, f"z{str(z).zfill(2)}"), exist_ok=True)
 
 data_all_u = np.memmap(
-    f"{config.input_folder}/ms_u.grd",
+    os.path.join(config.input_folder, "ms_u.grd"),
     dtype=">f4",
     mode="r",
     shape=(config.nt, config.nz, config.ny, config.nx),
 )
 data_all_v = np.memmap(
-    f"{config.input_folder}/ms_v.grd",
+    os.path.join(config.input_folder, "ms_v.grd"),
     dtype=">f4",
     mode="r",
     shape=(config.nt, config.nz, config.ny, config.nx),

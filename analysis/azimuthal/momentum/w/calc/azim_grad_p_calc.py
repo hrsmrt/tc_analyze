@@ -23,8 +23,8 @@ os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"{config.get_data_path('azim', 'ms_pres')}/t{str(t).zfill(3)}.npy")
-    data_rho = np.load(f"{config.get_data_path('azim', 'ms_rho')}/t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('azim', 'ms_pres'), f"t{str(t).zfill(3)}.npy"))
+    data_rho = np.load(os.path.join(config.get_data_path('azim', 'ms_rho'), f"t{str(t).zfill(3)}.npy"))
     grad_p = np.empty((config.nz - 1, nr))
     for z in range(config.nz - 1):
         grad_p[z, :] = (
@@ -35,7 +35,7 @@ def process_t(t):
             + 9.80665
         )
 
-    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", grad_p)
+    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), grad_p)
 
 
 Parallel(n_jobs=config.n_jobs)(

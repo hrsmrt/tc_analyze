@@ -24,7 +24,7 @@ os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(f"{config.get_data_path('azim', 'stream')}/t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('azim', 'stream'), f"t{str(t).zfill(3)}.npy"))
     # データの形状から半径方向のグリッドを作成
     nr = data.shape[1]
     rgrid = (np.arange(nr) + 0.5) * config.dx
@@ -45,7 +45,7 @@ def process_t(t):
     ax.set_title(f"流線関数 t = {config.time_list[t]} hour")
     ax.set_xlabel("半径 [km]")
     ax.set_ylabel("高度 [km]")
-    fig.savefig(f"{output_folder}/t{str(t).zfill(3)}.png")
+    fig.savefig(os.path.join(output_folder, f"t{str(t).zfill(3)}.png"))
     plt.close()
     print(f"t={t} done")
 

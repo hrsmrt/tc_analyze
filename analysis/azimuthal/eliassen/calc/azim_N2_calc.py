@@ -1,5 +1,5 @@
 # python $WORK/tc_analyze/azim_mean/eliassen/azim_N2_calc.py
-# input: f"{config.get_data_path('azim', 'buoyancy')}/t{str(t).zfill(3)}.npy" 温度
+# input: os.path.join(config.get_data_path('azim', 'buoyancy'), f"t{str(t).zfill(3)}.npy") 温度
 # output: N^2 = dB/dz
 
 import os
@@ -34,11 +34,11 @@ g = 9.80665
 
 
 def process_t(t):
-    b = np.load(f"{config.get_data_path('azim', 'eliassen', 'buoyancy')}/t{str(t).zfill(3)}.npy")
+    b = np.load(os.path.join(config.get_data_path('azim', 'eliassen', 'buoyancy'), f"t{str(t).zfill(3)}.npy"))
     db_dz = np.zeros((config.nz - 1, nr))
     for z in range(config.nz - 1):
         db_dz[z, :] = (b[z + 1, :] - b[z, :]) / (vgrid[z + 1] - vgrid[z])
-    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", db_dz)
+    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), db_dz)
     print(f"t={t} done")
 
 

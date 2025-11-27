@@ -28,13 +28,13 @@ center_y_list = config.center_y
 
 # データのメモリマップ
 data_all_u = np.memmap(
-    f"{config.input_folder}/ms_u.grd",
+    os.path.join(config.input_folder, "ms_u.grd"),
     dtype=">f4",
     mode="r",
     shape=(config.nt, config.nz, config.ny, config.nx),
 )
 data_all_v = np.memmap(
-    f"{config.input_folder}/ms_v.grd",
+    os.path.join(config.input_folder, "ms_v.grd"),
     dtype=">f4",
     mode="r",
     shape=(config.nt, config.nz, config.ny, config.nx),
@@ -60,8 +60,8 @@ def process_t(t):
     v_radial, v_tangential = grid.uv_to_radial_tangential(data_u, data_v, cx, cy)
 
     # 結果を保存
-    np.save(f"{FOLDER_RADIAL}/t{str(t).zfill(3)}.npy", v_radial)
-    np.save(f"{FOLDER_TANGENTIAL}/t{str(t).zfill(3)}.npy", v_tangential)
+    np.save(os.path.join(FOLDER_RADIAL, f"t{str(t).zfill(3)}.npy"), v_radial)
+    np.save(os.path.join(FOLDER_TANGENTIAL, f"t{str(t).zfill(3)}.npy"), v_tangential)
 
     print(f"t: {t} done")
 

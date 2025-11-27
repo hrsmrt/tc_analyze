@@ -80,7 +80,7 @@ def process_t(t):
         f"azim mean data t: {t}, max: {np.nanmax(azim_mean)}, min: {np.nanmin(azim_mean)}"
     )
 
-    np.save(f"{folder}/t{str(t).zfill(3)}.npy", azim_mean)
+    np.save(os.path.join(folder, f"t{str(t).zfill(3)}.npy"), azim_mean)
 
 
 Parallel(n_jobs=config.n_jobs)(

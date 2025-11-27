@@ -47,16 +47,16 @@ def process_t(t):
 
     # (config.nz, config.ny, config.nx) の配列を取得
     data_u = np.load(
-        f"{config.get_data_path('3d', 'relative_u')}/t{str(t).zfill(3)}.npy"
+        os.path.join(config.get_data_path('3d', 'relative_u'), f"t{str(t).zfill(3)}.npy")
     )  # shape: (config.nz, config.ny, config.nx)
     data_v = np.load(
-        f"{config.get_data_path('3d', 'relative_v')}/t{str(t).zfill(3)}.npy"
+        os.path.join(config.get_data_path('3d', 'relative_v'), f"t{str(t).zfill(3)}.npy")
     )  # shape: (config.nz, config.ny, config.nx)
 
     # ブロードキャストで一括計算
     v_abs = np.sqrt(data_u**2 + data_v**2)
 
-    np.save(f"{OUTPUT_FOLDER}/t{str(t).zfill(3)}.npy", v_abs)
+    np.save(os.path.join(OUTPUT_FOLDER, f"t{str(t).zfill(3)}.npy"), v_abs)
 
     print(f"t: {t} done")
 

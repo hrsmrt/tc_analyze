@@ -55,8 +55,8 @@ def process_t(t):
     count_r_tangential = np.zeros((max_bin, 8), dtype=np.int64)
 
     # データを読み込む
-    data_u = np.load(f"{config.get_data_path('3d', 'relative_u')}/t{str(t).zfill(3)}.npy", mmap_mode="r")
-    data_v = np.load(f"{config.get_data_path('3d', 'relative_v')}/t{str(t).zfill(3)}.npy", mmap_mode="r")
+    data_u = np.load(os.path.join(config.get_data_path('3d', 'relative_u'), f"t{str(t).zfill(3)}.npy"), mmap_mode="r")
+    data_v = np.load(os.path.join(config.get_data_path('3d', 'relative_v'), f"t{str(t).zfill(3)}.npy"), mmap_mode="r")
 
     # === メモリ削減: 1点ごとに加算 ===
     idxs = np.where(mask.ravel())[0]  # 2D→1D index
@@ -91,10 +91,10 @@ def process_t(t):
         )
 
     np.save(
-        f"{output_folder1}/t{str(t).zfill(3)}.npy", azim_mean_radial.astype(np.float32)
+        os.path.join(output_folder1, f"t{str(t).zfill(3)}.npy"), azim_mean_radial.astype(np.float32)
     )
     np.save(
-        f"{output_folder2}/t{str(t).zfill(3)}.npy",
+        os.path.join(output_folder2, f"t{str(t).zfill(3)}.npy"),
         azim_mean_tangential.astype(np.float32),
     )
 

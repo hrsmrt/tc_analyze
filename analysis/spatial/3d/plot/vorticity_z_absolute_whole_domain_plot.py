@@ -26,7 +26,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
 for z in z_list:
-    os.makedirs(f"{OUTPUT_DIR}z{str(z).zfill(2)}", exist_ok=True)
+    os.makedirs(os.path.join(OUTPUT_DIR, f"z{str(z).zfill(2)}"), exist_ok=True)
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
@@ -41,7 +41,7 @@ def process_t(t):
         Time step index
     """
     data_z = np.memmap(
-        f"{config.get_data_path("3d", "vorticity_z")}/vor_t{str(t).zfill(3)}.npy",
+        os.path.join(config.get_data_path("3d", "vorticity_z"), f"vor_t{str(t).zfill(3)}.npy"),
         dtype=np.float32,
         mode="r",
         shape=(config.nz, config.ny, config.nx),
@@ -60,7 +60,7 @@ def process_t(t):
         ax.set_title(f"t={config.time_list[t]:3d}h,z={int(vgrid[z] * 1e-2) * 1e-1}km")
         ax.grid(False)
         ax.set_aspect("equal", "box")
-        fig.savefig(f"{OUTPUT_DIR}z{str(z).zfill(2)}/t{str(t).zfill(3)}.png")
+        fig.savefig(os.path.join(OUTPUT_DIR, f"z{str(z).zfill(2)}/t{str(t).zfill(3)}.png"))
         plt.close()
 
 

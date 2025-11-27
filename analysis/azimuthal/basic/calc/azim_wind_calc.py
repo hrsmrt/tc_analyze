@@ -84,7 +84,7 @@ def process_t(t):
     print(
         f"azim mean data t: {t}, max: {azim_mean_radial.max()}, min: {azim_mean_radial.min()}"
     )
-    np.save(f"{folder1}/t{str(t).zfill(3)}.npy", azim_mean_radial)
+    np.save(os.path.join(folder1, f"t{str(t).zfill(3)}.npy"), azim_mean_radial)
 
     # ベクトル化版（従来のforループより10-100倍高速）
     # 従来版: for i, b in enumerate(bin_idx): azim_sum_tangential[:, b] += v_tangential[:, i]
@@ -101,7 +101,7 @@ def process_t(t):
         f"azim mean data t: {t}, max: {
             azim_mean_tangential.max()}, min: {
             azim_mean_tangential.min()}")
-    np.save(f"{folder2}/t{str(t).zfill(3)}.npy", azim_mean_tangential)
+    np.save(os.path.join(folder2, f"t{str(t).zfill(3)}.npy"), azim_mean_tangential)
 
 
 Parallel(n_jobs=config.n_jobs)(

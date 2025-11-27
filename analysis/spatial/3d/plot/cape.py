@@ -127,7 +127,7 @@ def main():
     ax.set_title("CAPE")
     ax.set_xlabel("Time [hour]")
     ax.set_ylabel("CAPE [J/kg]")
-    fig.savefig(f"{OUT_DIR}cape.png")
+    fig.savefig(os.path.join(OUT_DIR, "cape.png"))
     plt.close()
 
 

@@ -40,15 +40,15 @@ def process_t(t):
     cy = center_y_list[t]
 
     # データ読み込み (config.nz, config.ny, config.nx)
-    data_u = np.load(f"{config.get_data_path('3d', 'relative_u')}/t{str(t).zfill(3)}.npy")
-    data_v = np.load(f"{config.get_data_path('3d', 'relative_v')}/t{str(t).zfill(3)}.npy")
+    data_u = np.load(os.path.join(config.get_data_path('3d', 'relative_u'), f"t{str(t).zfill(3)}.npy"))
+    data_v = np.load(os.path.join(config.get_data_path('3d', 'relative_v'), f"t{str(t).zfill(3)}.npy"))
 
     # 直交座標系から極座標系への変換
     v_radial, v_tangential = grid.uv_to_radial_tangential(data_u, data_v, cx, cy)
 
     # 結果を保存
-    np.save(f"{FOLDER_RADIAL}/t{str(t).zfill(3)}.npy", v_radial)
-    np.save(f"{FOLDER_TANGENTIAL}/t{str(t).zfill(3)}.npy", v_tangential)
+    np.save(os.path.join(FOLDER_RADIAL, f"t{str(t).zfill(3)}.npy"), v_radial)
+    np.save(os.path.join(FOLDER_TANGENTIAL, f"t{str(t).zfill(3)}.npy"), v_tangential)
 
     print(f"t: {t} done")
 

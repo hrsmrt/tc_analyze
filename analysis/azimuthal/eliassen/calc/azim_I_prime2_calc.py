@@ -33,11 +33,11 @@ g = 9.80665
 
 
 def process_t(t):
-    I2 = np.load(f"{config.get_data_path('azim', 'eliassen')}/I2/t{str(t).zfill(3)}.npy")
-    gamma = np.load(f"{config.get_data_path('azim', 'eliassen')}/gamma/t{str(t).zfill(3)}.npy")
-    B = np.load(f"{config.get_data_path('azim', 'eliassen')}/B/t{str(t).zfill(3)}.npy")
+    I2 = np.load(os.path.join(config.get_data_path('azim', 'eliassen'), f"I2/t{str(t).zfill(3)}.npy"))
+    gamma = np.load(os.path.join(config.get_data_path('azim', 'eliassen'), f"gamma/t{str(t).zfill(3)}.npy"))
+    B = np.load(os.path.join(config.get_data_path('azim', 'eliassen'), f"B/t{str(t).zfill(3)}.npy"))
     I2_prime = I2 - (gamma[:, 1:] + gamma[:, :-1]) * 0.5 * B
-    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", I2_prime)
+    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), I2_prime)
     print(f"t={t} done")
 
 

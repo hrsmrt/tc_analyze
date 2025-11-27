@@ -61,5 +61,5 @@ hf_all = Parallel(n_jobs=config.n_jobs)(
 )
 
 hf_all = np.array(hf_all)
-np.save(f"{output_dir}/hf.npy", hf_all)
+np.save(os.path.join(output_dir, "hf.npy"), hf_all)
 print(f"✅ Saved hf data to {output_dir}hf.npy")

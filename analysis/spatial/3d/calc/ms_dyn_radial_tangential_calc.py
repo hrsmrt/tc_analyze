@@ -34,13 +34,13 @@ center_x_list = config.center_x
 center_y_list = config.center_y
 
 data_all_u = np.memmap(
-    f"{config.input_folder}/ms_dyn_du.grd",
+    os.path.join(config.input_folder, "ms_dyn_du.grd"),
     dtype=">f4",
     mode="r",
     shape=(config.nt, config.nz, config.ny, config.nx),
 )
 data_all_v = np.memmap(
-    f"{config.input_folder}/ms_dyn_dv.grd",
+    os.path.join(config.input_folder, "ms_dyn_dv.grd"),
     dtype=">f4",
     mode="r",
     shape=(config.nt, config.nz, config.ny, config.nx),
@@ -66,8 +66,8 @@ def process_t(t):
     v_radial = data_u * np.cos(theta) + data_v * np.sin(theta)
     v_tangential = -data_u * np.sin(theta) + data_v * np.cos(theta)
 
-    np.save(f"{FOLDER1}/t{str(t).zfill(3)}.npy", v_radial)
-    np.save(f"{FOLDER2}/t{str(t).zfill(3)}.npy", v_tangential)
+    np.save(os.path.join(FOLDER1, f"t{str(t).zfill(3)}.npy"), v_radial)
+    np.save(os.path.join(FOLDER2, f"t{str(t).zfill(3)}.npy"), v_tangential)
 
     print(f"t: {t} done")
 

@@ -29,11 +29,11 @@ config = AnalysisConfig()
 grid = GridHandler(config)
 
 OUTPUT_DIR = config.get_fig_path("3d", "whole_domain_with_center")
-os.makedirs(str(f"{OUTPUT_DIR}{VARNAME}"), exist_ok=True)
+os.makedirs(str(os.path.join(OUTPUT_DIR, f"{VARNAME}")), exist_ok=True)
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
 for z in z_list:
-    os.makedirs(f"{OUTPUT_DIR}{VARNAME}/z{str(z).zfill(2)}", exist_ok=True)
+    os.makedirs(os.path.join(OUTPUT_DIR, f"{VARNAME}/z{str(z).zfill(2)}"), exist_ok=True)
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
@@ -141,7 +141,7 @@ def process_t(t):
         # ax.set_ylabel("y [km]")
         ax.grid(False)
         ax.set_aspect("equal", "box")
-        fig.savefig(f"{OUTPUT_DIR}{VARNAME}/z{str(z).zfill(2)}/t{str(t).zfill(3)}.png")
+        fig.savefig(os.path.join(OUTPUT_DIR, f"{VARNAME}/z{str(z).zfill(2)}/t{str(t).zfill(3)}.png"))
         plt.close()
 
 

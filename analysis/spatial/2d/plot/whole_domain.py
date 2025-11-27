@@ -138,7 +138,7 @@ for t in range(config.t_first, config.t_last + 1):
     except ValueError:
         # 未定義の変数の場合はデフォルトプロット
         c = ax.contourf(grid.X, grid.Y, data, cmap="rainbow")
-        title = f"{VARNAME} t = {config.time_list[t]}h"
+        title = os.path.join(VARNAME, f" t = {config.time_list[t]}h")
 
     # カラーバーの追加（特定の変数を除く）
     if VARNAME not in ["ss_slp", "sa_slp"]:

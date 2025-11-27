@@ -21,7 +21,7 @@ os.makedirs(output_folder, exist_ok=True)
 
 max_phi = []
 for t in range(config.t_first, config.t_last + 1):
-    data = np.load(f"{config.get_data_path('azim', 'stream')}/t{str(t).zfill(3)}.npy")
+    data = np.load(os.path.join(config.get_data_path('azim', 'stream'), f"t{str(t).zfill(3)}.npy"))
     print(f"t={t} max: {np.nanmax(data)}")
     max_phi.append(np.nanmax(data))
 
@@ -31,5 +31,5 @@ plt.plot(config.time_list[config.t_first:config.t_last + 1], max_phi)
 ax.set_title("流線関数の最大値")
 ax.set_xlabel("時間 [hour]")
 ax.set_ylabel("最大値")
-fig.savefig(f"{output_folder}/max.png")
+fig.savefig(os.path.join(output_folder, "max.png"))
 plt.close()

@@ -19,10 +19,10 @@ folder = config.get_fig_path("azim", "wind10m_tangential")
 os.makedirs(folder, exist_ok=True)
 
 wind10m_tangential_max = np.load(
-    f"{config.get_data_path('azim', 'wind10m_tangential')}/wind10m_tangential_max.npy"
+    os.path.join(config.get_data_path('azim', 'wind10m_tangential'), "wind10m_tangential_max.npy")
 )
 wind10m_tangential_rmw = np.load(
-    f"{config.get_data_path('azim', 'wind10m_tangential')}/wind10m_tangential_rmw.npy"
+    os.path.join(config.get_data_path('azim', 'wind10m_tangential'), "wind10m_tangential_rmw.npy")
 )
 
 plt.style.use(mpl_style_sheet)
@@ -30,7 +30,7 @@ fig, ax = plt.subplots(figsize=(5, 4))
 ax.plot(config.time_list[1:], wind10m_tangential_max[1:])
 ax.set_xlabel("時間 [h]")
 ax.set_ylabel("方位角平均最大風速 [m/s]")
-fig.savefig(f"{folder}/max.png")
+fig.savefig(os.path.join(folder, "max.png"))
 plt.close()
 
 fig, ax = plt.subplots(figsize=(5, 4))
@@ -38,5 +38,5 @@ ax.plot(config.time_list[1:], wind10m_tangential_rmw[1:] * 1e-3)
 ax.set_ylim(0, None)
 ax.set_xlabel("時間 [h]")
 ax.set_ylabel("方位角平均最大風速半径 [km]")
-fig.savefig(f"{folder}/rmw.png")
+fig.savefig(os.path.join(folder, "rmw.png"))
 plt.close()

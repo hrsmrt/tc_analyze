@@ -37,7 +37,7 @@ vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
 
 def process_t(t):
-    data_t = np.load(f"{config.get_data_path("3d", "theta_e")}/t{str(t).zfill(3)}.npy")
+    data_t = np.load(os.path.join(config.get_data_path("3d", "theta_e"), f"t{str(t).zfill(3)}.npy"))
     center_x = center_x_list[t]
     center_y = center_y_list[t]
     for z in z_list:

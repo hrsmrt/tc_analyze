@@ -21,9 +21,9 @@ vgrid = grid.create_vertical_grid()
 
 
 def process_t(t):
-    rho = np.load(f"{config.get_data_path('azim', 'ms_rho')}/t{str(t).zfill(3)}.npy")
-    u = np.load(f"{config.get_data_path('azim', 'wind_relative_radial')}/t{str(t).zfill(3)}.npy")
-    w = np.load(f"{config.get_data_path('azim', 'ms_w')}/t{str(t).zfill(3)}.npy")
+    rho = np.load(os.path.join(config.get_data_path('azim', 'ms_rho'), f"t{str(t).zfill(3)}.npy"))
+    u = np.load(os.path.join(config.get_data_path('azim', 'wind_relative_radial'), f"t{str(t).zfill(3)}.npy"))
+    w = np.load(os.path.join(config.get_data_path('azim', 'ms_w'), f"t{str(t).zfill(3)}.npy"))
     # データの形状から半径方向のビン数を取得
     nr = rho.shape[1]
     R = (np.arange(nr) + 0.5) * config.dx
@@ -41,7 +41,7 @@ def process_t(t):
     integrand_z = -0.5 * (rho[1:, :] + rho[:-1, :]) * 0.5 * (u[1:, :] + u[:-1, :]) * 0.5 * R * dz[:, np.newaxis]
     phi[1:, :] = phi[:1, :] + np.cumsum(integrand_z, axis=0)
 
-    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", phi)
+    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), phi)
     print(f"t={t} done")
 
 

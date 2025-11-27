@@ -27,5 +27,5 @@ data_memmap = np.memmap(
 z_profile_all = data_memmap.mean(axis=(2, 3))
 
 # 保存
-np.save(f"{output_dir}/z_{varname}.npy", z_profile_all)
+np.save(os.path.join(output_dir, f"z_{varname}.npy"), z_profile_all)
 print(f"✅ Saved z_profile data for {varname} to {output_dir}z_{varname}.npy")

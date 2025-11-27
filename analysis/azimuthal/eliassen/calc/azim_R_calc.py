@@ -30,10 +30,10 @@ g = 9.80665
 
 
 def process_t(t):
-    rho = np.load(f"{config.get_data_path('azim', 'ms_rho')}/t{str(t).zfill(3)}.npy")
-    theta = np.load(f"{config.get_data_path('azim', 'theta')}/t{str(t).zfill(3)}.npy")
+    rho = np.load(os.path.join(config.get_data_path('azim', 'ms_rho'), f"t{str(t).zfill(3)}.npy"))
+    theta = np.load(os.path.join(config.get_data_path('azim', 'theta'), f"t{str(t).zfill(3)}.npy"))
     R_eliassen = R * rho * theta
-    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", R_eliassen)
+    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), R_eliassen)
     print(f"t={t} done")
 
 
