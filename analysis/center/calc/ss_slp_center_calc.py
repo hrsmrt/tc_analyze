@@ -42,6 +42,7 @@ def main():
 
     # 保存
     OUTPUT_DIR = config.get_data_path("")
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
     np.savetxt(os.path.join(OUTPUT_DIR, "ss_slp_center_x.txt"), x_c_evo)
     np.savetxt(os.path.join(OUTPUT_DIR, "ss_slp_center_y.txt"), y_c_evo)
     

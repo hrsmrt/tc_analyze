@@ -1,5 +1,6 @@
 """Plot tropical cyclone center trajectory on sea level pressure field."""
 # python $WORK/tc_analyze/center/ss_slp_center_plot.py $style
+import os
 import matplotlib
 matplotlib.use('Agg')  # GUI描画のオーバーヘッド削減
 import matplotlib.pyplot as plt
@@ -49,4 +50,5 @@ cax = divider.append_axes(
     "right", size="5%", pad=0.1
 )  # size: colorbar幅, pad: 図との距離
 plt.colorbar(sc, cax=cax, label="step")
+os.makedirs("fig", exist_ok=True)
 fig.savefig("fig/ss_slp_center.png")

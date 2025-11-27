@@ -616,12 +616,12 @@ for category in "${CATEGORIES[@]}"; do
             run_vortex_region
             ;;
         all)
-            # ⚠️ 重要: run_center を最初に実行（中心位置計算が必要）
-            run_center
             # 中心位置非依存の解析
             run_3d_basic
             run_2d_basic
             run_z_profile
+            # ⚠️ 重要: run_center を最初に実行（中心位置計算が必要）
+            run_center
             # 中心位置依存の解析
             run_3d_wind
             run_2d_wind
