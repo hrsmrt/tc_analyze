@@ -20,7 +20,9 @@
 #   --stop-on-error       エラーが発生したら停止 (デフォルト: 継続)
 #
 # カテゴリ:
-#   3d                 - 3次元空間解析 (analysis/spatial/3d/)
+#   3d                 - 3次元空間解析 (basic + wind)
+#   3d_basic           - 3次元空間解析 基本 (中心位置非依存)
+#   3d_wind            - 3次元空間解析 風成分 (中心位置依存、center後に実行)
 #   2d                 - 2次元空間解析 (analysis/spatial/2d/)
 #   z_profile          - 鉛直プロファイル (analysis/vertical/profile/)
 #   center             - TC中心位置計算 (analysis/center/)
@@ -124,7 +126,9 @@ TC Analysis Pipeline Script
   --stop-on-error       エラーが発生したら停止 (デフォルト: 継続)
 
 カテゴリ:
-  3d                 - 3次元空間解析 (analysis/spatial/3d/)
+  3d                 - 3次元空間解析 (basic + wind)
+  3d_basic           - 3次元空間解析 基本 (中心位置非依存)
+  3d_wind            - 3次元空間解析 風成分 (中心位置依存、center後に実行)
   2d                 - 2次元空間解析 (analysis/spatial/2d/)
   z_profile          - 鉛直プロファイル (analysis/vertical/profile/)
   center             - TC中心位置計算 (analysis/center/)
@@ -152,7 +156,9 @@ EOF
 
 list_categories() {
     echo -e "${COLOR_BOLD}利用可能なカテゴリ:${COLOR_RESET}"
-    echo "  3d                 - 3次元空間解析 (analysis/spatial/3d/)"
+    echo "  3d                 - 3次元空間解析 (basic + wind)"
+    echo "  3d_basic           - 3次元空間解析 基本 (中心位置非依存)"
+    echo "  3d_wind            - 3次元空間解析 風成分 (中心位置依存、center後に実行)"
     echo "  2d                 - 2次元空間解析 (analysis/spatial/2d/)"
     echo "  z_profile          - 鉛直プロファイル (analysis/vertical/profile/)"
     echo "  center             - TC中心位置計算 (analysis/center/)"
@@ -331,14 +337,11 @@ run_2d() {
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/2d/plot/ss_wind10m_radial_plot.py ${STYLE}"
 }
 
-run_3d() {
-    log_section "3D Analysis"
+run_3d_basic() {
+    log_section "3D Analysis - Basic (中心位置非依存)"
     run_cmd "sh ${TC_ANALYZE}/analysis/spatial/3d/whole_domain.sh"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/streamplot_whole_domain.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/whole_domain_wind_uv_abs_plot.py ${STYLE}"
-    # オンデマンド計算に移行: ms_wind は plot ファイルで直接計算
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/ms_wind_tangential_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/ms_wind_radial_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/calc/vorticity_z_calc.py"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/vorticity_z_absolute_whole_domain_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/calc/divergence_calc.py"
@@ -348,6 +351,15 @@ run_3d() {
     # オンデマンド計算に移行: psi は plot ファイルで直接計算
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/psi_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/psi_plot_r200.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/cape.py ${STYLE}"
+}
+
+run_3d_wind() {
+    log_section "3D Analysis - Wind Components (中心位置依存)"
+    # ⚠️ 注意: これらは台風中心位置に依存するため、run_center の後に実行する必要があります
+    # オンデマンド計算に移行: ms_wind は plot ファイルで直接計算
+    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/ms_wind_tangential_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/ms_wind_radial_plot.py ${STYLE}"
     # オンデマンド計算に移行: ms_dyn は plot ファイルで直接計算（ms_wind と同じ）
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/ms_dyn_tangential_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/ms_dyn_radial_plot.py ${STYLE}"
@@ -355,7 +367,13 @@ run_3d() {
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_wind_tangential_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_wind_radial_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_wind_uv_abs_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/cape.py ${STYLE}"
+}
+
+run_3d() {
+    # 互換性のため: run_3d は run_3d_basic と run_3d_wind を両方実行
+    # ⚠️ 注意: run_3d_wind は中心位置に依存するため、run_center の後に実行してください
+    run_3d_basic
+    run_3d_wind
 }
 
 run_z_profile() {
@@ -529,7 +547,15 @@ ERROR_COUNT=0
 for category in "${CATEGORIES[@]}"; do
     case "${category}" in
         3d)
+            # 互換性のため: run_3d は basic と wind を両方実行
             run_3d
+            ;;
+        3d_basic)
+            run_3d_basic
+            ;;
+        3d_wind)
+            # ⚠️ 注意: 中心位置に依存するため、run_center の後に実行してください
+            run_3d_wind
             ;;
         2d)
             run_2d
@@ -568,10 +594,14 @@ for category in "${CATEGORIES[@]}"; do
             run_vortex_region
             ;;
         all)
-            run_3d
+            # ⚠️ 重要: run_center を最初に実行（中心位置計算が必要）
+            run_center
+            # 中心位置非依存の解析
+            run_3d_basic
             run_2d
             run_z_profile
-            run_center
+            # 中心位置依存の解析
+            run_3d_wind
             run_vortex_region
             run_azim
             run_azim_eliassen
