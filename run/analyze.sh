@@ -8,7 +8,7 @@
 # 注意: setting.jsonがあるディレクトリで実行してください
 #
 # 使用方法:
-#   sh /path/to/tc_analyze/script/analyze_all.sh [OPTIONS] [CATEGORIES...]
+#   sh /path/to/tc_analyze/run/analyze.sh [OPTIONS] [CATEGORIES...]
 #
 # オプション:
 #   -s, --style STYLE     matplotlibスタイル (default, dark_background, 等)
@@ -20,29 +20,29 @@
 #   --stop-on-error       エラーが発生したら停止 (デフォルト: 継続)
 #
 # カテゴリ:
-#   3d                 - 3次元解析
-#   2d                 - 2次元解析
-#   z_profile          - 鉛直プロファイル
-#   center             - 中心位置の計算とプロット
+#   3d                 - 3次元空間解析 (analysis/spatial/3d/)
+#   2d                 - 2次元空間解析 (analysis/spatial/2d/)
+#   z_profile          - 鉛直プロファイル (analysis/vertical/profile/)
+#   center             - TC中心位置計算 (analysis/center/)
 #   vortex_region      - 渦領域解析 (3d, 2d, z_profile)
-#   azim               - 方位平均解析
-#   azim_eliassen      - 方位平均解析 (Eliassen)
-#   azim_eq_momentum_u - 方位平均解析 (運動量方程式 u)
-#   azim_eq_momentum_w - 方位平均解析 (運動量方程式 w)
-#   azim_q8            - 方位平均解析 (Q8)
-#   sums               - 合計解析
-#   symmetrisity       - 対称性解析
-#   z_profile_q4       - 鉛直プロファイル (Q4)
+#   azim               - 方位平均基本解析 (analysis/azimuthal/basic/)
+#   azim_eliassen      - Eliassen方程式 (analysis/azimuthal/eliassen/)
+#   azim_eq_momentum_u - 運動量方程式 u成分 (analysis/azimuthal/momentum/u/)
+#   azim_eq_momentum_w - 運動量方程式 w成分 (analysis/azimuthal/momentum/w/)
+#   azim_q8            - 8方位分割解析 (analysis/azimuthal/q8/)
+#   sums               - 積算値計算 (analysis/diagnostics/sums/)
+#   symmetrisity       - 対称性解析 (analysis/diagnostics/symmetrisity/)
+#   z_profile_q4       - 4象限鉛直プロファイル (analysis/vertical/q4/)
 #   all                - 全てのカテゴリ (デフォルト)
 #
 # 例:
 #   cd /path/to/your/workdir  # setting.jsonがあるディレクトリに移動
-#   sh $WORK/tc_analyze/script/analyze.sh                        # 全て実行
-#   sh $WORK/tc_analyze/script/analyze.sh --style dark_background # スタイル指定
-#   sh $WORK/tc_analyze/script/analyze.sh center 3d              # 一部のみ実行
-#   sh $WORK/tc_analyze/script/analyze.sh --dry-run center       # ドライラン
-#   sh $WORK/tc_analyze/script/analyze.sh --log ./logs/run       # ログファイル出力
-#   nohup sh $WORK/tc_analyze/script/analyze.sh -s $style --log ./log01 & # バックグラウンド実行+ログ
+#   sh $WORK/tc_analyze/run/analyze.sh                        # 全て実行
+#   sh $WORK/tc_analyze/run/analyze.sh --style dark_background # スタイル指定
+#   sh $WORK/tc_analyze/run/analyze.sh center 3d              # 一部のみ実行
+#   sh $WORK/tc_analyze/run/analyze.sh --dry-run center       # ドライラン
+#   sh $WORK/tc_analyze/run/analyze.sh --log ./logs/run       # ログファイル出力
+#   nohup sh $WORK/tc_analyze/run/analyze.sh -s $style --log ./log01 & # バックグラウンド実行+ログ
 # ============================================================================
 
 set -u  # 未定義変数の使用でエラー
@@ -112,7 +112,7 @@ TC Analysis Pipeline Script
 注意: setting.jsonがあるディレクトリで実行してください
 
 使用方法:
-  sh /path/to/tc_analyze/script/analyze_all.sh [OPTIONS] [CATEGORIES...]
+  sh /path/to/tc_analyze/run/analyze.sh [OPTIONS] [CATEGORIES...]
 
 オプション:
   -s, --style STYLE     matplotlibスタイル (default, dark_background, 等)
@@ -124,47 +124,47 @@ TC Analysis Pipeline Script
   --stop-on-error       エラーが発生したら停止 (デフォルト: 継続)
 
 カテゴリ:
-  3d                 - 3次元解析
-  2d                 - 2次元解析
-  z_profile          - 鉛直プロファイル
-  center             - 中心位置の計算とプロット
+  3d                 - 3次元空間解析 (analysis/spatial/3d/)
+  2d                 - 2次元空間解析 (analysis/spatial/2d/)
+  z_profile          - 鉛直プロファイル (analysis/vertical/profile/)
+  center             - TC中心位置計算 (analysis/center/)
   vortex_region      - 渦領域解析 (3d, 2d, z_profile)
-  azim               - 方位平均解析
-  azim_eliassen      - 方位平均解析 (Eliassen)
-  azim_eq_momentum_u - 方位平均解析 (運動量方程式 u)
-  azim_eq_momentum_w - 方位平均解析 (運動量方程式 w)
-  azim_q8            - 方位平均解析 (Q8)
-  sums               - 合計解析
-  symmetrisity       - 対称性解析
-  z_profile_q4       - 鉛直プロファイル (Q4)
+  azim               - 方位平均基本解析 (analysis/azimuthal/basic/)
+  azim_eliassen      - Eliassen方程式 (analysis/azimuthal/eliassen/)
+  azim_eq_momentum_u - 運動量方程式 u成分 (analysis/azimuthal/momentum/u/)
+  azim_eq_momentum_w - 運動量方程式 w成分 (analysis/azimuthal/momentum/w/)
+  azim_q8            - 8方位分割解析 (analysis/azimuthal/q8/)
+  sums               - 積算値計算 (analysis/diagnostics/sums/)
+  symmetrisity       - 対称性解析 (analysis/diagnostics/symmetrisity/)
+  z_profile_q4       - 4象限鉛直プロファイル (analysis/vertical/q4/)
   all                - 全てのカテゴリ (デフォルト)
 
 例:
   cd /path/to/your/workdir  # setting.jsonがあるディレクトリに移動
-  sh \$WORK/tc_analyze/script/analyze_all.sh                        # 全て実行
-  sh \$WORK/tc_analyze/script/analyze_all.sh --style dark_background # スタイル指定
-  sh \$WORK/tc_analyze/script/analyze_all.sh center 3d              # 一部のみ実行
-  sh \$WORK/tc_analyze/script/analyze_all.sh --dry-run center       # ドライラン
-  sh \$WORK/tc_analyze/script/analyze_all.sh --log ./logs/run       # ログファイル出力
-  nohup sh \$WORK/tc_analyze/script/analyze_all.sh --log ./logs/run & # バックグラウンド実行+ログ
+  sh \$WORK/tc_analyze/run/analyze.sh                        # 全て実行
+  sh \$WORK/tc_analyze/run/analyze.sh --style dark_background # スタイル指定
+  sh \$WORK/tc_analyze/run/analyze.sh center 3d              # 一部のみ実行
+  sh \$WORK/tc_analyze/run/analyze.sh --dry-run center       # ドライラン
+  sh \$WORK/tc_analyze/run/analyze.sh --log ./logs/run       # ログファイル出力
+  nohup sh \$WORK/tc_analyze/run/analyze.sh --log ./logs/run & # バックグラウンド実行+ログ
 EOF
 }
 
 list_categories() {
     echo -e "${COLOR_BOLD}利用可能なカテゴリ:${COLOR_RESET}"
-    echo "  3d                 - 3次元解析"
-    echo "  2d                 - 2次元解析"
-    echo "  z_profile          - 鉛直プロファイル"
-    echo "  center             - 中心位置の計算とプロット"
+    echo "  3d                 - 3次元空間解析 (analysis/spatial/3d/)"
+    echo "  2d                 - 2次元空間解析 (analysis/spatial/2d/)"
+    echo "  z_profile          - 鉛直プロファイル (analysis/vertical/profile/)"
+    echo "  center             - TC中心位置計算 (analysis/center/)"
     echo "  vortex_region      - 渦領域解析 (3d, 2d, z_profile)"
-    echo "  azim               - 方位平均解析"
-    echo "  azim_eliassen      - 方位平均解析 (Eliassen)"
-    echo "  azim_eq_momentum_u - 方位平均解析 (運動量方程式 u)"
-    echo "  azim_eq_momentum_w - 方位平均解析 (運動量方程式 w)"
-    echo "  azim_q8            - 方位平均解析 (Q8)"
-    echo "  sums               - 合計解析"
-    echo "  symmetrisity       - 対称性解析"
-    echo "  z_profile_q4       - 鉛直プロファイル (Q4)"
+    echo "  azim               - 方位平均基本解析 (analysis/azimuthal/basic/)"
+    echo "  azim_eliassen      - Eliassen方程式 (analysis/azimuthal/eliassen/)"
+    echo "  azim_eq_momentum_u - 運動量方程式 u成分 (analysis/azimuthal/momentum/u/)"
+    echo "  azim_eq_momentum_w - 運動量方程式 w成分 (analysis/azimuthal/momentum/w/)"
+    echo "  azim_q8            - 8方位分割解析 (analysis/azimuthal/q8/)"
+    echo "  sums               - 積算値計算 (analysis/diagnostics/sums/)"
+    echo "  symmetrisity       - 対称性解析 (analysis/diagnostics/symmetrisity/)"
+    echo "  z_profile_q4       - 4象限鉛直プロファイル (analysis/vertical/q4/)"
     echo "  all                - 全てのカテゴリ"
 }
 
