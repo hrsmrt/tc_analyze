@@ -49,9 +49,9 @@ def process_t(t):
     bin_idx = np.clip(bin_idx, 0, max_bin - 1)
 
     # 出力配列
-    azim_sum_radial = np.zeros((config.nz, max_bin, 8), dtype=np.float64)
+    azim_sum_radial = np.zeros((config.nz, max_bin, 8), dtype=np.float32)
     count_r_radial = np.zeros((max_bin, 8), dtype=np.int64)
-    azim_sum_tangential = np.zeros((config.nz, max_bin, 8), dtype=np.float64)
+    azim_sum_tangential = np.zeros((config.nz, max_bin, 8), dtype=np.float32)
     count_r_tangential = np.zeros((max_bin, 8), dtype=np.int64)
 
     # データを読み込む

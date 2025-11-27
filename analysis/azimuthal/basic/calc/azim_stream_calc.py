@@ -27,7 +27,7 @@ def process_t(t):
     # データの形状から半径方向のビン数を取得
     nr = rho.shape[1]
     R = (np.arange(nr) + 0.5) * config.dx
-    phi = np.zeros_like(rho)
+    phi = np.zeros_like(rho, dtype=np.float32)
 
     # ベクトル化版：z方向の積分（r=0の列）
     # 従来版: for z in range(1, config.nz): phi[z, 0] = phi[z - 1, 0] - ...

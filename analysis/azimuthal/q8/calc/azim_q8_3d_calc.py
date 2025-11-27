@@ -58,7 +58,7 @@ def process_t(t):
     bin_idx = np.clip(bin_idx, 0, max_bin - 1)
 
     # 出力配列 (nz, max_bin, 8 sectors)
-    azim_sum = np.zeros((config.nz, max_bin, 8))
+    azim_sum = np.zeros((config.nz, max_bin, 8), dtype=np.float32)
     count_r = np.zeros((max_bin, 8), dtype=int)
 
     data = data_all[t]  # shape = (nz, ny, nx)

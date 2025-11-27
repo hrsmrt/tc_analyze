@@ -34,7 +34,7 @@ data_memmap = np.memmap(
     shape=(config.nt, config.nz, config.ny, config.nx),
 )
 
-z_profile_all = np.zeros((config.nt, config.nz))
+z_profile_all = np.zeros((config.nt, config.nz), dtype=np.float32)
 
 
 # === 並列処理関数 ===

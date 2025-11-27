@@ -18,7 +18,7 @@ center_y_list = config.center_y
 R_max = 300e3
 
 # --- 出力配列 (config.nt, config.nz, 4象限) ---
-z_profile_q = np.zeros((config.nt, config.nz, 4))
+z_profile_q = np.zeros((config.nt, config.nz, 4), dtype=np.float32)
 
 for t in range(config.t_first, config.t_last + 1):
     # 3Dデータを読み込む (nz, ny, nx)

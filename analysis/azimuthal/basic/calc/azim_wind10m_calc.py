@@ -71,7 +71,7 @@ def process_t(t):
 
     # ベクトル化版（従来のforループより10-100倍高速）
     # 従来版: for i, b in enumerate(bin_idx): azim_sum_radial[b] += v_radial[i]
-    azim_sum_radial = np.zeros(max_bin)
+    azim_sum_radial = np.zeros(max_bin, dtype=np.float32)
     np.add.at(azim_sum_radial, bin_idx, v_radial)
 
     # 割り算（ゼロ割回避）
@@ -85,7 +85,7 @@ def process_t(t):
 
     # ベクトル化版（従来のforループより10-100倍高速）
     # 従来版: for i, b in enumerate(bin_idx): azim_sum_tangential[b] += v_tangential[i]
-    azim_sum_tangential = np.zeros(max_bin)
+    azim_sum_tangential = np.zeros(max_bin, dtype=np.float32)
     np.add.at(azim_sum_tangential, bin_idx, v_tangential)
 
     # 割り算（ゼロ割回避）
