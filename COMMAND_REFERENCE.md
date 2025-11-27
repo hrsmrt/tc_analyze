@@ -54,37 +54,37 @@ ls -ld data/ fig/
 ```bash
 # 【最重要】全ての解析を実行
 cd /path/to/workdir  # setting.jsonがあるディレクトリ
-sh $WORK/tc_analyze/script/analyze.sh
+sh $WORK/tc_analyze/run/analyze.sh
 
 # 特定カテゴリのみ実行
-sh $WORK/tc_analyze/script/analyze.sh center 3d azim
+sh $WORK/tc_analyze/run/analyze.sh center 3d azim
 
 # 利用可能なカテゴリ一覧を表示
-sh $WORK/tc_analyze/script/analyze.sh --list
+sh $WORK/tc_analyze/run/analyze.sh --list
 
 # ドライラン（実行せずにコマンドを確認）
-sh $WORK/tc_analyze/script/analyze.sh --dry-run center 3d
+sh $WORK/tc_analyze/run/analyze.sh --dry-run center 3d
 ```
 
 ### スタイル指定
 
 ```bash
 # 暗い背景でプロット
-sh $WORK/tc_analyze/script/analyze.sh --style dark_background
+sh $WORK/tc_analyze/run/analyze.sh --style dark_background
 
 # 環境変数で一括指定（推奨）
 export MPLSTYLE=dark_background
-sh $WORK/tc_analyze/script/analyze.sh
+sh $WORK/tc_analyze/run/analyze.sh
 
 # カスタムスタイルファイル
-sh $WORK/tc_analyze/script/analyze.sh --style /path/to/custom.mplstyle
+sh $WORK/tc_analyze/run/analyze.sh --style /path/to/custom.mplstyle
 ```
 
 ### バックグラウンド実行
 
 ```bash
 # ログファイルを出力してバックグラウンド実行
-nohup sh $WORK/tc_analyze/script/analyze.sh --log ./logs/run01 &
+nohup sh $WORK/tc_analyze/run/analyze.sh --log ./logs/run01 &
 
 # プロセス確認
 jobs
@@ -121,16 +121,16 @@ cd /path/to/your/workdir
 cat setting.json
 
 # 3. 中心位置の計算（最初に実行が必要）
-sh $WORK/tc_analyze/script/analyze.sh center
+sh $WORK/tc_analyze/run/analyze.sh center
 
 # 4. 3次元解析
-sh $WORK/tc_analyze/script/analyze.sh 3d
+sh $WORK/tc_analyze/run/analyze.sh 3d
 
 # 5. 方位角平均解析
-sh $WORK/tc_analyze/script/analyze.sh azim
+sh $WORK/tc_analyze/run/analyze.sh azim
 
 # 6. 全て実行
-sh $WORK/tc_analyze/script/analyze.sh all
+sh $WORK/tc_analyze/run/analyze.sh all
 ```
 
 ### カテゴリごとの実行
@@ -138,53 +138,53 @@ sh $WORK/tc_analyze/script/analyze.sh all
 ```bash
 # 【重要】centerは最初に実行する必要がある
 # （中心位置データが他の解析で使われるため）
-sh $WORK/tc_analyze/script/analyze.sh center
+sh $WORK/tc_analyze/run/analyze.sh center
 
 # 3次元解析（全領域・渦領域）
-sh $WORK/tc_analyze/script/analyze.sh 3d
+sh $WORK/tc_analyze/run/analyze.sh 3d
 
 # 2次元解析
-sh $WORK/tc_analyze/script/analyze.sh 2d
+sh $WORK/tc_analyze/run/analyze.sh 2d
 
 # 鉛直プロファイル
-sh $WORK/tc_analyze/script/analyze.sh z_profile
+sh $WORK/tc_analyze/run/analyze.sh z_profile
 
 # 渦領域解析（3d, 2d, z_profileの渦領域のみ）
-sh $WORK/tc_analyze/script/analyze.sh vortex_region
+sh $WORK/tc_analyze/run/analyze.sh vortex_region
 
 # 方位角平均解析（基本）
-sh $WORK/tc_analyze/script/analyze.sh azim
+sh $WORK/tc_analyze/run/analyze.sh azim
 
 # 方位角平均解析（Eliassen方程式関連）
-sh $WORK/tc_analyze/script/analyze.sh azim_eliassen
+sh $WORK/tc_analyze/run/analyze.sh azim_eliassen
 
 # 方位角平均解析（運動量方程式 u成分）
-sh $WORK/tc_analyze/script/analyze.sh azim_eq_momentum_u
+sh $WORK/tc_analyze/run/analyze.sh azim_eq_momentum_u
 
 # 方位角平均解析（運動量方程式 w成分）
-sh $WORK/tc_analyze/script/analyze.sh azim_eq_momentum_w
+sh $WORK/tc_analyze/run/analyze.sh azim_eq_momentum_w
 
 # 方位角平均解析（8方位分割）
-sh $WORK/tc_analyze/script/analyze.sh azim_q8
+sh $WORK/tc_analyze/run/analyze.sh azim_q8
 
 # 合計値の計算
-sh $WORK/tc_analyze/script/analyze.sh sums
+sh $WORK/tc_analyze/run/analyze.sh sums
 
 # 対称性解析
-sh $WORK/tc_analyze/script/analyze.sh symmetrisity
+sh $WORK/tc_analyze/run/analyze.sh symmetrisity
 
 # 鉛直プロファイル（4象限）
-sh $WORK/tc_analyze/script/analyze.sh z_profile_q4
+sh $WORK/tc_analyze/run/analyze.sh z_profile_q4
 ```
 
 ### 複数カテゴリの組み合わせ
 
 ```bash
 # 中心位置と3次元解析のみ
-sh $WORK/tc_analyze/script/analyze.sh center 3d
+sh $WORK/tc_analyze/run/analyze.sh center 3d
 
 # 方位角平均系を全て実行
-sh $WORK/tc_analyze/script/analyze.sh azim azim_eliassen azim_eq_momentum_u azim_q8
+sh $WORK/tc_analyze/run/analyze.sh azim azim_eliassen azim_eq_momentum_u azim_q8
 ```
 
 ---
@@ -252,7 +252,7 @@ cd /path/to/workdir
 ls setting.json  # 確認
 
 # スクリプトを実行
-sh $WORK/tc_analyze/script/analyze.sh
+sh $WORK/tc_analyze/run/analyze.sh
 ```
 
 #### 3. `FileNotFoundError: ss_slp_center_x.txt not found`
@@ -262,10 +262,10 @@ sh $WORK/tc_analyze/script/analyze.sh
 **解決策**:
 ```bash
 # 最初にcenterを実行
-sh $WORK/tc_analyze/script/analyze.sh center
+sh $WORK/tc_analyze/run/analyze.sh center
 
 # その後、他のカテゴリを実行
-sh $WORK/tc_analyze/script/analyze.sh 3d
+sh $WORK/tc_analyze/run/analyze.sh 3d
 ```
 
 #### 4. データサイズの不一致エラー
@@ -279,7 +279,7 @@ cd /path/to/tc_analyze/azim_mean
 python azim_wind_calc.py
 
 # または該当カテゴリを再実行
-sh $WORK/tc_analyze/script/analyze.sh azim
+sh $WORK/tc_analyze/run/analyze.sh azim
 ```
 
 #### 5. プロット時のTypeError: Shapes do not match
@@ -292,13 +292,13 @@ sh $WORK/tc_analyze/script/analyze.sh azim
 
 ```bash
 # 詳細な出力を表示
-sh $WORK/tc_analyze/script/analyze.sh --verbose center
+sh $WORK/tc_analyze/run/analyze.sh --verbose center
 
 # 実行せずにコマンドを確認
-sh $WORK/tc_analyze/script/analyze.sh --dry-run 3d
+sh $WORK/tc_analyze/run/analyze.sh --dry-run 3d
 
 # エラーで停止する（デフォルトは継続）
-sh $WORK/tc_analyze/script/analyze.sh --stop-on-error 3d
+sh $WORK/tc_analyze/run/analyze.sh --stop-on-error 3d
 
 # 個別にスクリプトを実行してデバッグ
 cd /path/to/tc_analyze/3d
@@ -335,13 +335,13 @@ cd /path/to/workdir
 vi setting.json
 
 # 4. 中心位置の計算（必須）
-sh $WORK/tc_analyze/script/analyze.sh center
+sh $WORK/tc_analyze/run/analyze.sh center
 
 # 5. 必要な解析を実行
-sh $WORK/tc_analyze/script/analyze.sh 3d azim
+sh $WORK/tc_analyze/run/analyze.sh 3d azim
 
 # または全て実行
-sh $WORK/tc_analyze/script/analyze.sh all
+sh $WORK/tc_analyze/run/analyze.sh all
 ```
 
 ### 大規模解析の場合
@@ -354,7 +354,7 @@ export MPLSTYLE=dark_background
 # { "n_jobs": 8, ... }
 
 # ログ付きでバックグラウンド実行
-nohup sh $WORK/tc_analyze/script/analyze.sh --log ./logs/main &
+nohup sh $WORK/tc_analyze/run/analyze.sh --log ./logs/main &
 
 # 進捗確認
 tail -f ./logs/main_stdout.log
@@ -371,7 +371,7 @@ python azim_wind_calc.py
 python azim_wind_radial_plot.py
 
 # カテゴリ全体を再実行
-sh $WORK/tc_analyze/script/analyze.sh azim
+sh $WORK/tc_analyze/run/analyze.sh azim
 ```
 
 ---

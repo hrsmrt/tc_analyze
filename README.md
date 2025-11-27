@@ -75,13 +75,13 @@ pip install -e .
 cd /path/to/workdir
 
 # TC中心位置の計算（最初に必要）
-sh $WORK/tc_analyze/script/analyze.sh center
+sh $WORK/tc_analyze/run/analyze.sh center
 
 # 3次元解析の実行
-sh $WORK/tc_analyze/script/analyze.sh 3d
+sh $WORK/tc_analyze/run/analyze.sh 3d
 
 # または全ての解析を実行
-sh $WORK/tc_analyze/script/analyze.sh all
+sh $WORK/tc_analyze/run/analyze.sh all
 ```
 
 詳細は[COMMAND_REFERENCE.md](./COMMAND_REFERENCE.md)を参照してください。
@@ -187,10 +187,10 @@ export MPLSTYLE=dark_background  # プロットスタイルを一括指定
 cd /path/to/workdir
 
 # 2. 中心位置の計算（最初に実行が必要）
-sh $WORK/tc_analyze/script/analyze.sh center
+sh $WORK/tc_analyze/run/analyze.sh center
 
 # 3. 必要な解析を実行
-sh $WORK/tc_analyze/script/analyze.sh 3d azim
+sh $WORK/tc_analyze/run/analyze.sh 3d azim
 
 # 4. 結果の確認
 ls data/    # 計算結果（.npy）
@@ -201,16 +201,16 @@ ls fig/     # プロット結果（.png）
 
 ```bash
 # 利用可能なカテゴリ一覧を表示
-sh $WORK/tc_analyze/script/analyze.sh --list
+sh $WORK/tc_analyze/run/analyze.sh --list
 
 # 特定のカテゴリのみ実行
-sh $WORK/tc_analyze/script/analyze.sh center 3d azim
+sh $WORK/tc_analyze/run/analyze.sh center 3d azim
 
 # スタイル指定
-sh $WORK/tc_analyze/script/analyze.sh --style dark_background 3d
+sh $WORK/tc_analyze/run/analyze.sh --style dark_background 3d
 
 # バックグラウンド実行（ログ付き）
-nohup sh $WORK/tc_analyze/script/analyze.sh --log ./logs/run01 &
+nohup sh $WORK/tc_analyze/run/analyze.sh --log ./logs/run01 &
 ```
 
 詳細は[COMMAND_REFERENCE.md](./COMMAND_REFERENCE.md)を参照してください。
@@ -292,7 +292,7 @@ ls setting.json  # 確認
 
 ```bash
 # centerカテゴリを最初に実行
-sh $WORK/tc_analyze/script/analyze.sh center
+sh $WORK/tc_analyze/run/analyze.sh center
 ```
 
 その他のトラブルシューティングは[COMMAND_REFERENCE.md](./COMMAND_REFERENCE.md#トラブルシューティング)を参照してください。

@@ -578,46 +578,82 @@ tc_analyze/
 │   ├── plotting.py          # プロット設定
 │   └── basic.py             # 物理定数
 │
-├── script/                   # 実行スクリプト
+├── run/                      # 実行用スクリプト・設定ファイル
 │   ├── analyze.sh           # 統合実行スクリプト（最重要）
 │   ├── analyze_all.sh       # 全カテゴリ実行
-│   └── setting.json         # 設定ファイル（サンプル）
+│   ├── setting.json         # 設定ファイル（サンプル）
+│   └── analyze.nml          # Fortran namelist設定
 │
-├── 3d/                       # 3次元解析（60+スクリプト）
-│   ├── divergence_calc.py
-│   ├── divergence_whole_domain_plot.py
-│   ├── divergence_vortex_region_plot.py
-│   └── ...
+├── tools/                    # 開発・保守ツール
+│   ├── auto_fix_pylint.py   # pylint自動修正
+│   ├── batch_fix_2d.py      # 2Dファイル一括修正
+│   └── batch_fix_3d.py      # 3Dファイル一括修正
 │
-├── 2d/                       # 2次元解析
-│   ├── whole_domain.py
-│   ├── vortex_region.py
-│   └── ...
+├── analysis/                 # 解析スクリプト（パターンB構造）
+│   │
+│   ├── spatial/              # 空間解析
+│   │   ├── 2d/              # 2次元解析（16 files）
+│   │   │   ├── calc/        # 計算スクリプト（3 files）
+│   │   │   ├── plot/        # プロットスクリプト（13 files）
+│   │   │   └── *.sh         # シェルスクリプト
+│   │   └── 3d/              # 3次元解析（37 files）
+│   │       ├── calc/        # 計算スクリプト（8 files）
+│   │       ├── plot/        # プロットスクリプト（29 files）
+│   │       └── *.sh         # シェルスクリプト
+│   │
+│   ├── azimuthal/            # 方位角平均解析
+│   │   ├── basic/           # 基本解析（56 files）
+│   │   │   ├── calc/        # 計算スクリプト（17 files）
+│   │   │   ├── plot/        # プロットスクリプト（39 files）
+│   │   │   └── *.sh         # シェルスクリプト
+│   │   ├── eliassen/        # Eliassen方程式関連（16 files）
+│   │   │   ├── calc/
+│   │   │   └── plot/
+│   │   ├── momentum/        # 運動量方程式
+│   │   │   ├── u/           # u成分（18 files）
+│   │   │   │   ├── calc/
+│   │   │   │   └── plot/
+│   │   │   └── w/           # w成分（4 files）
+│   │   │       ├── calc/
+│   │   │       └── plot/
+│   │   └── q8/              # 8方位分割解析（5 files）
+│   │       ├── calc/
+│   │       └── plot/
+│   │
+│   ├── vertical/             # 鉛直解析
+│   │   ├── profile/         # 鉛直プロファイル（7 files）
+│   │   │   ├── calc/
+│   │   │   └── plot/
+│   │   └── q4/              # 4象限プロファイル（2 files）
+│   │       ├── calc/
+│   │       └── plot/
+│   │
+│   ├── center/               # TC中心位置計算（8 files）
+│   │   ├── calc/
+│   │   ├── plot/
+│   │   └── *.py             # その他ユーティリティ
+│   │
+│   └── diagnostics/          # 診断解析
+│       ├── sums/            # 積算値計算（2 files）
+│       │   ├── calc/
+│       │   └── plot/
+│       └── symmetrisity/    # 対称性解析（6 files）
+│           ├── calc/
+│           └── plot/
 │
-├── azim_mean/                # 方位角平均解析（94スクリプト）
-│   ├── azim_wind_calc.py
-│   ├── azim_wind_radial_plot.py
-│   ├── eliassen/            # Eliassen方程式関連
-│   ├── eq_momentum_u/       # 運動量方程式（u成分）
-│   └── eq_momentum_w/       # 運動量方程式（w成分）
+├── data_processing/          # データ前処理スクリプト
+├── docs/                     # 詳細ドキュメント
 │
-├── azim_q8/                  # 8方位分割解析
-├── center/                   # TC中心位置計算
-├── sums/                     # 積算値計算
-├── symmetrisity/             # 対称性解析
-├── z_profile/                # 鉛直プロファイル
-├── z_profile_q4/             # 鉛直プロファイル（4象限）
-│
-├── archive/                  # アーカイブ
-│   ├── backups/
-│   └── migration_scripts/
+├── archive/                  # アーカイブ（旧ファイル保管）
+│   ├── examples/            # サンプルコード
+│   └── specific/            # 特定用途スクリプト
 │
 ├── setup.py                  # パッケージ設定
 ├── README.md                 # プロジェクト概要
 ├── ARCHITECTURE.md           # このファイル
 ├── COMMAND_REFERENCE.md      # コマンドリファレンス
 ├── WORK_LOG.md               # 作業ログ・コーディングパターン
-├── MIGRATION_COMPLETE.md     # リファクタリング報告
+├── DIRECTORY_RESTRUCTURE_PROPOSAL.md  # 再構成提案書
 └── CLAUDE.md                 # AI支援用コンテキスト
 ```
 
