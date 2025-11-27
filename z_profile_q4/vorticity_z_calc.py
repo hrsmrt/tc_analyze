@@ -20,7 +20,7 @@ R_max = 300e3
 # --- 出力配列 (config.nt, config.nz, 4象限) ---
 z_profile_q = np.zeros((config.nt, config.nz, 4))
 
-for t in range(config.t_first, config.t_last):
+for t in range(config.t_first, config.t_last + 1):
     # 3Dデータを読み込む (nz, ny, nx)
     data_3d = np.load(f"{config.get_data_path('3d', 'vorticity_z')}/vor_t{str(t).zfill(3)}.npy")
 

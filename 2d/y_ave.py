@@ -33,7 +33,7 @@ data_all = np.memmap(
     shape=(config.nt, config.ny, config.nx),
 )
 
-for t in range(config.t_first, config.t_last):
+for t in range(config.t_first, config.t_last + 1):
     data = data_all[t].mean(axis=1)
 
     plt.style.use(mpl_style_sheet)
@@ -56,4 +56,4 @@ for t in range(config.t_first, config.t_last):
     fig.savefig(os.path.join(DIR, f"t{str(config.time_list[t]).zfill(4)}.png"))
     plt.close()
 
-# Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last))
+# Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last + 1))

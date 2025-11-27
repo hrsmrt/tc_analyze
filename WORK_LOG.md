@@ -238,7 +238,7 @@ def process_t(t):
     plt.close()
 
 Parallel(n_jobs=config.n_jobs)(
-    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last + 1)
 )
 ```
 
@@ -281,7 +281,7 @@ def process_t(t):
     np.save(f"{output_folder}t{str(t).zfill(3)}.npy", azim_mean)
 
 Parallel(n_jobs=config.n_jobs)(
-    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last + 1)
 )
 ```
 

@@ -88,5 +88,5 @@ def streamfunction_twisted(zeta, dx, dy):
 
 
 Parallel(n_jobs=config.n_jobs)(
-    delayed(process_t)(t) for t in range(config.t_first, config.t_last)
+    delayed(process_t)(t) for t in range(config.t_first, config.t_last + 1)
 )

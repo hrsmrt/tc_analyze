@@ -49,7 +49,7 @@ rh_env = np.zeros(config.nz)
 
 def main():
     cape_evol = np.zeros(config.nt)
-    for t in range(config.t_first, config.t_last):
+    for t in range(config.t_first, config.t_last + 1):
         count = config.nx * config.ny * config.nz
         offset = count * t * 4
         data = np.fromfile(

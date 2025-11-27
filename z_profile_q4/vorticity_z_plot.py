@@ -17,7 +17,7 @@ grid = GridHandler(config)
 mpl_style_sheet = parse_style_argument()
 
 # 時刻範囲のリストを作成
-time_list = [config.time_list[t] for t in range(config.t_first, config.t_last)]
+time_list = [config.time_list[t] for t in range(config.t_first, config.t_last + 1)]
 
 # 鉛直グリッドを取得 (km単位)
 vgrid = grid.create_vertical_grid() * 1e-3
@@ -53,7 +53,7 @@ for q in range(4):
     plt.close()
 
 for q in range(4):
-    for i, t in enumerate(range(config.t_first, config.t_last)):
+    for i, t in enumerate(range(config.t_first, config.t_last + 1)):
         data = data_all[t, :, q]
         plt.style.use(mpl_style_sheet)
         fig, ax = plt.subplots(figsize=(5, 3))

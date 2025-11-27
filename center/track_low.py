@@ -28,7 +28,7 @@ data_memmap = np.memmap(
 
 def main():
     lows_all = []
-    for t in range(config.t_first, config.t_last):
+    for t in range(config.t_first, config.t_last + 1):
         P = data_memmap[t]
         lows = find_lows_peakmax(
             P,

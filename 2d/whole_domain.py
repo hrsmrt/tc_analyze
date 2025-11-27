@@ -121,7 +121,7 @@ for var, cfg in additional_configs.items():
         )
 
 # 各時刻のデータをプロット
-for t in range(config.t_first, config.t_last):
+for t in range(config.t_first, config.t_last + 1):
     data = data_all[t]
 
     # スタイル適用
