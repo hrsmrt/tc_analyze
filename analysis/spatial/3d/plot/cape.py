@@ -24,11 +24,6 @@ from utils.plotting import parse_style_argument
 # スタイルシートの解析
 mpl_style_sheet = parse_style_argument()
 
-# エイリアス（コードの変更を最小限にするため）
-CP = Cp
-L = Lv
-G = g0
-
 # 設定とグリッドの初期化
 config = AnalysisConfig()
 
@@ -80,7 +75,7 @@ def main():
             b = (
                 (rho[z] + rho[z - 1] - rho_env[z] - rho_env[z - 1])
                 / (rho_env[z] + rho_env[z - 1])
-                * G
+                * g
             )
             print(z, vgrid[z], b, rho[z], rho_env[z])
             if lfc == False and rho[z] < rho_env[z]:
@@ -146,9 +141,9 @@ def calc_T(t, T_zb, p_env, rh_zb):
     for i in range(1, config.nz):
         alpha = Rv * T[i - 1] / p_env[i - 1]
         if houwa == False:  # 飽和するまで
-            T[i] = T[i - 1] + alpha / CP * (p_env[i] - p_env[i - 1])
+            T[i] = T[i - 1] + alpha / Cp * (p_env[i] - p_env[i - 1])
             e[i] = e_par_p * p_env[i]
-            es[i] = es[i - 1] + L / (Rv * T[i] ** 2) * es[i - 1] * (T[i] - T[i - 1])
+            es[i] = es[i - 1] + Lv / (Rv * T[i] ** 2) * es[i - 1] * (T[i] - T[i - 1])
             if e[i] > es[i]:
                 houwa = True
                 print(
@@ -168,15 +163,15 @@ def calc_T(t, T_zb, p_env, rh_zb):
             rho = pd / (Rd * T[i - 1])
             alpha = 1 / rho
             A = (
-                L
+                Lv
                 * es[i - 1]
-                / (CP * rho * Rv * T[i - 1] ** 2)
-                * (L / (Rv * T[i - 1]) - 1)
+                / (Cp * rho * Rv * T[i - 1] ** 2)
+                * (Lv / (Rv * T[i - 1]) - 1)
             )
 
             # 次の高度の温度、圧力を求める
-            T[i] = T[i - 1] + 1 / (1 + A) * alpha / CP * (p_env[i] - p_env[i - 1])
-            es[i] = es[i - 1] + L / (Rv * T[i] ** 2) * es[i - 1] * (T[i] - T[i - 1])
+            T[i] = T[i - 1] + 1 / (1 + A) * alpha / Cp * (p_env[i] - p_env[i - 1])
+            es[i] = es[i - 1] + Lv / (Rv * T[i] ** 2) * es[i - 1] * (T[i] - T[i - 1])
             e[i] = es[i]
     return T
 

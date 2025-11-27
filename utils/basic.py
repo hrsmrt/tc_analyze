@@ -121,7 +121,7 @@ def potential_temperature(T, p):
         Potential temperature [K]
     """
     p0 = 1e5  # Pa
-    kappa = Rd / Cp_dry
+    kappa = Rd / Cp
     theta = T * (p0 / p)**kappa
     return theta
 
