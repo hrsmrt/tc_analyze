@@ -538,17 +538,17 @@ run_z_profile_q4() {
 
 run_vortex_region() {
     log_section "Vortex Region Analysis"
-    run_cmd "sh ${TC_ANALYZE}/analysis/whole_domain/3d/vortex_region.sh"
-    run_cmd "sh ${TC_ANALYZE}/analysis/whole_domain/3d/vortex_region_r250.sh"
-    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/vortex_region_wind_uv_abs_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/vorticity_z_vortex_region_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/divergence_vortex_region_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/theta_e_plot_vortex_region.py ${STYLE}"
+    run_cmd "sh ${TC_ANALYZE}/analysis/vortex_region/3d/vortex_region.sh"
+    run_cmd "sh ${TC_ANALYZE}/analysis/vortex_region/3d/vortex_region_r250.sh"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/3d/plot/vortex_region_wind_uv_abs_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/3d/plot/vorticity_z_vortex_region_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/3d/plot/divergence_vortex_region_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/3d/plot/theta_e_plot_vortex_region.py ${STYLE}"
     # オンデマンド計算に移行: psi は plot ファイルで直接計算（渦領域）
-    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/psi_plot_vortex_region.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/psi_plot_r200.py ${STYLE}"
-    run_cmd "sh ${TC_ANALYZE}/analysis/whole_domain/2d/vortex_region.sh"
-    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/2d/plot/ss_wind10m_abs_vortex_region.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/3d/plot/psi_plot_vortex_region.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/3d/plot/psi_plot_r200.py ${STYLE}"
+    run_cmd "sh ${TC_ANALYZE}/analysis/vortex_region/2d/vortex_region.sh"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/2d/plot/ss_wind10m_abs_vortex_region.py ${STYLE}"
     run_cmd "sh ${TC_ANALYZE}/analysis/vertical/profile/vortex_region_calc.sh"
     run_cmd "sh ${TC_ANALYZE}/analysis/vertical/profile/vortex_region_plot.sh"
 }
