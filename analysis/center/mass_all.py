@@ -60,5 +60,5 @@ ax.plot(
 ax.set_title("Mass whole region")
 ax.set_xlabel("Time [h]")
 ax.set_ylabel("Mass [10$^{14}$ kg]")
-fig.savefig(f"{output_folder}mass_whole_region_time_series.png")
+fig.savefig(f"{output_folder}/mass_whole_region_time_series.png")
 plt.close()

@@ -45,7 +45,7 @@ def process_t(t):
     ax.set_xticks([0, 250e3, 500e3, 750e3, 1000e3], ["", "", "", "", ""])
     ax.set_ylim([0, 20e3])
     ax.set_title(f"渦度 t = {config.time_list[t]} hour")
-    fig.savefig(f"{output_folder}t{str(t).zfill(3)}.png")
+    fig.savefig(f"{output_folder}/t{str(t).zfill(3)}.png")
     plt.close()
     print(f"t={t} done")
 

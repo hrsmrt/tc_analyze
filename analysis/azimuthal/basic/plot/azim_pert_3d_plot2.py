@@ -101,7 +101,7 @@ def process_t(t):
     ax.set_xlabel("半径 [km]")
     ax.set_ylabel("高度 [km]")
 
-    fig.savefig(f"{folder}t{str(t).zfill(3)}.png")
+    fig.savefig(f"{folder}/t{str(t).zfill(3)}.png")
     plt.close()
 
 

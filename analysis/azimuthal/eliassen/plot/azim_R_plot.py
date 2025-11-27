@@ -39,7 +39,7 @@ def process_t(t):
     ax.set_title(f"$R$ t = {config.time_list[t]} hour")
     ax.set_xlabel("半径 [km]")
     ax.set_ylabel("高度 [km]")
-    fig.savefig(f"{output_folder}t{str(t).zfill(3)}.png")
+    fig.savefig(f"{output_folder}/t{str(t).zfill(3)}.png")
     plt.close()
     print(f"t={t} done(max:{data.max()},min:{data.min()})")
 

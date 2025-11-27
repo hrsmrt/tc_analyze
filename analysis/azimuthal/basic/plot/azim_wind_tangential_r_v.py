@@ -27,13 +27,13 @@ folder = config.get_fig_path("azim", "wind_tangential")
 
 os.makedirs(folder, exist_ok=True)
 for z in z_list:
-    os.makedirs(f"{folder}z{str(z).zfill(2)}", exist_ok=True)
+    os.makedirs(f"{folder}/z{str(z).zfill(2)}", exist_ok=True)
 
 
 def process_t(t):
     data = np.load(f"{config.get_data_path('azim', 'wind_tangential')}/t{str(t).zfill(3)}.npy")
     for z in z_list:
-        folder_z = f"{folder}z{str(z).zfill(2)}/"
+        folder_z = f"{folder}/z{str(z).zfill(2)}/"
         plt.style.use(mpl_style_sheet)
         fig, ax = plt.subplots(figsize=(5, 2))
         ax.plot(rgrid, data[z])

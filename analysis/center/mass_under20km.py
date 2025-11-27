@@ -65,5 +65,5 @@ ax.plot(
 ax.set_title("Mass z<20km")
 ax.set_xlabel("Time [h]")
 ax.set_ylabel("Mass [10$^{14}$ kg]")
-fig.savefig(f"{output_folder}mass_under20km_time_series.png")
+fig.savefig(f"{output_folder}/mass_under20km_time_series.png")
 plt.close()

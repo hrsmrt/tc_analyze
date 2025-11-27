@@ -43,7 +43,7 @@ def process_t(t):
     ax.set_xlabel("半径 [km]")
     ax.set_ylabel("高度 [km]")
     # plt.xticks([0,nr/5-1,nr/5*2-1,nr/5*3-1,nr/5*4-1,nr-1],[int(config.dx*1e-3),int(radius*1e-3/5),int(radius*1e-3/5*2),int(radius*1e-3/5*3),int(radius*1e-3/5*4),int(radius*1e-3)])
-    plt.savefig(f"{output_folder}t{str(t).zfill(3)}.png")
+    plt.savefig(f"{output_folder}/t{str(t).zfill(3)}.png")
     plt.close()
 
 

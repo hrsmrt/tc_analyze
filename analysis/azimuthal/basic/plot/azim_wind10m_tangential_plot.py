@@ -29,7 +29,7 @@ def process_t(t):
     ax.plot(data)
     ax.set_xlabel("半径 [km]")
 
-    fig.savefig(f"{folder}t{str(t).zfill(3)}.png")
+    fig.savefig(f"{folder}/t{str(t).zfill(3)}.png")
     plt.close()
 
 

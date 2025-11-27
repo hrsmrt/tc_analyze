@@ -46,7 +46,7 @@ def process_t(t):
     set_azimuthal_plot_ticks(ax, r_max=R_MAX, z_max=20e3)
     # ax.set_xlabel("半径 [km]")
     # ax.set_ylabel("高度 [km]")
-    plt.savefig(f"{folder}t{str(t).zfill(3)}.png")
+    plt.savefig(f"{folder}/t{str(t).zfill(3)}.png")
     plt.close()
 
 
