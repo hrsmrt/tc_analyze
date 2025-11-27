@@ -41,17 +41,50 @@ class AnalysisConfig:
     R_PLOT_MAX = 500e3  # 500km
 
     def __init__(
-        self, config_file: str = "setting.json", base_dir: Optional[str] = None
+        self,
+        config_file: Optional[str] = None,
+        base_dir: Optional[str] = None,
+        auto_parse_args: bool = True,
     ):
         """
         設定ファイルを読み込む
 
+        優先順位:
+        1. config_file引数で明示的に指定
+        2. コマンドライン引数 --config / -c
+        3. 環境変数 TC_ANALYZE_CONFIG
+        4. デフォルト候補: setting.json, config.json, tc_analyze.json
+
         Args:
-            config_file (str): 設定ファイルのパス（デフォルト: "setting.json"）
+            config_file (str, optional): 設定ファイルのパス
             base_dir (str, optional): 設定ファイルを探す基準ディレクトリ
+            auto_parse_args (bool): コマンドライン引数を自動パースするか（デフォルト: True）
+
+        Examples:
+            >>> # デフォルト（自動検出）
+            >>> config = AnalysisConfig()
+
+            >>> # 明示的に指定
+            >>> config = AnalysisConfig("my_setting.json")
+
+            >>> # コマンドライン: python script.py --config experiment01.json
+            >>> config = AnalysisConfig()  # 自動的に experiment01.json を読み込む
         """
+        # 1. 引数で明示的に指定された場合はそれを使用
+        if config_file is None and auto_parse_args:
+            # 2. コマンドライン引数から --config を探す
+            config_file = self._parse_config_from_argv()
+
+        if config_file is None:
+            # 3. 環境変数から読み込み
+            config_file = os.environ.get("TC_ANALYZE_CONFIG")
+
+        if config_file is None:
+            # 4. デフォルト候補を順に探す
+            config_file = self._find_default_config(base_dir)
+
+        # ファイルの存在確認と読み込み
         if base_dir is None:
-            # カレントディレクトリのみ
             if os.path.exists(config_file):
                 config_path = config_file
             else:
@@ -61,11 +94,64 @@ class AnalysisConfig:
                 )
         else:
             config_path = os.path.join(base_dir, config_file)
+            if not os.path.exists(config_path):
+                raise FileNotFoundError(
+                    f"設定ファイル '{config_path}' が見つかりません。"
+                )
 
         with open(config_path, "r", encoding="utf-8") as f:
             self._data = json.load(f)
 
         self._config_path = config_path
+
+    def _parse_config_from_argv(self) -> Optional[str]:
+        """
+        sys.argvから --config / -c 引数を抽出
+
+        Returns:
+            str or None: 設定ファイルパス
+        """
+        import sys
+
+        for i, arg in enumerate(sys.argv):
+            if arg in ["--config", "-c"]:
+                if i + 1 < len(sys.argv):
+                    return sys.argv[i + 1]
+        return None
+
+    def _find_default_config(self, base_dir: Optional[str] = None) -> str:
+        """
+        デフォルトの設定ファイル候補を探す
+
+        Args:
+            base_dir (str, optional): 探索する基準ディレクトリ
+
+        Returns:
+            str: 見つかった設定ファイル名
+
+        Raises:
+            FileNotFoundError: 候補ファイルが1つも見つからない場合
+        """
+        candidate_files = ["setting.json", "config.json", "tc_analyze.json"]
+
+        for candidate in candidate_files:
+            if base_dir is None:
+                check_path = candidate
+            else:
+                check_path = os.path.join(base_dir, candidate)
+
+            if os.path.exists(check_path):
+                return candidate
+
+        # 候補が1つも見つからない
+        raise FileNotFoundError(
+            f"設定ファイルが見つかりません。\n"
+            f"以下のいずれかを配置してください: {', '.join(candidate_files)}\n"
+            f"または以下の方法で指定してください:\n"
+            f"  - コマンドライン引数: --config <file>\n"
+            f"  - 環境変数: TC_ANALYZE_CONFIG=<file>\n"
+            f"カレントディレクトリ: {os.getcwd()}"
+        )
 
     # === 基本設定値（setting.jsonから直接読み込み） ===
 

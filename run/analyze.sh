@@ -12,6 +12,7 @@
 #
 # オプション:
 #   -s, --style STYLE     matplotlibスタイル (default, dark_background, 等)
+#   -c, --config FILE     設定ファイル (デフォルト: setting.json)
 #   -d, --dry-run         実行せずにコマンドのみ表示
 #   -h, --help            このヘルプを表示
 #   -l, --list            利用可能なカテゴリ一覧を表示
@@ -41,6 +42,7 @@
 #   cd /path/to/your/workdir  # setting.jsonがあるディレクトリに移動
 #   sh $WORK/tc_analyze/run/analyze.sh                        # 全て実行
 #   sh $WORK/tc_analyze/run/analyze.sh --style dark_background # スタイル指定
+#   sh $WORK/tc_analyze/run/analyze.sh --config my_config.json center 3d # 設定ファイル指定
 #   sh $WORK/tc_analyze/run/analyze.sh center 3d              # 一部のみ実行
 #   sh $WORK/tc_analyze/run/analyze.sh --dry-run center       # ドライラン
 #   sh $WORK/tc_analyze/run/analyze.sh --log ./logs/run       # ログファイル出力
@@ -78,6 +80,7 @@ fi
 # デフォルト値
 DEFAULT_STYLE="default"
 STYLE="${DEFAULT_STYLE}"
+CONFIG_FILE=""
 DRY_RUN=false
 VERBOSE=false
 STOP_ON_ERROR=false
@@ -118,6 +121,7 @@ TC Analysis Pipeline Script
 
 オプション:
   -s, --style STYLE     matplotlibスタイル (default, dark_background, 等)
+  -c, --config FILE     設定ファイル (デフォルト: setting.json)
   -d, --dry-run         実行せずにコマンドのみ表示
   -h, --help            このヘルプを表示
   -l, --list            利用可能なカテゴリ一覧を表示
@@ -147,6 +151,7 @@ TC Analysis Pipeline Script
   cd /path/to/your/workdir  # setting.jsonがあるディレクトリに移動
   sh \$WORK/tc_analyze/run/analyze.sh                        # 全て実行
   sh \$WORK/tc_analyze/run/analyze.sh --style dark_background # スタイル指定
+  sh \$WORK/tc_analyze/run/analyze.sh --config my_config.json center 3d # 設定ファイル指定
   sh \$WORK/tc_analyze/run/analyze.sh center 3d              # 一部のみ実行
   sh \$WORK/tc_analyze/run/analyze.sh --dry-run center       # ドライラン
   sh \$WORK/tc_analyze/run/analyze.sh --log ./logs/run       # ログファイル出力
@@ -253,6 +258,10 @@ while [[ $# -gt 0 ]]; do
             STYLE="$2"
             shift 2
             ;;
+        -c|--config)
+            CONFIG_FILE="$2"
+            shift 2
+            ;;
         -d|--dry-run)
             DRY_RUN=true
             shift
@@ -299,9 +308,17 @@ fi
 # 実行開始
 # ============================================================================
 
+# 設定ファイルが指定されている場合は環境変数にセット
+if [[ -n "${CONFIG_FILE}" ]]; then
+    export TC_ANALYZE_CONFIG="${CONFIG_FILE}"
+fi
+
 log_section "TC解析パイプライン開始"
 log_info "実行ディレクトリ: $(pwd)"
 log_info "スタイル: ${STYLE}"
+if [[ -n "${CONFIG_FILE}" ]]; then
+    log_info "設定ファイル: ${CONFIG_FILE}"
+fi
 log_info "カテゴリ: ${CATEGORIES[*]}"
 if [[ -n "${LOG_STDOUT}" ]]; then
     log_info "標準出力ログ: ${LOG_STDOUT}"
