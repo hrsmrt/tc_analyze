@@ -1,6 +1,9 @@
 """
 psi_r200 のプロット
 
+✅ ストレージ節約版: オンデマンド計算を使用
+渦度データから流線関数を計算し、データ保存不要で数GB〜数百GBのストレージを節約
+
 プロット処理を実行します。
 """
 
@@ -16,6 +19,7 @@ from joblib import Parallel, delayed
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 from utils.plotting import parse_style_argument, set_vortex_region_ticks_empty
+from utils.streamfunction import calculate_streamfunction
 
 # スタイルシートの解析
 mpl_style_sheet = parse_style_argument()
@@ -42,9 +46,12 @@ vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
 
 def process_t(t):
+    # ✅ オンデマンド計算: 渦度から流線関数を計算（保存データ不要）
+    vorticity_z = np.load(os.path.join(config.get_data_path('3d', 'vorticity_z'), f"vor_t{str(t).zfill(3)}.npy"))
+    data_t = calculate_streamfunction(vorticity_z, config.dx, config.dy)
+
     center_x = center_x_list[t]
     center_y = center_y_list[t]
-    data_t = np.load(os.path.join(config.get_data_path('3d', 'psi'), f"psi_t{str(t).zfill(3)}.npy"))
     for z in z_list:
         data = data_t[z, :, :]
         data_cut = grid.extract_vortex_region(data, center_x, center_y, EXTENT)
