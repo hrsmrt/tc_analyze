@@ -6,6 +6,8 @@
 
 import numpy as np
 
+from .basic import PRES_S, RD, CP, L
+
 
 def calculate_azimuthal_mean_3d(
     data, t, center_x_list, center_y_list, grid_handler, r_max=1000e3
@@ -469,12 +471,8 @@ def calculate_azimuthal_mean_theta(
     - 方位角平均された気温・気圧から温位を計算
     - 中間データ（azim tem, azim pres）を保存不要
     - ストレージ大幅節約
+    - 物理定数はutils.basicから取得
     """
-    # 物理定数
-    PRES_S = 100000.0  # 基準気圧 Pa
-    RD = 287.05  # 気体定数 J/(kg·K)
-    CP = 1005.0  # 定圧比熱 J/(kg·K)
-
     # 方位角平均を計算
     azim_tem = calculate_azimuthal_mean_3d(data_tem, t, center_x_list, center_y_list, grid_handler, r_max)
     azim_pres = calculate_azimuthal_mean_3d(data_pres, t, center_x_list, center_y_list, grid_handler, r_max)
@@ -522,13 +520,8 @@ def calculate_azimuthal_mean_theta_e(
     - 方位角平均された気温・気圧・比湿から相当温位を計算
     - 中間データ（azim tem, azim pres, azim qv）を保存不要
     - ストレージ大幅節約
+    - 物理定数はutils.basicから取得
     """
-    # 物理定数
-    PRES_S = 100000.0  # 基準気圧 Pa
-    RD = 287.05  # 気体定数 J/(kg·K)
-    CP = 1005.0  # 定圧比熱 J/(kg·K)
-    L = 2.5e6  # 蒸発潜熱 J/kg
-
     # 方位角平均を計算
     azim_tem = calculate_azimuthal_mean_3d(data_tem, t, center_x_list, center_y_list, grid_handler, r_max)
     azim_pres = calculate_azimuthal_mean_3d(data_pres, t, center_x_list, center_y_list, grid_handler, r_max)

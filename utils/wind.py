@@ -7,47 +7,8 @@
 
 import numpy as np
 
-
-def calculate_center_velocity(center_x_list, center_y_list, dt_output):
-    """
-    台風中心の移動速度を計算
-
-    Parameters
-    ----------
-    center_x_list : ndarray
-        中心のx座標リスト [m]
-    center_y_list : ndarray
-        中心のy座標リスト [m]
-    dt_output : float
-        時間ステップ間隔 [s]
-
-    Returns
-    -------
-    center_u : ndarray
-        中心のx方向移動速度 [m/s]
-    center_v : ndarray
-        中心のy方向移動速度 [m/s]
-
-    Notes
-    -----
-    - 中央差分を使用（両端は前方/後方差分）
-    - center_u[t] = (center_x[t+1] - center_x[t-1]) / (2 * dt)
-    """
-    nt = len(center_x_list)
-
-    # x方向の移動速度
-    center_u = np.zeros(nt, dtype=np.float32)
-    center_u[1:-1] = (center_x_list[2:] - center_x_list[:-2]) / (2 * dt_output)
-    center_u[0] = (center_x_list[1] - center_x_list[0]) / dt_output
-    center_u[-1] = (center_x_list[-1] - center_x_list[-2]) / dt_output
-
-    # y方向の移動速度
-    center_v = np.zeros(nt, dtype=np.float32)
-    center_v[1:-1] = (center_y_list[2:] - center_y_list[:-2]) / (2 * dt_output)
-    center_v[0] = (center_y_list[1] - center_y_list[0]) / dt_output
-    center_v[-1] = (center_y_list[-1] - center_y_list[-2]) / dt_output
-
-    return center_u, center_v
+# 中心移動速度の計算はbasic.pyに統一
+from .basic import calculate_center_velocity
 
 
 def calculate_relative_wind(u, v, center_u, center_v):

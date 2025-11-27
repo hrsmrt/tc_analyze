@@ -29,12 +29,23 @@ GMe = 3.986004356e14 # m3/s2. 地心重力定数　# 天文(理科年表2022)
 g0 = 9.80665 # m/s2. Holton and Hakim(2014)p19
 
 Cp_dry = 1004 # J/(kg K). 乾燥空気の定圧比熱
+Cp = Cp_dry  # エイリアス（thermodynamicsとの互換性のため）
 
 DryAir_weight = (0.78 * N2_weight + 0.21 * O2_weight + 9.3e-3 * Ar_weight
                  + 3.9e-4 * CO2_weight + 1.8e-5 * Ne_weight
                  + 5.2e-6 * He_weight)
 Rd = R / DryAir_weight * 1e3 # 乾燥空気の気体定数 [J/(kg K)]
+RD = Rd  # エイリアス（thermodynamicsとの互換性のため）
 Rv = R / H2O_weight * 1e3 # 水蒸気の気体定数 [J/(kg K)]
+
+# 熱力学定数
+Lv = 2.5e6  # 水の蒸発潜熱 [J/kg]
+L = Lv  # エイリアス（thermodynamicsとの互換性のため）
+Ls = 2.8345e6  # 水の昇華潜熱 [J/kg]
+Lf = Ls - Lv  # 水の融解潜熱 [J/kg]
+
+# 基準気圧
+PRES_S = 1.0e5  # 基準気圧 [Pa] (= 1000 hPa)
 
 # Tetensの式, Satoh(2013) p256
 def tetens(T):
@@ -114,6 +125,94 @@ def potential_temperature(T, p):
     kappa = Rd / Cp_dry
     theta = T * (p0 / p)**kappa
     return theta
+
+
+# ========================================
+# 数値微分
+# ========================================
+
+def central_difference_2nd(data, dt):
+    """
+    2次精度の中心差分による時間微分を計算
+
+    d/dt ≈ (data[i+1] - data[i-1]) / (2*dt)  (内点)
+
+    Parameters
+    ----------
+    data : ndarray (nt,) or (nt, ...)
+        時系列データ（1次元目が時間）
+    dt : float
+        時間間隔
+
+    Returns
+    -------
+    derivative : ndarray
+        時間微分（dataと同じ形状）
+
+    Notes
+    -----
+    - 内点: 2次精度中心差分
+    - 始点: 前進差分 (data[1] - data[0]) / dt
+    - 終点: 後退差分 (data[-1] - data[-2]) / dt
+
+    Examples
+    --------
+    >>> x = np.array([0, 1, 4, 9, 16])  # t^2
+    >>> v = central_difference_2nd(x, dt=1.0)  # d/dt(t^2) = 2t
+    >>> print(v)  # [1, 2, 4, 6, 7] (理論値: [0, 2, 4, 6, 8])
+    """
+    data = np.asarray(data)
+    nt = data.shape[0]
+    derivative = np.zeros_like(data, dtype=np.float32)
+
+    # 内点: 2次精度中心差分
+    derivative[1:-1] = (data[2:] - data[:-2]) / (2.0 * dt)
+
+    # 始点: 前進差分
+    derivative[0] = (data[1] - data[0]) / dt
+
+    # 終点: 後退差分
+    derivative[-1] = (data[-1] - data[-2]) / dt
+
+    return derivative
+
+
+def calculate_center_velocity(center_x, center_y, dt):
+    """
+    台風中心の移動速度を2次中心差分で計算
+
+    Parameters
+    ----------
+    center_x : ndarray (nt,)
+        台風中心のx座標 [m]
+    center_y : ndarray (nt,)
+        台風中心のy座標 [m]
+    dt : float
+        時間間隔 [s]
+
+    Returns
+    -------
+    center_u : ndarray (nt,)
+        x方向移動速度 [m/s]
+    center_v : ndarray (nt,)
+        y方向移動速度 [m/s]
+
+    Notes
+    -----
+    - 内点: 2次精度中心差分 u[i] = (x[i+1] - x[i-1]) / (2*dt)
+    - 端点: 前進/後退差分
+
+    Examples
+    --------
+    >>> cx = np.array([0, 100, 250, 450])  # [m]
+    >>> cy = np.array([0, 80, 180, 300])   # [m]
+    >>> u, v = calculate_center_velocity(cx, cy, dt=3600)  # 1時間
+    >>> print(u)  # x方向移動速度 [m/s]
+    """
+    center_u = central_difference_2nd(center_x, dt)
+    center_v = central_difference_2nd(center_y, dt)
+
+    return center_u, center_v
 
 if __name__ == "__main__":
     print(k_boltzmann,"ボルツマン定数 [J/K]")

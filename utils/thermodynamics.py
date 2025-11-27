@@ -7,13 +7,10 @@
 
 import numpy as np
 
+from .basic import PRES_S, RD, CP, L
 
-# 物理定数
-PRES_S = 100000.0  # 基準気圧 Pa
-RD = 287.05  # 気体定数 J/(kg·K)
-CP = 1005.0  # 定圧比熱 J/(kg·K)
-L = 2.5e6  # 蒸発潜熱 J/kg
-RD_CP = RD / CP  # 事前計算
+# 事前計算
+RD_CP = RD / CP
 
 
 def calculate_theta_e(tem, pres, qv):

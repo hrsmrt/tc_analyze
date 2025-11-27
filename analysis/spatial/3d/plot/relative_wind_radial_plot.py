@@ -15,10 +15,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from joblib import Parallel, delayed
 
+from utils.basic import calculate_center_velocity
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 from utils.plotting import parse_style_argument
-from utils.wind import calculate_center_velocity, calculate_relative_wind_radial_tangential
+from utils.wind import calculate_relative_wind_radial_tangential
 
 # 設定とグリッドの初期化
 config = AnalysisConfig()

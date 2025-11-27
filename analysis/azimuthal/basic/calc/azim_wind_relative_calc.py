@@ -19,8 +19,9 @@ import numpy as np
 from joblib import Parallel, delayed
 
 from utils.azimuthal import calculate_azimuthal_mean_relative_wind
+from utils.basic import calculate_center_velocity
 from utils.config import AnalysisConfig
-from utils.grid import GridHandler, calculate_center_velocity
+from utils.grid import GridHandler
 
 config = AnalysisConfig()
 grid = GridHandler(config)
