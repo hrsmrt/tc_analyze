@@ -380,8 +380,6 @@ run_3d_wind() {
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_wind_tangential_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_wind_radial_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_wind_uv_abs_plot.py ${STYLE}"
-    # オンデマンド計算に移行: psi_plot_r200 は中心位置に依存（渦領域抽出）
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/psi_plot_r200.py ${STYLE}"
 }
 
 run_3d() {
@@ -546,7 +544,9 @@ run_vortex_region() {
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/vorticity_z_vortex_region_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/divergence_vortex_region_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/theta_e_plot_vortex_region.py ${STYLE}"
+    # オンデマンド計算に移行: psi は plot ファイルで直接計算（渦領域）
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/psi_plot_vortex_region.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/psi_plot_r200.py ${STYLE}"
     run_cmd "sh ${TC_ANALYZE}/analysis/spatial/2d/vortex_region.sh"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/2d/plot/ss_wind10m_abs_vortex_region.py ${STYLE}"
     run_cmd "sh ${TC_ANALYZE}/analysis/vertical/profile/vortex_region_calc.sh"
