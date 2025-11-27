@@ -23,7 +23,7 @@
 #   3d                 - 3次元空間解析 (basic + wind)
 #   3d_basic           - 3次元空間解析 基本 (中心位置非依存)
 #   3d_wind            - 3次元空間解析 風成分 (中心位置依存、center後に実行)
-#   2d                 - 2次元空間解析 (analysis/spatial/2d/)
+#   2d                 - 2次元空間解析 (analysis/whole_domain/2d/)
 #   z_profile          - 鉛直プロファイル (analysis/vertical/profile/)
 #   center             - TC中心位置計算 (analysis/center/)
 #   vortex_region      - 渦領域解析 (3d, 2d, z_profile)
@@ -129,7 +129,7 @@ TC Analysis Pipeline Script
   3d                 - 3次元空間解析 (basic + wind)
   3d_basic           - 3次元空間解析 基本 (中心位置非依存)
   3d_wind            - 3次元空間解析 風成分 (中心位置依存、center後に実行)
-  2d                 - 2次元空間解析 (analysis/spatial/2d/)
+  2d                 - 2次元空間解析 (analysis/whole_domain/2d/)
   z_profile          - 鉛直プロファイル (analysis/vertical/profile/)
   center             - TC中心位置計算 (analysis/center/)
   vortex_region      - 渦領域解析 (3d, 2d, z_profile)
@@ -323,25 +323,25 @@ run_center() {
     run_cmd "python ${TC_ANALYZE}/analysis/center/mass_all.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/center/mass_under20km.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/center/mass.py ${STYLE}"
-    run_cmd "sh ${TC_ANALYZE}/analysis/spatial/3d/whole_domain_with_center_plot.sh"
-    run_cmd "sh ${TC_ANALYZE}/analysis/spatial/2d/whole_domain_with_center_plot.sh"
+    run_cmd "sh ${TC_ANALYZE}/analysis/whole_domain/3d/whole_domain_with_center_plot.sh"
+    run_cmd "sh ${TC_ANALYZE}/analysis/whole_domain/2d/whole_domain_with_center_plot.sh"
 }
 
 run_2d_basic() {
     log_section "2D Analysis - Basic (中心位置非依存)"
-    run_cmd "sh ${TC_ANALYZE}/analysis/spatial/2d/whole_domain.sh"
-    run_cmd "sh ${TC_ANALYZE}/analysis/spatial/2d/y_ave.sh"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/2d/plot/ss_wind10m_abs_whole_domain.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/2d/calc/ss_wind10m_max_calc.py"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/2d/plot/ss_wind10m_max_plot.py ${STYLE}"
+    run_cmd "sh ${TC_ANALYZE}/analysis/whole_domain/2d/whole_domain.sh"
+    run_cmd "sh ${TC_ANALYZE}/analysis/whole_domain/2d/y_ave.sh"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/2d/plot/ss_wind10m_abs_whole_domain.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/2d/calc/ss_wind10m_max_calc.py"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/2d/plot/ss_wind10m_max_plot.py ${STYLE}"
 }
 
 run_2d_wind() {
     log_section "2D Analysis - Wind Components (中心位置依存)"
     # ⚠️ 注意: これらは台風中心位置に依存するため、run_center の後に実行する必要があります
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/2d/calc/ss_wind10m_radial_tangential_calc.py"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/2d/plot/ss_wind10m_tangential_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/2d/plot/ss_wind10m_radial_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/2d/calc/ss_wind10m_radial_tangential_calc.py"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/2d/plot/ss_wind10m_tangential_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/2d/plot/ss_wind10m_radial_plot.py ${STYLE}"
 }
 
 run_2d() {
@@ -353,33 +353,33 @@ run_2d() {
 
 run_3d_basic() {
     log_section "3D Analysis - Basic (中心位置非依存)"
-    run_cmd "sh ${TC_ANALYZE}/analysis/spatial/3d/whole_domain.sh"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/streamplot_whole_domain.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/whole_domain_wind_uv_abs_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/calc/vorticity_z_calc.py"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/vorticity_z_absolute_whole_domain_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/calc/divergence_calc.py"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/divergence_whole_domain_plot.py ${STYLE}"
+    run_cmd "sh ${TC_ANALYZE}/analysis/whole_domain/3d/whole_domain.sh"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/streamplot_whole_domain.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/whole_domain_wind_uv_abs_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/calc/vorticity_z_calc.py"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/vorticity_z_absolute_whole_domain_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/calc/divergence_calc.py"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/divergence_whole_domain_plot.py ${STYLE}"
     # オンデマンド計算に移行: theta_e は plot ファイルで直接計算
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/theta_e_plot_whole_region.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/theta_e_plot_whole_region.py ${STYLE}"
     # オンデマンド計算に移行: psi は plot ファイルで直接計算
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/psi_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/cape.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/psi_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/cape.py ${STYLE}"
 }
 
 run_3d_wind() {
     log_section "3D Analysis - Wind Components (中心位置依存)"
     # ⚠️ 注意: これらは台風中心位置に依存するため、run_center の後に実行する必要があります
     # オンデマンド計算に移行: ms_wind は plot ファイルで直接計算
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/ms_wind_tangential_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/ms_wind_radial_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/3d/plot/ms_wind_tangential_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/3d/plot/ms_wind_radial_plot.py ${STYLE}"
     # オンデマンド計算に移行: ms_dyn は plot ファイルで直接計算（ms_wind と同じ）
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/ms_dyn_tangential_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/ms_dyn_radial_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/3d/plot/ms_dyn_tangential_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/3d/plot/ms_dyn_radial_plot.py ${STYLE}"
     # オンデマンド計算に移行: relative_wind は plot ファイルで直接計算
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_wind_tangential_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_wind_radial_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_wind_uv_abs_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/3d/plot/relative_wind_tangential_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/3d/plot/relative_wind_radial_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/3d/plot/relative_wind_uv_abs_plot.py ${STYLE}"
 }
 
 run_3d() {
@@ -538,17 +538,17 @@ run_z_profile_q4() {
 
 run_vortex_region() {
     log_section "Vortex Region Analysis"
-    run_cmd "sh ${TC_ANALYZE}/analysis/spatial/3d/vortex_region.sh"
-    run_cmd "sh ${TC_ANALYZE}/analysis/spatial/3d/vortex_region_r250.sh"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/vortex_region_wind_uv_abs_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/vorticity_z_vortex_region_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/divergence_vortex_region_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/theta_e_plot_vortex_region.py ${STYLE}"
+    run_cmd "sh ${TC_ANALYZE}/analysis/whole_domain/3d/vortex_region.sh"
+    run_cmd "sh ${TC_ANALYZE}/analysis/whole_domain/3d/vortex_region_r250.sh"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/vortex_region_wind_uv_abs_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/vorticity_z_vortex_region_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/divergence_vortex_region_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/theta_e_plot_vortex_region.py ${STYLE}"
     # オンデマンド計算に移行: psi は plot ファイルで直接計算（渦領域）
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/psi_plot_vortex_region.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/psi_plot_r200.py ${STYLE}"
-    run_cmd "sh ${TC_ANALYZE}/analysis/spatial/2d/vortex_region.sh"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/2d/plot/ss_wind10m_abs_vortex_region.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/psi_plot_vortex_region.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/psi_plot_r200.py ${STYLE}"
+    run_cmd "sh ${TC_ANALYZE}/analysis/whole_domain/2d/vortex_region.sh"
+    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/2d/plot/ss_wind10m_abs_vortex_region.py ${STYLE}"
     run_cmd "sh ${TC_ANALYZE}/analysis/vertical/profile/vortex_region_calc.sh"
     run_cmd "sh ${TC_ANALYZE}/analysis/vertical/profile/vortex_region_plot.sh"
 }
