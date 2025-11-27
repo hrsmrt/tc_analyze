@@ -1,6 +1,9 @@
 """
 relative_wind_uv_abs のプロット
 
+✅ ストレージ節約版: オンデマンド計算を使用
+データを保存せず、必要時に計算することでストレージを節約
+
 プロット処理を実行します。
 """
 
@@ -16,6 +19,7 @@ from joblib import Parallel, delayed
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 from utils.plotting import parse_style_argument
+from utils.wind import calculate_center_velocity, calculate_relative_wind_from_memmap
 
 # スタイルシートの解析
 mpl_style_sheet = parse_style_argument()
@@ -28,6 +32,25 @@ EXTENT = 500e3
 
 center_x_list = config.center_x
 center_y_list = config.center_y
+
+# ✅ オンデマンド計算: 台風中心の移動速度を計算
+center_u_list, center_v_list = calculate_center_velocity(
+    center_x_list, center_y_list, config.dt_output
+)
+
+# ✅ オンデマンド計算: メモリマップを開く（保存データ不要）
+data_u = np.memmap(
+    f"{config.input_folder}ms_u.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_v = np.memmap(
+    f"{config.input_folder}ms_v.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
 
 X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)
 
@@ -42,7 +65,12 @@ vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
 
 def process_t(t):
-    data_t = np.load(os.path.join(config.get_data_path('3d', 'relative_wind_uv_abs'), f"t{str(t).zfill(3)}.npy"))
+    # ✅ オンデマンド計算: 必要時にその場で計算（保存データ不要）
+    u_rel, v_rel = calculate_relative_wind_from_memmap(
+        data_u, data_v, t, center_u_list, center_v_list
+    )
+    # 相対風の大きさ
+    data_t = np.sqrt(u_rel**2 + v_rel**2)
     center_x = center_x_list[t]
     center_y = center_y_list[t]
     for z in z_list:

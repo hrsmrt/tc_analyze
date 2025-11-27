@@ -2,6 +2,9 @@
 """
 相対風の放射状成分をプロット
 
+✅ ストレージ節約版: オンデマンド計算を使用
+データを保存せず、必要時に計算することでストレージを節約
+
 指定された鉛直レベルにおける放射状風速成分の水平分布をプロットします。
 """
 import os
@@ -15,6 +18,7 @@ from joblib import Parallel, delayed
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 from utils.plotting import parse_style_argument
+from utils.wind import calculate_center_velocity, calculate_relative_wind_radial_tangential
 
 # 設定とグリッドの初期化
 config = AnalysisConfig()
@@ -36,6 +40,25 @@ EXTENT_Y = int(RADIAL_MAX / config.dy)
 center_x_list = config.center_x
 center_y_list = config.center_y
 vgrid = np.loadtxt(config.vgrid_filepath)
+
+# ✅ オンデマンド計算: 台風中心の移動速度を計算
+center_u_list, center_v_list = calculate_center_velocity(
+    center_x_list, center_y_list, config.dt_output
+)
+
+# ✅ オンデマンド計算: メモリマップを開く（保存データ不要）
+data_u = np.memmap(
+    f"{config.input_folder}ms_u.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_v = np.memmap(
+    f"{config.input_folder}ms_v.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
 
 # 切り出し領域のメッシュグリッド
 X_cut = grid.X[: EXTENT_Y * 2, : EXTENT_X * 2]
@@ -59,7 +82,12 @@ def process_t(t):
     Args:
         t (int): 時刻ステップ
     """
-    data_t = np.load(os.path.join(config.get_data_path('3d', 'relative_wind_radial'), f"t{str(t).zfill(3)}.npy"))
+    # ✅ オンデマンド計算: 必要時にその場で計算（保存データ不要）
+    v_radial, _ = calculate_relative_wind_radial_tangential(
+        data_u, data_v, t, center_x_list, center_y_list,
+        center_u_list, center_v_list, grid
+    )
+    data_t = v_radial
 
     # 中心座標をインデックスに変換
     center_x = int(center_x_list[t] / config.dx)

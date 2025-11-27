@@ -105,6 +105,56 @@ psi = calculate_streamfunction(data_vorticity_z, config.dx, config.dy)
 psi = calculate_streamfunction_from_memmap(data_vorticity_z, t, config.dx, config.dy)
 ```
 
+### 3. 相対風（relative wind）の計算
+
+#### プロットスクリプトでの使用例
+
+**新しい方法（オンデマンド計算）**:
+```python
+import numpy as np
+from utils.config import AnalysisConfig
+from utils.grid import GridHandler
+from utils.wind import calculate_center_velocity, calculate_relative_wind_radial_tangential
+
+config = AnalysisConfig()
+grid = GridHandler(config)
+
+# メモリマップを開く
+data_u = np.memmap(
+    f"{config.input_folder}ms_u.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_v = np.memmap(
+    f"{config.input_folder}ms_v.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+
+# 台風中心の移動速度を計算
+center_x_list = config.center_x
+center_y_list = config.center_y
+center_u_list, center_v_list = calculate_center_velocity(
+    center_x_list, center_y_list, config.dt_output
+)
+
+# 必要な時刻だけ計算（動径・接線成分）
+v_radial, v_tangential = calculate_relative_wind_radial_tangential(
+    data_u, data_v, t, center_x_list, center_y_list,
+    center_u_list, center_v_list, grid
+)
+
+# または相対風の u, v 成分のみ
+from utils.wind import calculate_relative_wind_from_memmap
+u_rel, v_rel = calculate_relative_wind_from_memmap(
+    data_u, data_v, t, center_u_list, center_v_list
+)
+# 大きさを計算
+wind_magnitude = np.sqrt(u_rel**2 + v_rel**2)
+```
+
 ## 計算スクリプトの扱い
 
 ### オプション1: 計算スクリプトを削除
@@ -169,7 +219,11 @@ Parallel(n_jobs=config.n_jobs)(
 
 1. **theta_e（相当温位）**: 計算が軽い、データが大きい
 2. **psi（流線関数）**: やや重いがFFTで高速、データが大きい
-3. **他の熱力学変数**: 比較的計算が軽い
+3. **相対風（relative wind）**: 計算が軽い、データが大きい
+   - relative_u, relative_v: 絶対風から台風移動速度を引く
+   - radial/tangential: 極座標変換
+   - magnitude: ベクトルの大きさ
+4. **他の熱力学変数**: 比較的計算が軽い
 
 ### 保存しておくべきもの
 
