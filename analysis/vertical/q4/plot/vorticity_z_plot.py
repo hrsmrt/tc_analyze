@@ -43,7 +43,7 @@ for q in range(4):
     c = ax.contourf(
         X,
         Y,
-        data_all[config.t_first : config.t_last, :, q].T,
+        data_all[config.t_first : config.t_last + 1, :, q].T,
         levels=np.arange(0, 0.00022, 0.00002),
         cmap="rainbow",
         extend="max",
