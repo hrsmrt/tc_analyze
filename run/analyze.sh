@@ -159,7 +159,9 @@ list_categories() {
     echo "  3d                 - 3次元空間解析 (basic + wind)"
     echo "  3d_basic           - 3次元空間解析 基本 (中心位置非依存)"
     echo "  3d_wind            - 3次元空間解析 風成分 (中心位置依存、center後に実行)"
-    echo "  2d                 - 2次元空間解析 (analysis/spatial/2d/)"
+    echo "  2d                 - 2次元空間解析 (basic + wind)"
+    echo "  2d_basic           - 2次元空間解析 基本 (中心位置非依存)"
+    echo "  2d_wind            - 2次元空間解析 風成分 (中心位置依存、center後に実行)"
     echo "  z_profile          - 鉛直プロファイル (analysis/vertical/profile/)"
     echo "  center             - TC中心位置計算 (analysis/center/)"
     echo "  vortex_region      - 渦領域解析 (3d, 2d, z_profile)"
@@ -325,16 +327,28 @@ run_center() {
     run_cmd "sh ${TC_ANALYZE}/analysis/spatial/2d/whole_domain_with_center_plot.sh"
 }
 
-run_2d() {
-    log_section "2D Analysis"
+run_2d_basic() {
+    log_section "2D Analysis - Basic (中心位置非依存)"
     run_cmd "sh ${TC_ANALYZE}/analysis/spatial/2d/whole_domain.sh"
     run_cmd "sh ${TC_ANALYZE}/analysis/spatial/2d/y_ave.sh"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/2d/plot/ss_wind10m_abs_whole_domain.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/2d/calc/ss_wind10m_max_calc.py"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/2d/plot/ss_wind10m_max_plot.py ${STYLE}"
+}
+
+run_2d_wind() {
+    log_section "2D Analysis - Wind Components (中心位置依存)"
+    # ⚠️ 注意: これらは台風中心位置に依存するため、run_center の後に実行する必要があります
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/2d/calc/ss_wind10m_radial_tangential_calc.py"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/2d/plot/ss_wind10m_tangential_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/2d/plot/ss_wind10m_radial_plot.py ${STYLE}"
+}
+
+run_2d() {
+    # 互換性のため: run_2d は run_2d_basic と run_2d_wind を両方実行
+    # ⚠️ 注意: run_2d_wind は中心位置に依存するため、run_center の後に実行してください
+    run_2d_basic
+    run_2d_wind
 }
 
 run_3d_basic() {
@@ -561,6 +575,13 @@ for category in "${CATEGORIES[@]}"; do
         2d)
             run_2d
             ;;
+        2d_basic)
+            run_2d_basic
+            ;;
+        2d_wind)
+            # ⚠️ 注意: 中心位置に依存するため、run_center の後に実行してください
+            run_2d_wind
+            ;;
         z_profile)
             run_z_profile
             ;;
@@ -599,10 +620,11 @@ for category in "${CATEGORIES[@]}"; do
             run_center
             # 中心位置非依存の解析
             run_3d_basic
-            run_2d
+            run_2d_basic
             run_z_profile
             # 中心位置依存の解析
             run_3d_wind
+            run_2d_wind
             run_vortex_region
             run_azim
             run_azim_eliassen
