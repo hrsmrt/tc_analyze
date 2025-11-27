@@ -1,4 +1,15 @@
-# python $WORK/tc_analyze/azim_mean/azim_vorticity_z_calc.py
+"""
+z方向渦度の方位角平均を計算
+
+✅ ストレージ節約版: オンデマンド計算を使用
+事前計算されたvorticity_zデータの保存が不要
+
+input: ms_u.grd, ms_v.grd, center位置
+output: z方向渦度の方位角平均
+
+python $WORK/tc_analyze/azim_mean/azim_vorticity_z_calc.py
+"""
+
 import os
 
 import numpy as np
@@ -21,8 +32,21 @@ os.makedirs(folder, exist_ok=True)
 center_x_list = config.center_x
 center_y_list = config.center_y
 
+# ✅ オンデマンド計算: メモリマップを開く
+data_all_u = np.memmap(
+    f"{config.input_folder}ms_u.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_all_v = np.memmap(
+    f"{config.input_folder}ms_v.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
 
-# メインループ
+
 def process_t(t):
     # 中心座標（m単位）
     cx = center_x_list[t]
@@ -34,14 +58,35 @@ def process_t(t):
 
     bin_idx = np.floor(valid_r / config.dx).astype(int)
     max_bin = int(np.floor(r_max / config.dx))
-    bin_idx = np.clip(bin_idx, 0, max_bin - 1)  # 範囲外を防ぐ
+    bin_idx = np.clip(bin_idx, 0, max_bin - 1)
 
     count_r = np.bincount(bin_idx, minlength=max_bin)
 
     azim_mean = np.full((config.nz, max_bin), np.nan)
 
-    data = np.load(os.path.join(config.get_data_path('3d', 'vorticity_z'), f"vor_t{str(t).zfill(3)}.npy"))
-    # print(f"3d data t: {t}, max: {data.max()}, min: {data.min()}")
+    # ✅ オンデマンド計算: vorticityをその場で計算
+    data_u = data_all_u[t]
+    data_v = data_all_v[t]
+
+    # z方向渦度を計算（vorticity_z_calc.pyのロジックと同じ）
+    dv_dx = (np.roll(data_v, -1, axis=2) - np.roll(data_v, 1, axis=2)) / (2 * config.dx)
+    du_dy = (np.roll(data_u, -1, axis=1) - np.roll(data_u, 1, axis=1)) / (2 * config.dy)
+
+    # 境界条件の処理（北極と南極）
+    du_dy[:, 0, : config.nx // 2] = (
+        data_u[:, 1, : config.nx // 2] - data_u[:, -1, config.nx // 2:]
+    ) / (2 * config.dy)
+    du_dy[:, 0, config.nx // 2:] = (
+        data_u[:, 1, config.nx // 2:] - data_u[:, -1, : config.nx // 2]
+    ) / (2 * config.dy)
+    du_dy[:, -1, : config.nx // 2] = (
+        data_u[:, 0, : config.nx // 2] - data_u[:, -2, config.nx // 2:]
+    ) / (2 * config.dy)
+    du_dy[:, -1, config.nx // 2:] = (
+        data_u[:, 0, config.nx // 2:] - data_u[:, -2, : config.nx // 2]
+    ) / (2 * config.dy)
+
+    data = dv_dx - du_dy
 
     valid_data = data[:, mask]
 

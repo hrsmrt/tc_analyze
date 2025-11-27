@@ -1,15 +1,26 @@
-# python $WORK/tc_analyze/azim_mean/azim_stream_calc.py
-# output: 流線関数
-# 参考: Smith and Montgomery (2023) 5.61式
-# はじめr = 0でz方向に積分し、その後はr方向に積分
+"""
+流線関数の方位角平均を計算
+
+✅ ストレージ節約版: オンデマンド計算を使用
+方位角平均済みデータを保存せず、元データから直接計算
+
+参考: Smith and Montgomery (2023) 5.61式
+はじめr = 0でz方向に積分し、その後はr方向に積分
+
+input: ms_rho.grd, ms_u.grd, ms_v.grd, ms_w.grd, center位置
+output: 流線関数
+
+python $WORK/tc_analyze/azim_mean/azim_stream_calc.py
+"""
 
 import os
 
 import numpy as np
 from joblib import Parallel, delayed
 
+from utils.azimuthal import calculate_azimuthal_mean_3d, calculate_azimuthal_mean_relative_wind
 from utils.config import AnalysisConfig
-from utils.grid import GridHandler
+from utils.grid import GridHandler, calculate_center_velocity
 
 config = AnalysisConfig()
 grid = GridHandler(config)
@@ -19,11 +30,52 @@ vgrid = grid.create_vertical_grid()
 output_folder = config.get_data_path("azim", "stream")
 os.makedirs(output_folder, exist_ok=True)
 
+center_x_list = config.center_x
+center_y_list = config.center_y
+
+# 台風中心の移動速度を計算
+center_u_list, center_v_list = calculate_center_velocity(
+    center_x_list, center_y_list, config.dt_output
+)
+
+# ✅ オンデマンド計算: メモリマップを開く
+data_rho = np.memmap(
+    f"{config.input_folder}ms_rho.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_u = np.memmap(
+    f"{config.input_folder}ms_u.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_v = np.memmap(
+    f"{config.input_folder}ms_v.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_w = np.memmap(
+    f"{config.input_folder}ms_w.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+
 
 def process_t(t):
-    rho = np.load(os.path.join(config.get_data_path('azim', 'ms_rho'), f"t{str(t).zfill(3)}.npy"))
-    u = np.load(os.path.join(config.get_data_path('azim', 'wind_relative_radial'), f"t{str(t).zfill(3)}.npy"))
-    w = np.load(os.path.join(config.get_data_path('azim', 'ms_w'), f"t{str(t).zfill(3)}.npy"))
+    # ✅ オンデマンド計算: 必要時にその場で計算
+    rho = calculate_azimuthal_mean_3d(
+        data_rho, t, center_x_list, center_y_list, grid
+    )
+    u, _ = calculate_azimuthal_mean_relative_wind(
+        data_u, data_v, t, center_x_list, center_y_list, center_u_list, center_v_list, grid
+    )
+    w = calculate_azimuthal_mean_3d(
+        data_w, t, center_x_list, center_y_list, grid
+    )
     # データの形状から半径方向のビン数を取得
     nr = rho.shape[1]
     R = (np.arange(nr) + 0.5) * config.dx
