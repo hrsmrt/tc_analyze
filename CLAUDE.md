@@ -2,6 +2,8 @@
 
 このプロジェクトは修士課程の研究で使用している熱帯低気圧の解析コード群です。
 
+**プロジェクト規模**: 222ファイル、21,707行（Python）
+
 ---
 
 ## 📚 主要ドキュメント
@@ -10,26 +12,34 @@
 
 1. **プロジェクト概要**
    @./README.md
+   - 全体像、環境構築、クイックスタート
 
 2. **コマンドリファレンス（よく使うコマンド）**
    @./docs/COMMAND_REFERENCE.md
+   - analyze.shの使い方、トラブルシューティング
 
 3. **アーキテクチャ設計書**
    @./docs/ARCHITECTURE.md
+   - システム構成、データフロー、拡張ガイド
 
-4. **作業履歴とコーディング規約**
+4. **物理計算リファレンス（NEW! 2025-11-27）**
+   @./docs/UTILS_PHYSICS_REFERENCE.md
+   - utils内の全物理定数（Cp, Rd, g, PRES_Sなど）
+   - 熱力学計算（温位θ、相当温位θ_e）
+   - 風速場計算、方位角平均、流線関数など
+
+5. **作業履歴とコーディング規約**
    @./docs/WORK_LOG.md
+   - 確立されたコーディングパターン
+   - グリッド生成、ビニング方法の統一
 
-### 補足ドキュメント（archive/docs/）
+### 補足ドキュメント
 
-5. **リファクタリング概要**
+6. **リファクタリング概要**
    @./archive/docs/REFACTORING_SUMMARY.md
 
-6. **マイグレーション完了報告**
+7. **マイグレーション完了報告**
    @./archive/docs/MIGRATION_COMPLETE.md
-
-7. **ディレクトリ再構成提案書**
-   @./archive/docs/DIRECTORY_RESTRUCTURE_PROPOSAL.md
 
 ---
 
@@ -53,32 +63,70 @@ sh $WORK/tc_analyze/run/analyze.sh center 3d azim
 sh $WORK/tc_analyze/run/analyze.sh --list
 ```
 
+### utilsモジュール（12ファイル、2,560行）
+```python
+from utils.config import AnalysisConfig      # 設定管理
+from utils.grid import GridHandler           # グリッド計算
+from utils.plotting import PlotConfig        # プロット設定
+from utils.basic import Cp, Rd, Rv, Lv, g   # 物理定数
+from utils.thermodynamics import calculate_theta_e  # 相当温位
+from utils.wind import calculate_relative_wind      # 相対風
+from utils.azimuthal import calculate_azimuthal_mean_3d  # 方位角平均
+from utils.streamfunction import solve_poisson_jacobi    # 流線関数
+```
+
+### 物理定数の命名規則（2025-11-27統一）
+- **普遍定数**: `K_B`, `N_A` (大文字+アンダースコア)
+- **物理記号**: `Cp`, `Rd`, `Rv`, `Lv`, `g` (教科書表記)
+- **複合語**: `PRES_S`, `G_MS`, `G_ME` (大文字+アンダースコア)
+
 ### ディレクトリ構成
 ```
 tc_analyze/
-├── analysis/       # 解析スクリプト（パターンB構造）
-│   ├── spatial/   # 空間解析（2d, 3d）
-│   ├── azimuthal/ # 方位角平均解析
-│   ├── vertical/  # 鉛直解析
-│   ├── center/    # TC中心位置計算
-│   └── diagnostics/ # 診断解析
-├── utils/          # 共通モジュール（config, grid, plotting）
-├── run/            # 実行スクリプト（analyze.sh, setting.json）
-├── tools/          # 開発・保守ツール
+├── utils/          # 共通モジュール（12ファイル、2,560行）
+│   ├── config.py, grid.py, plotting.py  # コア機能
+│   ├── basic.py, thermodynamics.py      # 物理定数・計算
+│   ├── wind.py, azimuthal.py            # 風速・方位角平均
+│   └── streamfunction.py                # 流線関数
+├── analysis/       # 解析スクリプト（169ファイル、13,349行）
+│   ├── spatial/   # 空間解析（3d: 30, 2d: 16）
+│   ├── azimuthal/ # 方位角解析（basic: 56, eliassen: 16, momentum: 22, q8: 5）
+│   ├── vertical/  # 鉛直解析（profile: 4, q4: 4）
+│   ├── center/    # TC中心位置計算（8）
+│   └── diagnostics/ # 診断解析（sums: 4, symmetrisity: 4）
 ├── docs/           # ドキュメント
+│   ├── COMMAND_REFERENCE.md, ARCHITECTURE.md, WORK_LOG.md
+│   └── UTILS_PHYSICS_REFERENCE.md  # 物理計算リファレンス
+├── run/            # 実行スクリプト（analyze.sh）
+├── script/         # 設定ファイル（setting.json）
 └── archive/        # アーカイブ
 ```
 
 ---
 
-## 📋 追加の注意事項
+## 📋 重要な注意事項
 
+### コーディング規約
 - **コードスタイル**: pylint, autoflake, isort, autopep8 で整形済み
-- **設定ファイル**: `run/setting.json` を使用
-- **実行スクリプト**: `run/analyze.sh` でカテゴリ別に実行可能
-- **Python環境**: `pip install -e .` で開発モードでインストールが必要
+- **物理定数**: `utils.basic`から必ずインポート（Cp, Rd, Rv, Lv, g, PRES_S）
+- **グリッド計算**: `GridHandler`を使用（直接計算しない）
+- **方位角平均**: `utils.azimuthal`の関数を使用（ビニング方法統一済み）
+- **設定管理**: `AnalysisConfig`を使用（setting.json直接読み込み禁止）
+
+### システム構成
+- **設定ファイル**: `script/setting.json` または作業ディレクトリの`setting.json`
+- **実行スクリプト**: `run/analyze.sh` でカテゴリ別に実行
+- **Python環境**: `pip install -e .` で開発モードインストール必須
 - **依存関係**: numpy, matplotlib, joblib（setup.pyで自動インストール）
-- **ディレクトリ構造**: パターンB（解析タイプ別 + calc/plot分離）を採用
+- **ディレクトリ構造**: 解析タイプ別 + calc/plot分離
+
+### 最近の主要変更（2025-11-27）
+- ✅ **物理定数の命名規則統一**: `g0`→`g`, `K_B`, `N_A`など（教科書表記に準拠）
+- ✅ **utils/thermodynamics.py作成**: 相当温位計算を集約
+- ✅ **utils/azimuthal.py作成**: 方位角平均計算を集約
+- ✅ **utils/wind.py作成**: 風速場計算を集約
+- ✅ **TC中心速度の自動計算**: 2次中心差分で自動計算（config依存削減）
+- ✅ **UTILS_PHYSICS_REFERENCE.md作成**: 物理計算の包括的リファレンス
 
 ---
 
@@ -88,10 +136,24 @@ tc_analyze/
 |------------|--------|
 | **コマンド実行方法を知りたい** | [docs/COMMAND_REFERENCE.md](./docs/COMMAND_REFERENCE.md) |
 | **システム構成を理解したい** | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
+| **物理計算・定数を確認したい** | [docs/UTILS_PHYSICS_REFERENCE.md](./docs/UTILS_PHYSICS_REFERENCE.md) |
 | **新しい解析を追加したい** | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) の拡張ガイド |
 | **コーディング規約を確認したい** | [docs/WORK_LOG.md](./docs/WORK_LOG.md) の確立されたコーディングパターン |
 | **エラーが発生した** | [docs/COMMAND_REFERENCE.md](./docs/COMMAND_REFERENCE.md) のトラブルシューティング |
 | **データフローを理解したい** | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) のデータフロー |
+| **グリッド計算を使いたい** | [docs/WORK_LOG.md](./docs/WORK_LOG.md) のグリッド生成の統一化 |
+| **方位角平均を計算したい** | [docs/UTILS_PHYSICS_REFERENCE.md](./docs/UTILS_PHYSICS_REFERENCE.md) の方位角平均計算 |
+
+## 📈 プロジェクト統計
+
+- **総Pythonファイル数**: 222ファイル
+- **総コード行数**: 21,707行
+- **utils**: 12ファイル、2,560行
+- **analysis**: 169ファイル、13,349行
+  - calc: 53ファイル
+  - plot: 82ファイル
+  - その他: 34ファイル
+- **解析カテゴリ**: 6カテゴリ（spatial, azimuthal, vertical, center, diagnostics）
 
 ---
 
