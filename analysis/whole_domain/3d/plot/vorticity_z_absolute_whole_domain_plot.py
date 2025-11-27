@@ -1,5 +1,5 @@
 """Plot 3D absolute vorticity field over whole domain."""
-# python $WORK/tc_analyze/3d/vorticity_z_absolute_whole_domain_plot.py $style
+# python $WORK/tc_analyze/analysis/whole_domain/3d/plot/vorticity_z_absolute_whole_domain_plot.py $style
 import os
 
 import matplotlib

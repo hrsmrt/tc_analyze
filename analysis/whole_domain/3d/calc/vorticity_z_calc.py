@@ -4,7 +4,7 @@ vorticity_z の計算
 計算処理を実行します。
 """
 
-# python $WORK/tc_analyze/3d/vorticity_z_calc.py
+# python $WORK/tc_analyze/analysis/whole_domain/3d/calc/vorticity_z_calc.py
 import os
 
 import numpy as np

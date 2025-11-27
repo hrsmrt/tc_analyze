@@ -1,5 +1,5 @@
 """Calculate vertical profile over vortex region for specified variable."""
-# python $WORK/tc_analyze/z_profile/vortex_region_calc.py varname
+# python $WORK/tc_analyze/analysis/vertical/profile/calc/vortex_region_calc.py varname
 
 import os
 import sys

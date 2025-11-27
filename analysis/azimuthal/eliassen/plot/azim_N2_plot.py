@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/eliassen/azim_N2_plot.py $style
+# python $WORK/tc_analyze/analysis/azimuthal/eliassen/plot/azim_N2_plot.py $style
 # N^2のi+1/2上の値
 
 import os

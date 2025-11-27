@@ -4,7 +4,7 @@ vortex_region_r250
 解析処理を実行します。
 """
 
-# python $WORK/tc_analyze/3d/vortex_region_r250.py VARNAME $style
+# python $WORK/tc_analyze/analysis/vortex_region/3d/plot/vortex_region_r250.py VARNAME $style
 import os
 import sys
 

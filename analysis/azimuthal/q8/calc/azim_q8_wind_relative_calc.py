@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_q8/azim_q8_wind_relative_calc.py
+# python $WORK/tc_analyze/analysis/azimuthal/q8/calc/azim_q8_wind_relative_calc.py
 import os
 
 import numpy as np

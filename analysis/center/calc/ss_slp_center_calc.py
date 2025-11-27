@@ -1,5 +1,5 @@
 """Calculate tropical cyclone center from sea level pressure minimum."""
-# python $WORK/tc_analyze/center/ss_slp_center_calc.py
+# python $WORK/tc_analyze/analysis/center/calc/ss_slp_center_calc.py
 
 import os
 import numpy as np

@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/eliassen/azim_I2_calc.py
+# python $WORK/tc_analyze/analysis/azimuthal/eliassen/calc/azim_I2_calc.py
 # output: I^2 = \xi (dv/dr + v/r * f)
 
 import os

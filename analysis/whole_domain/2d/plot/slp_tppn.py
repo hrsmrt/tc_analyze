@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/2d/slp_tppn.py $style
+# python $WORK/tc_analyze/analysis/whole_domain/2d/plot/slp_tppn.py $style
 """
 海面気圧（sa_slp）と降水量（sa_tppn）を重ねてプロット
 

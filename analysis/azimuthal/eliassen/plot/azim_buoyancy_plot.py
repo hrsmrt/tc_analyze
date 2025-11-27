@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/eliassen/azim_buoyancy_plot.py $style
+# python $WORK/tc_analyze/analysis/azimuthal/eliassen/plot/azim_buoyancy_plot.py $style
 
 import os
 

@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/azim_pert_3d_plot2.py varname $style
+# python $WORK/tc_analyze/analysis/azimuthal/basic/plot/azim_pert_3d_plot2.py varname $style
 # 方位角平均データをプロット
 import os
 import sys

@@ -7,7 +7,7 @@ relative_wind_uv_abs のプロット
 プロット処理を実行します。
 """
 
-# python $WORK/tc_analyze/3d/relative_wind_uv_abs_plot.py $style
+# python $WORK/tc_analyze/analysis/vortex_region/3d/plot/relative_wind_uv_abs_plot.py $style
 import os
 
 import matplotlib

@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/eq_momentum_u/azim_gradient_balance_score_plot.py $style
+# python $WORK/tc_analyze/analysis/azimuthal/momentum/u/plot/azim_gradient_balance_score_plot.py $style
 import os
 
 import matplotlib

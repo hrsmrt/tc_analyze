@@ -1,5 +1,5 @@
 """Track low-pressure centers across time steps."""
-# python $WORK/tc_analyze/center/track_low.py
+# python $WORK/tc_analyze/analysis/center/track_low.py
 import os
 import pickle
 

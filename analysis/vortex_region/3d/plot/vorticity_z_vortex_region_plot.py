@@ -1,5 +1,5 @@
 """Plot vertical vorticity over vortex region."""
-# python $WORK/tc_analyze/3d/vorticity_z_vortex_region_plot.py $style
+# python $WORK/tc_analyze/analysis/vortex_region/3d/plot/vorticity_z_vortex_region_plot.py $style
 import os
 
 import matplotlib

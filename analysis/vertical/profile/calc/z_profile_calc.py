@@ -1,5 +1,5 @@
 """Calculate vertical profile for specified variable."""
-# python $WORK/tc_analyze/z_profile/z_profile_calc.py
+# python $WORK/tc_analyze/analysis/vertical/profile/calc/z_profile_calc.py
 
 import os
 import sys

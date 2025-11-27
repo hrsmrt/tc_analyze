@@ -4,7 +4,7 @@ theta_e_vortex_region のプロット
 ✅ ストレージ節約版: オンデマンド計算を使用
 データを保存せず、必要時に計算することで数GB〜数百GBのストレージを節約
 """
-# python $WORK/tc_analyze/3d/theta_e_plot_vortex_region.py $style
+# python $WORK/tc_analyze/analysis/vortex_region/3d/plot/theta_e_plot_vortex_region.py $style
 import os
 
 import matplotlib

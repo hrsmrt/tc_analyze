@@ -4,7 +4,7 @@ Plot streamfunction (psi) field.
 ✅ ストレージ節約版: オンデマンド計算を使用
 渦度データから流線関数を計算し、データ保存不要で数GB〜数百GBのストレージを節約
 """
-# python $WORK/tc_analyze/3d/psi_plot.py $style
+# python $WORK/tc_analyze/analysis/whole_domain/3d/plot/psi_plot.py $style
 import os
 
 import matplotlib

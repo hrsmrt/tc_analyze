@@ -7,7 +7,7 @@ psi_r200 のプロット
 プロット処理を実行します。
 """
 
-# python $WORK/tc_analyze/3d/psi_plot_r200.py $style
+# python $WORK/tc_analyze/analysis/vortex_region/3d/plot/psi_plot_r200.py $style
 import os
 
 import matplotlib

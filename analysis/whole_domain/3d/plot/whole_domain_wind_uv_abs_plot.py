@@ -4,7 +4,7 @@ whole_domain_wind_uv_abs のプロット
 プロット処理を実行します。
 """
 
-# python $WORK/tc_analyze/3d/whole_domain_wind_uv_abs_plot.py $style
+# python $WORK/tc_analyze/analysis/whole_domain/3d/plot/whole_domain_wind_uv_abs_plot.py $style
 import os
 
 import matplotlib

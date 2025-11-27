@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/eq_momentum_w/azim_wdw_dz_plot.py $style
+# python $WORK/tc_analyze/analysis/azimuthal/momentum/w/plot/azim_wdw_dz_plot.py $style
 import os
 
 import matplotlib

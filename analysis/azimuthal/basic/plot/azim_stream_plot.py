@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/azim_stream_plot.py $style
+# python $WORK/tc_analyze/analysis/azimuthal/basic/plot/azim_stream_plot.py $style
 
 import os
 

@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/symmetrisity/3d_plot.py varname $style
+# python $WORK/tc_analyze/analysis/diagnostics/symmetrisity/plot/3d_plot.py varname $style
 import os
 import sys
 

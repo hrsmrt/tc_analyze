@@ -1,5 +1,5 @@
 """Calculate moist static energy vertical profile."""
-# python $WORK/tc_analyze/z_profile/hf_calc.py
+# python $WORK/tc_analyze/analysis/vertical/profile/calc/hf_calc.py
 # hf: moist static energy, Nolan+2007 (3)式
 
 import os

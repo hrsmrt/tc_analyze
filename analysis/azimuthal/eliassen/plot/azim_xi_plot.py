@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/eliassen/azim_xi_plot.py $style
+# python $WORK/tc_analyze/analysis/azimuthal/eliassen/plot/azim_xi_plot.py $style
 # xiのi+1/2上の値
 
 import os

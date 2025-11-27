@@ -1,5 +1,5 @@
 """Calculate and plot total domain mass."""
-# python $WORK/tc_analyze/center/mass_all.py $style
+# python $WORK/tc_analyze/analysis/center/mass_all.py $style
 import os
 
 import matplotlib.pyplot as plt

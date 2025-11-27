@@ -1,5 +1,5 @@
 """Plot 3D data over whole domain with two different z-levels overlaid (both as line contours)."""
-# python $WORK/tc_analyze/3d/whole_domain_two_levels.py varname z1 z2 $style [sigma]
+# python $WORK/tc_analyze/analysis/whole_domain/3d/plot/whole_domain_two_levels.py varname z1 z2 $style [sigma]
 # 例: python $WORK/tc_analyze/3d/whole_domain_two_levels.py ms_tem 0 36 $style
 # 例（smooth化）: python $WORK/tc_analyze/3d/whole_domain_two_levels.py ms_tem 0 36 $style 2.0
 import os

@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/z_profile_q4/vorticity_z_plot.py $style
+# python $WORK/tc_analyze/analysis/vertical/q4/plot/vorticity_z_plot.py $style
 
 import os
 

@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/2d/whole_domain.py varname $style
+# python $WORK/tc_analyze/analysis/whole_domain/2d/plot/whole_domain.py varname $style
 """
 全領域の2次元データをプロット
 

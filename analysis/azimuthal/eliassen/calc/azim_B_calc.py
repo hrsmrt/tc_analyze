@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/eliassen/azim_B_calc.py
+# python $WORK/tc_analyze/analysis/azimuthal/eliassen/calc/azim_B_calc.py
 # input: os.path.join(config.get_data_path('azim', 'buoyancy'), f"t{str(t).zfill(3)}.npy") 温度
 # output: B = db/dr
 

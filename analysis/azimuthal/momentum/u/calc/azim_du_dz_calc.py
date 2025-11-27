@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/eq_momentum_u/azim_du_dz_calc.py
+# python $WORK/tc_analyze/analysis/azimuthal/momentum/u/calc/azim_du_dz_calc.py
 import os
 
 import numpy as np

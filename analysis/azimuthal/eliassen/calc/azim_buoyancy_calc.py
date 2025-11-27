@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/eliassen/azim_buoyancy_calc.py
+# python $WORK/tc_analyze/analysis/azimuthal/eliassen/calc/azim_buoyancy_calc.py
 # input: os.path.join(config.get_data_path('azim', 'theta'), f"t{str(t).zfill(3)}.npy") 温度
 # output: 浮力 b = g ln(θ/θ_ref)
 

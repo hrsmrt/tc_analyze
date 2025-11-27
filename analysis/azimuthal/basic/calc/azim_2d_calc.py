@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/azim_2d_calc.py varname
+# python $WORK/tc_analyze/analysis/azimuthal/basic/calc/azim_2d_calc.py varname
 import os
 import sys
 

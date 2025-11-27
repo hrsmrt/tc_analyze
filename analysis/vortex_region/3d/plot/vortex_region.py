@@ -1,5 +1,5 @@
 """Plot 3D data over vortex region."""
-# python $WORK/tc_analyze/3d/vortex_region.py VARNAME $style
+# python $WORK/tc_analyze/analysis/vortex_region/3d/plot/vortex_region.py VARNAME $style
 import os
 import sys
 

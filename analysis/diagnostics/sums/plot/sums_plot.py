@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/sums/sums_plot.py varname $style
+# python $WORK/tc_analyze/analysis/diagnostics/sums/plot/sums_plot.py varname $style
 import os
 import sys
 

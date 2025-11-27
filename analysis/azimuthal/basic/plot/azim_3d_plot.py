@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/azim_3d_plot.py varname $style
+# python $WORK/tc_analyze/analysis/azimuthal/basic/plot/azim_3d_plot.py varname $style
 import os
 import sys
 

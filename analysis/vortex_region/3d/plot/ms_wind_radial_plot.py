@@ -4,7 +4,7 @@ Plot radial wind component over vortex region.
 ✅ ストレージ節約版: オンデマンド計算を使用
 データを保存せず、必要時に計算することでストレージを節約
 """
-# python $WORK/tc_analyze/3d/ms_wind_radial_plot.py $style
+# python $WORK/tc_analyze/analysis/vortex_region/3d/plot/ms_wind_radial_plot.py $style
 import os
 
 import matplotlib

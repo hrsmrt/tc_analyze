@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/azim_mp_calc.py
+# python $WORK/tc_analyze/analysis/azimuthal/basic/calc/azim_mp_calc.py
 # 微物理のみ(phy - tb)
 import os
 

@@ -4,7 +4,7 @@ divergence の計算
 計算処理を実行します。
 """
 
-# python $WORK/p-nicam/analyze/3d/divergence_calc.py
+# python $WORK/tc_analyze/analysis/whole_domain/3d/calc/divergence_calc.py
 import os
 
 import numpy as np

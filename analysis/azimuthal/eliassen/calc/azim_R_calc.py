@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/eliassen/azim_R_calc.py
+# python $WORK/tc_analyze/analysis/azimuthal/eliassen/calc/azim_R_calc.py
 # output: R = r \rho \theta
 
 import os

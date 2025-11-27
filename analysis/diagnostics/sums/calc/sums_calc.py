@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/sums/sums_calc.py varname
+# python $WORK/tc_analyze/analysis/diagnostics/sums/calc/sums_calc.py varname
 import os
 import sys
 

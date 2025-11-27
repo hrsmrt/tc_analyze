@@ -1,5 +1,5 @@
 """Calculate and plot tropical cyclone center velocity."""
-# python $WORK/tc_analyze/center/ss_slp_center_velocity.py $style
+# python $WORK/tc_analyze/analysis/center/ss_slp_center_velocity.py $style
 import os
 
 import matplotlib.pyplot as plt

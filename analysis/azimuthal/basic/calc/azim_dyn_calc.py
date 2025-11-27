@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/azim_dyn_calc.py
+# python $WORK/tc_analyze/analysis/azimuthal/basic/calc/azim_dyn_calc.py
 import os
 
 import numpy as np

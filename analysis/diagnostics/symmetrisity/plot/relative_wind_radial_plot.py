@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/symmetrisity/relative_wind_radial_plot.py $style
+# python $WORK/tc_analyze/analysis/diagnostics/symmetrisity/plot/relative_wind_radial_plot.py $style
 import os
 
 import matplotlib

@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/azim_wind_tangential_r_v.py $style
+# python $WORK/tc_analyze/analysis/azimuthal/basic/plot/azim_wind_tangential_r_v.py $style
 import os
 
 import matplotlib.pyplot as plt

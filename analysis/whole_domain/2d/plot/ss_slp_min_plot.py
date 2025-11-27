@@ -1,5 +1,5 @@
 """Plot time series of minimum sea level pressure."""
-# python $WORK/tc_analyze/2d/ss_slp_min_plot.py $style
+# python $WORK/tc_analyze/analysis/whole_domain/2d/plot/ss_slp_min_plot.py $style
 import os
 
 import matplotlib

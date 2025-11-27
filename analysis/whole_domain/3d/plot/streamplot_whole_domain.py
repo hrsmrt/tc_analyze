@@ -1,5 +1,5 @@
 """Plot streamlines over whole domain."""
-# python $WORK/tc_analyze/3d/streamplot_whole_domain.py $style
+# python $WORK/tc_analyze/analysis/whole_domain/3d/plot/streamplot_whole_domain.py $style
 import os
 
 import matplotlib

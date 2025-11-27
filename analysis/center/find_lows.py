@@ -1,5 +1,5 @@
 """Find low-pressure centers in sea level pressure field."""
-# python $WORK/tc_analyze/center/find_lows.py
+# python $WORK/tc_analyze/analysis/center/find_lows.py
 import os
 import pickle
 

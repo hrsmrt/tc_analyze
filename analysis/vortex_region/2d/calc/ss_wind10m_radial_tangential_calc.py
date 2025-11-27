@@ -1,5 +1,5 @@
 """Calculate radial and tangential components of 10m wind."""
-# python $WORK/tc_analyze/2d/ss_wind10m_radial_tangential_calc.py
+# python $WORK/tc_analyze/analysis/vortex_region/2d/calc/ss_wind10m_radial_tangential_calc.py
 import os
 
 import numpy as np

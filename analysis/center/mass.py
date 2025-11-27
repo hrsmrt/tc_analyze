@@ -1,5 +1,5 @@
 """Calculate and plot vortex region mass."""
-# python $WORK/tc_analyze/center/mass.py $style
+# python $WORK/tc_analyze/analysis/center/mass.py $style
 import os
 
 import matplotlib.pyplot as plt

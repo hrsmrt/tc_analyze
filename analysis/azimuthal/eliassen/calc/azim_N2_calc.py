@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/eliassen/azim_N2_calc.py
+# python $WORK/tc_analyze/analysis/azimuthal/eliassen/calc/azim_N2_calc.py
 # input: os.path.join(config.get_data_path('azim', 'buoyancy'), f"t{str(t).zfill(3)}.npy") 温度
 # output: N^2 = dB/dz
 

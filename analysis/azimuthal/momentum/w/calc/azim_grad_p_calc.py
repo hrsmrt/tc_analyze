@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/eq_momentum_w/azim_grad_p_calc.py
+# python $WORK/tc_analyze/analysis/azimuthal/momentum/w/calc/azim_grad_p_calc.py
 import os
 
 import numpy as np

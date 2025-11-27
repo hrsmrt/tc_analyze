@@ -7,7 +7,7 @@ ms_wind_tangential のプロット
 プロット処理を実行します。
 """
 
-# python $WORK/tc_analyze/3d/ms_wind_tangential_plot.py $style
+# python $WORK/tc_analyze/analysis/vortex_region/3d/plot/ms_wind_tangential_plot.py $style
 import os
 
 import matplotlib

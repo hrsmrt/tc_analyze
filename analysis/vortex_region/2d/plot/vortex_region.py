@@ -1,5 +1,5 @@
 """Plot 2D data over vortex region."""
-# python $WORK/tc_analyze/2d/vortex_region.py varname $style
+# python $WORK/tc_analyze/analysis/vortex_region/2d/plot/vortex_region.py varname $style
 import os
 import sys
 
@@ -327,18 +327,18 @@ def process_t(t):
                 Y_cut * 1e-3,
                 data_masked / 100,
                 extend="both",
-                levels=np.arange(920, 1022, 2),
-                cmap="bwr_r",
+                levels=np.arange(920, 1022, 1),
+                colors="black",
             )
             title = "海面気圧 [hPa] " + title
         case "ss_slp":
-            c = ax.contourf(
+            c = ax.contour(
                 X_cut * 1e-3,
                 Y_cut * 1e-3,
                 data_masked / 100,
                 extend="both",
-                levels=np.arange(920, 1022, 2),
-                cmap="bwr_r",
+                levels=np.arange(920, 1022, 1),
+                colors="black",
             )
             title = "海面気圧 [hPa] " + title
         case "sa_tppn":

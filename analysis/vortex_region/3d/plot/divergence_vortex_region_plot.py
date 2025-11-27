@@ -4,7 +4,7 @@ divergence_vortex_region のプロット
 プロット処理を実行します。
 """
 
-# python $WORK/tc_analyze/3d/divergence_vortex_region_plot.py $style
+# python $WORK/tc_analyze/analysis/vortex_region/3d/plot/divergence_vortex_region_plot.py $style
 import os
 
 import matplotlib

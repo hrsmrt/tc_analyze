@@ -4,7 +4,7 @@ ms_dyn_radial_tangential の計算
 計算処理を実行します。
 """
 
-# python $WORK/tc_analyze/3d/ms_dyn_radial_tangential_calc.py
+# python $WORK/tc_analyze/analysis/vortex_region/3d/calc/ms_dyn_radial_tangential_calc.py
 import os
 
 import numpy as np

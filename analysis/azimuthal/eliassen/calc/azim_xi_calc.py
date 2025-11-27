@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/eliassen/azim_xi_calc.py
+# python $WORK/tc_analyze/analysis/azimuthal/eliassen/calc/azim_xi_calc.py
 # output: xi = 2v/r + f
 
 import os

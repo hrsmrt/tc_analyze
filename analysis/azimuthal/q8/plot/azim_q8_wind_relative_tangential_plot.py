@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_q8/azim_q8_wind_relative_tangential_plot.py $style
+# python $WORK/tc_analyze/analysis/azimuthal/q8/plot/azim_q8_wind_relative_tangential_plot.py $style
 import os
 
 import matplotlib

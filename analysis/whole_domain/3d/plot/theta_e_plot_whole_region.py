@@ -5,7 +5,7 @@ theta_e_whole_region のプロット
 データを保存せず、必要時に計算することで数GB〜数百GBのストレージを節約
 """
 
-# python $WORK/tc_analyze/3d/theta_e_plot_whole_region.py $style
+# python $WORK/tc_analyze/analysis/whole_domain/3d/plot/theta_e_plot_whole_region.py $style
 import os
 
 import matplotlib

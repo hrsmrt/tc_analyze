@@ -1,5 +1,5 @@
 """Plot tropical cyclone center trajectory on sea level pressure field."""
-# python $WORK/tc_analyze/center/ss_slp_center_plot.py $style
+# python $WORK/tc_analyze/analysis/center/plot/ss_slp_center_plot.py $style
 import os
 import matplotlib
 matplotlib.use('Agg')  # GUI描画のオーバーヘッド削減

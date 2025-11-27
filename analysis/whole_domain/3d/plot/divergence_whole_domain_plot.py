@@ -1,5 +1,5 @@
 """Plot 3D divergence field over whole domain."""
-# python $WORK/tc_analyze/3d/divergence_whole_domain_plot.py $style
+# python $WORK/tc_analyze/analysis/whole_domain/3d/plot/divergence_whole_domain_plot.py $style
 
 import os
 

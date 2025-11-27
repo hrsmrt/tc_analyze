@@ -7,7 +7,7 @@ psi_vortex_region のプロット
 プロット処理を実行します。
 """
 
-# python $WORK/tc_analyze/3d/psi_plot_vortex_region.py $style
+# python $WORK/tc_analyze/analysis/vortex_region/3d/plot/psi_plot_vortex_region.py $style
 import os
 
 import matplotlib

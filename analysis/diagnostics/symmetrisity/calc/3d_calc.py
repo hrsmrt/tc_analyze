@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/symmetrisity/3d_calc.py varname
+# python $WORK/tc_analyze/analysis/diagnostics/symmetrisity/calc/3d_calc.py varname
 import os
 import sys
 

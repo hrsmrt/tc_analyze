@@ -4,7 +4,7 @@ whole_domain_with_center のプロット
 プロット処理を実行します。
 """
 
-# python $WORK/tc_analyze/3d/whole_domain_with_center_plot.py VARNAME $style
+# python $WORK/tc_analyze/analysis/whole_domain/3d/plot/whole_domain_with_center_plot.py VARNAME $style
 import os
 import sys
 

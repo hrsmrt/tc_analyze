@@ -1,5 +1,5 @@
 """Plot 10m wind speed over vortex region (alternative version)."""
-# python $WORK/tc_analyze/2d/ss_wind10m_abs_vortex_region2.py $style
+# python $WORK/tc_analyze/analysis/vortex_region/2d/plot/ss_wind10m_abs_vortex_region2.py $style
 import os
 
 import matplotlib.pyplot as plt

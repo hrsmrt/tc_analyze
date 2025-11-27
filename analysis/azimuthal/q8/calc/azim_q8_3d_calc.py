@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_q8/azim_q8_3d_calc.py varname
+# python $WORK/tc_analyze/analysis/azimuthal/q8/calc/azim_q8_3d_calc.py varname
 import os
 import sys
 

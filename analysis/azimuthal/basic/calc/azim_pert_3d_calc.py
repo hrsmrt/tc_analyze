@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/azim_pert_3d_calc.py varname
+# python $WORK/tc_analyze/analysis/azimuthal/basic/calc/azim_pert_3d_calc.py varname
 # grdデータから方位角平均を計算し、環境場(渦中心からr_max以遠)との差をとる
 from utils.grid import GridHandler
 from utils.config import AnalysisConfig

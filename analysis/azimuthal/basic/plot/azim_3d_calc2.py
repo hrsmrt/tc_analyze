@@ -10,7 +10,7 @@
 引数:
     varname: 計算対象の変数名
 """
-# python $WORK/tc_analyze/azim_mean/azim_3d_calc2.py varname
+# python $WORK/tc_analyze/analysis/azimuthal/basic/plot/azim_3d_calc2.py varname
 import os
 import sys
 

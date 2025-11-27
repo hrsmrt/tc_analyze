@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/azim_wind_calc2.py
+# python $WORK/tc_analyze/analysis/azimuthal/basic/plot/azim_wind_calc2.py
 import os
 
 import numpy as np

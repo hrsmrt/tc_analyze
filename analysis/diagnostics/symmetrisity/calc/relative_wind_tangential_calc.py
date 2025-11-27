@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/symmetrisity/relative_wind_tangential_calc.py
+# python $WORK/tc_analyze/analysis/diagnostics/symmetrisity/calc/relative_wind_tangential_calc.py
 import os
 
 import numpy as np

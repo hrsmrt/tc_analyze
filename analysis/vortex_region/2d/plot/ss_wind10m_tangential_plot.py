@@ -1,5 +1,5 @@
 """Plot tangential component of 10m wind."""
-# python $WORK/tc_analyze/2d/ss_wind10m_tangential_plot.py $style
+# python $WORK/tc_analyze/analysis/vortex_region/2d/plot/ss_wind10m_tangential_plot.py $style
 import os
 
 import matplotlib

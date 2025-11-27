@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/eliassen/azim_I_prime2_plot.py $style
+# python $WORK/tc_analyze/analysis/azimuthal/eliassen/plot/azim_I_prime2_plot.py $style
 # I'^2のi+1/2上の値
 
 import os

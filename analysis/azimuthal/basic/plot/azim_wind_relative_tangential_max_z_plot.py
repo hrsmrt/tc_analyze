@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/azim_wind_relative_tangential_max_z_plot.py $style
+# python $WORK/tc_analyze/analysis/azimuthal/basic/plot/azim_wind_relative_tangential_max_z_plot.py $style
 # 各高度での最大値をプロット
 import os
 

@@ -1,4 +1,4 @@
-# python $WORK/tc_analyze/azim_mean/azim_plot_momentum_theta_e.py $style
+# python $WORK/tc_analyze/analysis/azimuthal/basic/plot/azim_plot_momentum_theta_e.py $style
 
 import os
 
