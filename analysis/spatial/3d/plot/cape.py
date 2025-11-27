@@ -17,18 +17,17 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
+from utils.basic import Cp, Lv, Rd, Rv, g0, tetens
 from utils.config import AnalysisConfig
 from utils.plotting import parse_style_argument
 
 # スタイルシートの解析
 mpl_style_sheet = parse_style_argument()
 
-# 定数
-CP = 1004  # J/K/kg, 定圧比熱
-L = 2.50e6  # J/kg,   凝結熱
-Rd = 287  # J/K/kg, 乾燥大気の気体定数
-Rv = 461  # J/K/kg, 水蒸気の気体定数
-G = 9.81  # m/s^2, 重力定数
+# エイリアス（コードの変更を最小限にするため）
+CP = Cp
+L = Lv
+G = g0
 
 # 設定とグリッドの初期化
 config = AnalysisConfig()
@@ -129,14 +128,6 @@ def main():
     ax.set_ylabel("CAPE [J/kg]")
     fig.savefig(os.path.join(OUT_DIR, "cape.png"))
     plt.close()
-
-
-# Tetensの式。初めだけ使う
-def tetens(T):
-    es0 = 6.11e2  # Pa
-    T0 = 273.15  # K
-    es = es0 * np.exp(17.27 * (T - T0) / (T - 35.86))
-    return es
 
 
 def calc_T(t, T_zb, p_env, rh_zb):

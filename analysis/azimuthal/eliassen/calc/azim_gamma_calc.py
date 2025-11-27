@@ -6,6 +6,7 @@ import os
 import numpy as np
 from joblib import Parallel, delayed
 
+from utils.basic import PRES_S, Rd, Cp, Lv, g0
 from utils.config import AnalysisConfig
 
 config = AnalysisConfig()
@@ -14,17 +15,15 @@ r_max = 1000e3
 
 nr = int(r_max / config.dx)
 R = (np.arange(nr) + 0.5) * config.dx
-f = 3.77468e-5
+
+# エイリアス（コードの変更を最小限にするため）
+f = config.f
+pres_s = PRES_S
+L = Lv
+g = g0
 
 output_folder = config.get_data_path("azim", "eliassen", "gamma")
 os.makedirs(output_folder, exist_ok=True)
-
-pres_s = 100000  # 基準気圧 Pa
-Rd = 287.05  # 気体定数 J/(kg·K)
-Cp = 1005  # 定圧比熱 J/(kg·K)
-L = 2.5e6  # 蒸発潜熱 J/kg
-
-g = 9.80665
 
 
 def process_t(t):
