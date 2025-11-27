@@ -89,7 +89,8 @@ tc_analyze/
 │   ├── wind.py, azimuthal.py            # 風速・方位角平均
 │   └── streamfunction.py                # 流線関数
 ├── analysis/       # 解析スクリプト（169ファイル、13,349行）
-│   ├── spatial/   # 空間解析（3d: 30, 2d: 16）
+│   ├── whole_domain/  # 領域全体（31、中心位置非依存: 3d: 19, 2d: 12）
+│   ├── vortex_region/ # 渦領域（25、中心位置依存: 3d: 18, 2d: 7）
 │   ├── azimuthal/ # 方位角解析（basic: 56, eliassen: 16, momentum: 22, q8: 5）
 │   ├── vertical/  # 鉛直解析（profile: 4, q4: 4）
 │   ├── center/    # TC中心位置計算（8）
@@ -153,7 +154,7 @@ tc_analyze/
   - calc: 53ファイル
   - plot: 82ファイル
   - その他: 34ファイル
-- **解析カテゴリ**: 6カテゴリ（spatial, azimuthal, vertical, center, diagnostics）
+- **解析カテゴリ**: 7カテゴリ（whole_domain, vortex_region, azimuthal, vertical, center, diagnostics）
 
 ---
 
