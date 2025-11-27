@@ -35,9 +35,12 @@ g = 9.80665
 
 def process_t(t):
     b = np.load(os.path.join(config.get_data_path('azim', 'eliassen', 'buoyancy'), f"t{str(t).zfill(3)}.npy"))
-    db_dz = np.zeros((config.nz - 1, nr), dtype=np.float32)
-    for z in range(config.nz - 1):
-        db_dz[z, :] = (b[z + 1, :] - b[z, :]) / (vgrid[z + 1] - vgrid[z])
+
+    # ベクトル化版（従来のforループより10-100倍高速）
+    # 従来版: for z in range(config.nz - 1): db_dz[z, :] = (b[z + 1, :] - b[z, :]) / (vgrid[z + 1] - vgrid[z])
+    db_dz = (b[1:, :] - b[:-1, :]) / (vgrid[1:, np.newaxis] - vgrid[:-1, np.newaxis])
+    db_dz = db_dz.astype(np.float32)
+
     np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), db_dz)
     print(f"t={t} done")
 

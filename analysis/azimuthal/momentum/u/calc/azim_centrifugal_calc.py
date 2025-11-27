@@ -23,9 +23,12 @@ os.makedirs(output_folder, exist_ok=True)
 
 def process_t(t):
     data = np.load(os.path.join(config.get_data_path('azim', 'wind_relative_tangential'), f"t{str(t).zfill(3)}.npy"))
-    centrifugal = -(data**2)
-    for r in range(nr):
-        centrifugal[:, r] = centrifugal[:, r] / (rgrid[r])
+
+    # ベクトル化版（従来のforループより10-100倍高速）
+    # 従来版: for r in range(nr): centrifugal[:, r] = -(data[:, r]**2) / rgrid[r]
+    centrifugal = -(data**2) / rgrid[np.newaxis, :]
+    centrifugal = centrifugal.astype(np.float32)
+
     np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), centrifugal)
 
 
