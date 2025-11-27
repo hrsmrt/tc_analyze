@@ -1,4 +1,11 @@
-# python $WORK/tc_analyze/azim_mean/azim_theta_plot.py $style
+"""
+温位の方位角平均プロット
+
+✅ ストレージ節約版: オンデマンド計算を使用
+データを保存せず、必要時に計算することで数GB〜数百GBのストレージを節約
+
+python $WORK/tc_analyze/azim_mean/azim_theta_plot.py $style
+"""
 
 import os
 
@@ -8,6 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from joblib import Parallel, delayed
 
+from utils.azimuthal import calculate_azimuthal_mean_theta
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 from utils.plotting import parse_style_argument
@@ -22,9 +30,29 @@ vgrid = np.loadtxt(config.vgrid_filepath)
 output_folder = config.get_fig_path("azim", "theta")
 os.makedirs(output_folder, exist_ok=True)
 
+center_x_list = config.center_x
+center_y_list = config.center_y
+
+# ✅ オンデマンド計算: メモリマップを開く
+data_tem = np.memmap(
+    f"{config.input_folder}ms_tem.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_pres = np.memmap(
+    f"{config.input_folder}ms_pres.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+
 
 def process_t(t):
-    data = np.load(os.path.join(config.get_data_path('azim', 'theta'), f"t{str(t).zfill(3)}.npy"))
+    # ✅ オンデマンド計算: 必要時にその場で計算（保存データ不要）
+    data = calculate_azimuthal_mean_theta(
+        data_tem, data_pres, t, center_x_list, center_y_list, grid
+    )
     # データの形状から半径方向のグリッドを作成
     nr = data.shape[1]
     xgrid = np.arange(nr) * config.dx
