@@ -45,42 +45,54 @@ class AnalysisConfig:
         config_file: Optional[str] = None,
         base_dir: Optional[str] = None,
         auto_parse_args: bool = True,
+        center_type: Optional[str] = None,
+        center_path: Optional[str] = None,
     ):
         """
         設定ファイルを読み込む
 
         優先順位:
-        1. config_file引数で明示的に指定
-        2. コマンドライン引数 --config / -c
+        1. 引数で明示的に指定
+        2. コマンドライン引数 (--config, --center-type, --center-path)
         3. 環境変数 TC_ANALYZE_CONFIG
-        4. デフォルト候補: setting.json, config.json, tc_analyze.json
+        4. setting.json の設定値
+        5. デフォルト値
 
         Args:
             config_file (str, optional): 設定ファイルのパス
             base_dir (str, optional): 設定ファイルを探す基準ディレクトリ
             auto_parse_args (bool): コマンドライン引数を自動パースするか（デフォルト: True）
+            center_type (str, optional): 中心座標のタイプ ("2d" or "3d")
+            center_path (str, optional): 中心座標ファイルのパス（data_dir からの相対パス）
 
         Examples:
-            >>> # デフォルト（自動検出）
+            >>> # デフォルト（ss_slp中心、2d）
             >>> config = AnalysisConfig()
 
-            >>> # 明示的に指定
-            >>> config = AnalysisConfig("my_setting.json")
+            >>> # ms_presの各z面の中心を使用
+            >>> config = AnalysisConfig(center_type="3d", center_path="center/ms_pres")
 
-            >>> # コマンドライン: python script.py --config experiment01.json
-            >>> config = AnalysisConfig()  # 自動的に experiment01.json を読み込む
+            >>> # コマンドライン: python script.py --center-type 3d --center-path center/ms_pres
+            >>> config = AnalysisConfig()  # 自動的に引数を解析
         """
-        # 1. 引数で明示的に指定された場合はそれを使用
-        if config_file is None and auto_parse_args:
-            # 2. コマンドライン引数から --config を探す
-            config_file = self._parse_config_from_argv()
+        # コマンドライン引数を一括解析
+        parsed_config = None
+        parsed_center_type = None
+        parsed_center_path = None
+
+        if auto_parse_args:
+            parsed_config, parsed_center_type, parsed_center_path = (
+                self._parse_args_from_argv()
+            )
+
+        # 設定ファイルの決定（優先順位: 引数 > コマンドライン > 環境変数 > デフォルト）
+        if config_file is None:
+            config_file = parsed_config
 
         if config_file is None:
-            # 3. 環境変数から読み込み
             config_file = os.environ.get("TC_ANALYZE_CONFIG")
 
         if config_file is None:
-            # 4. デフォルト候補を順に探す
             config_file = self._find_default_config(base_dir)
 
         # ファイルの存在確認と読み込み
@@ -104,20 +116,49 @@ class AnalysisConfig:
 
         self._config_path = config_path
 
-    def _parse_config_from_argv(self) -> Optional[str]:
+        # 中心座標の設定（優先順位: 引数 > コマンドライン > setting.json > デフォルト）
+        if center_type is None:
+            center_type = parsed_center_type
+        if center_type is None:
+            center_type = self._data.get("center_type", "2d")
+
+        if center_path is None:
+            center_path = parsed_center_path
+        if center_path is None:
+            center_path = self._data.get("center_path", "center/ss_slp")
+
+        self._center_type = center_type
+        self._center_path = center_path
+
+    def _parse_args_from_argv(self) -> tuple:
         """
-        sys.argvから --config / -c 引数を抽出
+        sys.argvから引数を抽出
 
         Returns:
-            str or None: 設定ファイルパス
+            tuple: (config_file, center_type, center_path)
         """
         import sys
 
-        for i, arg in enumerate(sys.argv):
-            if arg in ["--config", "-c"]:
-                if i + 1 < len(sys.argv):
-                    return sys.argv[i + 1]
-        return None
+        config_file = None
+        center_type = None
+        center_path = None
+
+        i = 0
+        while i < len(sys.argv):
+            arg = sys.argv[i]
+            if arg in ["--config", "-c"] and i + 1 < len(sys.argv):
+                config_file = sys.argv[i + 1]
+                i += 2
+            elif arg == "--center-type" and i + 1 < len(sys.argv):
+                center_type = sys.argv[i + 1]
+                i += 2
+            elif arg == "--center-path" and i + 1 < len(sys.argv):
+                center_path = sys.argv[i + 1]
+                i += 2
+            else:
+                i += 1
+
+        return config_file, center_type, center_path
 
     def _find_default_config(self, base_dir: Optional[str] = None) -> str:
         """
@@ -283,24 +324,109 @@ class AnalysisConfig:
         return [t * self.dt_hour for t in range(0, self.nt, self.time_tick_step)]
 
     @property
-    def center_x(self):
-        """TC中心のx座標リスト（キャッシュ付き）"""
-        if not hasattr(self, "_center_x"):
-            import numpy as np
+    def center_type_str(self) -> str:
+        """中心座標のタイプ ("2d" or "3d")"""
+        return self._center_type
 
-            center_x_path = os.path.join(self.data_dir, "ss_slp_center_x.txt")
-            self._center_x = np.loadtxt(center_x_path, ndmin=1)
-        return self._center_x
+    @property
+    def center_path_str(self) -> str:
+        """中心座標ファイルのパス（data_dir からの相対パス）"""
+        return self._center_path
+
+    @property
+    def center_x(self):
+        """
+        TC中心のx座標（キャッシュ付き）
+
+        Returns:
+            ndarray: center_type="2d" なら (nt,)、"3d" なら (nt, nz)
+        """
+        if not hasattr(self, "_center_x_cache"):
+            self._center_x_cache = self._load_center_coordinates("x")
+        return self._center_x_cache
 
     @property
     def center_y(self):
-        """TC中心のy座標リスト（キャッシュ付き）"""
-        if not hasattr(self, "_center_y"):
-            import numpy as np
+        """
+        TC中心のy座標（キャッシュ付き）
 
-            center_y_path = os.path.join(self.data_dir, "ss_slp_center_y.txt")
-            self._center_y = np.loadtxt(center_y_path, ndmin=1)
-        return self._center_y
+        Returns:
+            ndarray: center_type="2d" なら (nt,)、"3d" なら (nt, nz)
+        """
+        if not hasattr(self, "_center_y_cache"):
+            self._center_y_cache = self._load_center_coordinates("y")
+        return self._center_y_cache
+
+    def _load_center_coordinates(self, coord: str):
+        """
+        中心座標を読み込む（内部メソッド）
+
+        Args:
+            coord (str): "x" or "y"
+
+        Returns:
+            ndarray: 中心座標配列
+        """
+        import numpy as np
+
+        center_dir = os.path.join(self.data_dir, self._center_path)
+        coord_idx = 0 if coord == "x" else 1
+
+        # 新形式: center.npy を優先的に読み込む
+        npy_path = os.path.join(center_dir, "center.npy")
+        if os.path.exists(npy_path):
+            center = np.load(npy_path)
+            if self._center_type == "2d":
+                # shape: (nt, 2) -> (nt,)
+                return center[:, coord_idx]
+            elif self._center_type == "3d":
+                # shape: (nt, nz, 2) -> (nt, nz)
+                return center[:, :, coord_idx]
+
+        # 後方互換性: 旧形式のファイルを読み込む
+        if self._center_type == "2d":
+            # 2d: 単一ファイル x.txt, y.txt
+            filepath = os.path.join(center_dir, f"{coord}.txt")
+
+            # さらに古い形式も試す
+            if not os.path.exists(filepath):
+                legacy_path = os.path.join(self.data_dir, f"ss_slp_center_{coord}.txt")
+                if os.path.exists(legacy_path):
+                    filepath = legacy_path
+                else:
+                    raise FileNotFoundError(
+                        f"中心座標ファイルが見つかりません:\n"
+                        f"  新形式: {npy_path}\n"
+                        f"  旧形式: {filepath}\n"
+                        f"  古い形式: {legacy_path}\n"
+                        f"center_type={self._center_type}, center_path={self._center_path}"
+                    )
+
+            return np.loadtxt(filepath, ndmin=1)
+
+        elif self._center_type == "3d":
+            # 3d: 複数ファイル x_z000.txt, x_z001.txt, ..., y_z000.txt, ...
+            coords_list = []
+            for z in range(self.nz):
+                filepath = os.path.join(center_dir, f"{coord}_z{str(z).zfill(3)}.txt")
+
+                if not os.path.exists(filepath):
+                    raise FileNotFoundError(
+                        f"中心座標ファイルが見つかりません:\n"
+                        f"  新形式: {npy_path}\n"
+                        f"  旧形式: {filepath}\n"
+                        f"center_type={self._center_type}, center_path={self._center_path}"
+                    )
+
+                coords_list.append(np.loadtxt(filepath, ndmin=1))
+
+            # shape: (nz, nt) -> 転置して (nt, nz) にする
+            return np.array(coords_list).T
+
+        else:
+            raise ValueError(
+                f"不正な center_type: {self._center_type}。'2d' または '3d' を指定してください。"
+            )
 
     # === パス生成用のヘルパーメソッド ===
 

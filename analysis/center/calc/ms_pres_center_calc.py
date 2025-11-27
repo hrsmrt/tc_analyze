@@ -79,8 +79,13 @@ def main():
         shape=(config.nt, config.nz, config.ny, config.nx),
     )
 
+    # Prepare array to store all results: shape (nt, nz, 2)
+    n_time = config.t_last - config.t_first + 1
+    n_z = z_last - z_first + 1
+    center_all = np.zeros((n_time, n_z, 2))
+
     # Process each z-level
-    for z in range(z_first, z_last + 1):
+    for z_idx, z in enumerate(range(z_first, z_last + 1)):
         print(f"\nProcessing z-level {z} (height: {grid.vgrid[z]:.1f} m)")
 
         # Parallel processing over time steps for this z-level
@@ -89,27 +94,18 @@ def main():
             for t in range(config.t_first, config.t_last + 1)
         )
 
-        # Collect results
-        x_c_evo = []
-        y_c_evo = []
-        for t, (x_c, y_c) in zip(range(config.t_first, config.t_last + 1), results):
-            x_c_evo.append(x_c)
-            y_c_evo.append(y_c)
+        # Collect results for this z-level
+        for t_idx, (x_c, y_c) in enumerate(results):
+            center_all[t_idx, z_idx, 0] = x_c
+            center_all[t_idx, z_idx, 1] = y_c
 
-        # Save results for this z-level
-        OUTPUT_DIR = config.get_data_path("center/ms_pres")
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
-        np.savetxt(
-            os.path.join(OUTPUT_DIR, f"x_z{str(z).zfill(3)}.txt"),
-            x_c_evo,
-        )
-        np.savetxt(
-            os.path.join(OUTPUT_DIR, f"y_z{str(z).zfill(3)}.txt"),
-            y_c_evo,
-        )
+    # Save results as single .npy file: shape (nt, nz, 2)
+    OUTPUT_DIR = config.get_data_path("center/ms_pres")
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    np.save(os.path.join(OUTPUT_DIR, "center.npy"), center_all)
 
     print(f"\nCompleted processing z-levels {z_first} to {z_last}")
-    print(f"Results saved to {OUTPUT_DIR}")
+    print(f"Saved center coordinates: {OUTPUT_DIR}/center.npy (shape: {center_all.shape})")
 
 
 def process_t(t, z, data_memmap, X, Y, config):

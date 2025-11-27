@@ -40,11 +40,12 @@ def main():
         x_c_evo.append(x)
         y_c_evo.append(y)
 
-    # Save results
+    # Save results as single .npy file: shape (nt, 2)
     OUTPUT_DIR = config.get_data_path("center/ss_slp")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    np.savetxt(os.path.join(OUTPUT_DIR, "x.txt"), x_c_evo)
-    np.savetxt(os.path.join(OUTPUT_DIR, "y.txt"), y_c_evo)
+    center = np.stack([x_c_evo, y_c_evo], axis=1)
+    np.save(os.path.join(OUTPUT_DIR, "center.npy"), center)
+    print(f"Saved center coordinates: {OUTPUT_DIR}/center.npy (shape: {center.shape})")
 
 
 def process_t(t):

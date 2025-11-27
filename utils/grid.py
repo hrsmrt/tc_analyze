@@ -34,6 +34,7 @@ class GridHandler:
         self.config = config
         self.x, self.y = self._create_coordinates()
         self.X, self.Y = self._create_meshgrid()
+        self.vgrid = self.create_vertical_grid()
 
     def _create_coordinates(self) -> Tuple[np.ndarray, np.ndarray]:
         """
