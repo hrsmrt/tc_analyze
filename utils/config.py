@@ -372,7 +372,19 @@ class AnalysisConfig:
         center_dir = os.path.join(self.data_dir, self._center_path)
         coord_idx = 0 if coord == "x" else 1
 
-        # 新形式: center.npy を優先的に読み込む
+        # 最新形式: center.npz を最優先で読み込む
+        npz_path = os.path.join(center_dir, "center.npz")
+        if os.path.exists(npz_path):
+            data = np.load(npz_path)
+            center = data['center']
+            if self._center_type == "2d":
+                # shape: (nt, 2) -> (nt,)
+                return center[:, coord_idx]
+            elif self._center_type == "3d":
+                # shape: (nt, nz, 2) -> (nt, nz)
+                return center[:, :, coord_idx]
+
+        # 新形式: center.npy を次に読み込む
         npy_path = os.path.join(center_dir, "center.npy")
         if os.path.exists(npy_path):
             center = np.load(npy_path)

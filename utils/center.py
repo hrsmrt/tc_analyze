@@ -26,7 +26,7 @@ def find_pressure_center(
         verbose: If True, print iteration details
 
     Returns:
-        Tuple of (x_center, y_center) in meters
+        Tuple of (x_center, y_center, num_iterations) in meters and count
     """
     # Initial guess: location of minimum pressure
     iy, ix = np.unravel_index(np.argmin(data_2d, axis=None), data_2d.shape)
@@ -39,6 +39,7 @@ def find_pressure_center(
     threshold_y = config.dy * 1e-2
 
     # Iterative refinement
+    num_iterations = max_iterations
     for i in range(max_iterations):
         x_c_n, y_c_n = _iteration_step(
             X, Y, data_2d, x_c, y_c, r_max_ite, data_max, config
@@ -46,14 +47,15 @@ def find_pressure_center(
 
         # Check convergence
         if abs(x_c_n - x_c) < threshold_x and abs(y_c_n - y_c) < threshold_y:
+            num_iterations = i + 1
             if verbose:
-                print(f"  Converged in {i+1} iterations: x={x_c_n:.1f}, y={y_c_n:.1f}")
+                print(f"  Converged in {num_iterations} iterations: x={x_c_n:.1f}, y={y_c_n:.1f}")
             break
 
         x_c = x_c_n
         y_c = y_c_n
 
-    return x_c, y_c
+    return x_c, y_c, num_iterations
 
 
 def _iteration_step(X, Y, data, x_c, y_c, r_max_ite, data_max, config):

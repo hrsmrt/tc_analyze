@@ -83,6 +83,7 @@ def main():
     n_time = config.t_last - config.t_first + 1
     n_z = z_last - z_first + 1
     center_all = np.zeros((n_time, n_z, 2))
+    iterations_all = np.zeros((n_time, n_z), dtype=int)
 
     # Process each z-level
     for z_idx, z in enumerate(range(z_first, z_last + 1)):
@@ -95,17 +96,31 @@ def main():
         )
 
         # Collect results for this z-level
-        for t_idx, (x_c, y_c) in enumerate(results):
+        for t_idx, (x_c, y_c, num_iter) in enumerate(results):
             center_all[t_idx, z_idx, 0] = x_c
             center_all[t_idx, z_idx, 1] = y_c
+            iterations_all[t_idx, z_idx] = num_iter
 
-    # Save results as single .npy file: shape (nt, nz, 2)
+    # Save results as .npz file with metadata: shape (nt, nz, 2)
     OUTPUT_DIR = config.get_data_path("center/ms_pres")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    np.save(os.path.join(OUTPUT_DIR, "center.npy"), center_all)
+
+    np.savez(
+        os.path.join(OUTPUT_DIR, "center.npz"),
+        center=center_all,
+        r_max_ite=R_MAX_ITE,
+        max_iterations=100,
+        convergence_threshold_x=config.dx * 1e-2,
+        convergence_threshold_y=config.dy * 1e-2,
+        actual_iterations=iterations_all,
+        z_first=z_first,
+        z_last=z_last,
+    )
 
     print(f"\nCompleted processing z-levels {z_first} to {z_last}")
-    print(f"Saved center coordinates: {OUTPUT_DIR}/center.npy (shape: {center_all.shape})")
+    print(f"Saved center coordinates: {OUTPUT_DIR}/center.npz (shape: {center_all.shape})")
+    print(f"  r_max_ite={R_MAX_ITE:.0f} m, max_iterations=100")
+    print(f"  Mean iterations: {np.mean(iterations_all):.1f}, Max: {np.max(iterations_all)}")
 
 
 def process_t(t, z, data_memmap, X, Y, config):
@@ -120,11 +135,11 @@ def process_t(t, z, data_memmap, X, Y, config):
         config: AnalysisConfig instance
 
     Returns:
-        Tuple of (x_center, y_center) in meters
+        Tuple of (x_center, y_center, num_iterations) in meters and count
     """
     data = data_memmap[t, z, :, :]
-    x_c, y_c = find_pressure_center(X, Y, data, config, r_max_ite=R_MAX_ITE)
-    return x_c, y_c
+    x_c, y_c, num_iter = find_pressure_center(X, Y, data, config, r_max_ite=R_MAX_ITE)
+    return x_c, y_c, num_iter
 
 
 if __name__ == "__main__":

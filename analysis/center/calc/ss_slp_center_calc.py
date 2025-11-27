@@ -36,16 +36,29 @@ def main():
     # Collect results
     x_c_evo = []
     y_c_evo = []
-    for t, (x, y) in zip(range(config.nt), results):
+    iterations = []
+    for t, (x, y, num_iter) in zip(range(config.nt), results):
         x_c_evo.append(x)
         y_c_evo.append(y)
+        iterations.append(num_iter)
 
-    # Save results as single .npy file: shape (nt, 2)
+    # Save results as .npz file with metadata: shape (nt, 2)
     OUTPUT_DIR = config.get_data_path("center/ss_slp")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     center = np.stack([x_c_evo, y_c_evo], axis=1)
-    np.save(os.path.join(OUTPUT_DIR, "center.npy"), center)
-    print(f"Saved center coordinates: {OUTPUT_DIR}/center.npy (shape: {center.shape})")
+
+    np.savez(
+        os.path.join(OUTPUT_DIR, "center.npz"),
+        center=center,
+        r_max_ite=R_MAX_ITE,
+        max_iterations=100,
+        convergence_threshold_x=config.dx * 1e-2,
+        convergence_threshold_y=config.dy * 1e-2,
+        actual_iterations=np.array(iterations),
+    )
+    print(f"Saved center coordinates: {OUTPUT_DIR}/center.npz (shape: {center.shape})")
+    print(f"  r_max_ite={R_MAX_ITE:.0f} m, max_iterations=100")
+    print(f"  Mean iterations: {np.mean(iterations):.1f}, Max: {np.max(iterations)}")
 
 
 def process_t(t):
@@ -55,12 +68,12 @@ def process_t(t):
         t: Time step index
 
     Returns:
-        Tuple of (x_center, y_center) in meters
+        Tuple of (x_center, y_center, num_iterations) in meters and count
     """
     data = data_memmap[t]
-    x_c, y_c = find_pressure_center(X, Y, data, config, r_max_ite=R_MAX_ITE)
-    print(f"t={t}: x_c={x_c:.1f} m, y_c={y_c:.1f} m")
-    return x_c, y_c
+    x_c, y_c, num_iter = find_pressure_center(X, Y, data, config, r_max_ite=R_MAX_ITE)
+    print(f"t={t}: x_c={x_c:.1f} m, y_c={y_c:.1f} m, iterations={num_iter}")
+    return x_c, y_c, num_iter
 
 
 if __name__ == "__main__":
