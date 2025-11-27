@@ -26,7 +26,7 @@ def create_custom_colormap(
     Returns:
         ListedColormap: カスタムカラーマップ
     """
-    original_cmap = plt.cm.get_cmap(base_cmap)
+    original_cmap = plt.colormaps.get_cmap(base_cmap)
     colors = original_cmap(np.linspace(0, 1, n_colors))
     colors[:n_white_colors] = [1, 1, 1, 1]  # 白に変更
     return ListedColormap(colors)
