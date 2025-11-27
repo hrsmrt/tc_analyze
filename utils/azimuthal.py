@@ -6,7 +6,8 @@
 
 import numpy as np
 
-from .basic import PRES_S, RD, CP, L
+from .basic import potential_temperature
+from .thermodynamics import calculate_theta_e
 
 
 def calculate_azimuthal_mean_3d(
@@ -477,8 +478,8 @@ def calculate_azimuthal_mean_theta(
     azim_tem = calculate_azimuthal_mean_3d(data_tem, t, center_x_list, center_y_list, grid_handler, r_max)
     azim_pres = calculate_azimuthal_mean_3d(data_pres, t, center_x_list, center_y_list, grid_handler, r_max)
 
-    # 温位を計算
-    theta = azim_tem * (PRES_S / azim_pres) ** (RD / CP)
+    # 温位を計算（basic.potential_temperature を使用）
+    theta = potential_temperature(azim_tem, azim_pres)
 
     return theta.astype(np.float32)
 
@@ -527,11 +528,8 @@ def calculate_azimuthal_mean_theta_e(
     azim_pres = calculate_azimuthal_mean_3d(data_pres, t, center_x_list, center_y_list, grid_handler, r_max)
     azim_qv = calculate_azimuthal_mean_3d(data_qv, t, center_x_list, center_y_list, grid_handler, r_max)
 
-    # 混合比
-    rv = azim_qv / (1.0 - azim_qv)
-
-    # 相当温位を計算
-    theta_e = azim_tem * (PRES_S / azim_pres) ** (RD / CP) * np.exp(L * rv / (CP * azim_tem))
+    # 相当温位を計算（thermodynamics.calculate_theta_e を使用）
+    theta_e = calculate_theta_e(azim_tem, azim_pres, azim_qv)
 
     return theta_e.astype(np.float32)
 
