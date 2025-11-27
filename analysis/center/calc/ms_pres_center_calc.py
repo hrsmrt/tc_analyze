@@ -97,14 +97,14 @@ def main():
             y_c_evo.append(y_c)
 
         # Save results for this z-level
-        OUTPUT_DIR = config.get_data_path("center")
+        OUTPUT_DIR = config.get_data_path("center/ms_pres")
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         np.savetxt(
-            os.path.join(OUTPUT_DIR, f"ms_pres_center_x_z{str(z).zfill(3)}.txt"),
+            os.path.join(OUTPUT_DIR, f"x_z{str(z).zfill(3)}.txt"),
             x_c_evo,
         )
         np.savetxt(
-            os.path.join(OUTPUT_DIR, f"ms_pres_center_y_z{str(z).zfill(3)}.txt"),
+            os.path.join(OUTPUT_DIR, f"y_z{str(z).zfill(3)}.txt"),
             y_c_evo,
         )
 

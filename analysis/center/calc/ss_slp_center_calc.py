@@ -41,10 +41,10 @@ def main():
         y_c_evo.append(y)
 
     # Save results
-    OUTPUT_DIR = config.get_data_path("")
+    OUTPUT_DIR = config.get_data_path("center/ss_slp")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    np.savetxt(os.path.join(OUTPUT_DIR, "ss_slp_center_x.txt"), x_c_evo)
-    np.savetxt(os.path.join(OUTPUT_DIR, "ss_slp_center_y.txt"), y_c_evo)
+    np.savetxt(os.path.join(OUTPUT_DIR, "x.txt"), x_c_evo)
+    np.savetxt(os.path.join(OUTPUT_DIR, "y.txt"), y_c_evo)
 
 
 def process_t(t):
