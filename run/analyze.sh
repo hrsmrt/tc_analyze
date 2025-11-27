@@ -350,7 +350,6 @@ run_3d_basic() {
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/theta_e_plot_whole_region.py ${STYLE}"
     # オンデマンド計算に移行: psi は plot ファイルで直接計算
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/psi_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/psi_plot_r200.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/cape.py ${STYLE}"
 }
 
@@ -367,6 +366,8 @@ run_3d_wind() {
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_wind_tangential_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_wind_radial_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/relative_wind_uv_abs_plot.py ${STYLE}"
+    # オンデマンド計算に移行: psi_plot_r200 は中心位置に依存（渦領域抽出）
+    run_cmd "python ${TC_ANALYZE}/analysis/spatial/3d/plot/psi_plot_r200.py ${STYLE}"
 }
 
 run_3d() {
