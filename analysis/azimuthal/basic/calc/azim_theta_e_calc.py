@@ -33,7 +33,7 @@ def process_t(t):
         * (PRES_SURFACE / pressure) ** (GAS_CONST_DRY / HEAT_CAPACITY)
         * np.exp(LATENT_HEAT * mixing_ratio / (HEAT_CAPACITY * temperature))
     )
-    np.save(f"{OUTPUT_FOLDER}t{str(t).zfill(3)}.npy", theta_e)
+    np.save(f"{OUTPUT_FOLDER}/t{str(t).zfill(3)}.npy", theta_e)
     print(f"t={t} done")
 
 

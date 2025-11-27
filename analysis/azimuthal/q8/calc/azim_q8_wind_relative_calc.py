@@ -91,10 +91,10 @@ def process_t(t):
         )
 
     np.save(
-        f"{output_folder1}t{str(t).zfill(3)}.npy", azim_mean_radial.astype(np.float32)
+        f"{output_folder1}/t{str(t).zfill(3)}.npy", azim_mean_radial.astype(np.float32)
     )
     np.save(
-        f"{output_folder2}t{str(t).zfill(3)}.npy",
+        f"{output_folder2}/t{str(t).zfill(3)}.npy",
         azim_mean_tangential.astype(np.float32),
     )
 

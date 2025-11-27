@@ -32,7 +32,7 @@ def process_t(t):
             * (data[z + 1, :] - data[z, :])
             / (vgrid[z + 1] - vgrid[z])
         )
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", wdu_dz)
+    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", wdu_dz)
 
 
 Parallel(n_jobs=config.n_jobs)(

@@ -65,5 +65,5 @@ z_profile_all = np.stack(results, axis=0)
 
 # === 保存 ===
 os.makedirs(output_dir, exist_ok=True)
-np.save(f"{output_dir}z_{varname}.npy", z_profile_all)
+np.save(f"{output_dir}/z_{varname}.npy", z_profile_all)
 print(f"✅ Saved z_profile data for {varname} to {output_dir}z_{varname}.npy")

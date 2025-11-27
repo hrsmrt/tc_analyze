@@ -35,7 +35,7 @@ def process_t(t):
             + 9.80665
         )
 
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", grad_p)
+    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", grad_p)
 
 
 Parallel(n_jobs=config.n_jobs)(

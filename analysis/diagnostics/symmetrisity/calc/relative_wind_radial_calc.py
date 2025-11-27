@@ -58,7 +58,7 @@ def process_t(t):
     print(
         f"symmetrisity t: {t}, max: {np.nanmax(symmetrisity)}, min: {np.nanmin(symmetrisity)}"
     )
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", symmetrisity)
+    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", symmetrisity)
 
 
 Parallel(n_jobs=config.n_jobs)(

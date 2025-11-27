@@ -38,7 +38,7 @@ def process_t(t):
     db_dz = np.zeros((config.nz - 1, nr))
     for z in range(config.nz - 1):
         db_dz[z, :] = (b[z + 1, :] - b[z, :]) / (vgrid[z + 1] - vgrid[z])
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", db_dz)
+    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", db_dz)
     print(f"t={t} done")
 
 

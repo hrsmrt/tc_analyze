@@ -68,5 +68,5 @@ for t in range(config.t_first, config.t_last + 1):
 
 # --- 保存 ---
 os.makedirs(output_dir, exist_ok=True)
-np.save(f"{output_dir}z_zeta_quadrants.npy", z_profile_q)
+np.save(f"{output_dir}/z_zeta_quadrants.npy", z_profile_q)
 print(f"✅ Saved quadrant profiles for zeta to {output_dir}z_zeta_quadrants.npy")

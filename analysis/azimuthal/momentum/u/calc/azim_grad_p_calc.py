@@ -23,7 +23,7 @@ def process_t(t):
     data = np.load(f"{config.get_data_path('azim', 'ms_pres')}/t{str(t).zfill(3)}.npy")
     data_rho = np.load(f"{config.get_data_path('azim', 'ms_rho')}/t{str(t).zfill(3)}.npy")
     grad_p = -1 / data_rho[:, 1:-1] * (data[:, 2:] - data[:, :-2]) / (config.dx * 2)
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", grad_p)
+    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", grad_p)
 
 
 Parallel(n_jobs=config.n_jobs)(

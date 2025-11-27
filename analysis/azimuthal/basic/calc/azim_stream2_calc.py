@@ -41,7 +41,7 @@ def process_t(t):
     integrand_z = -0.5 * (rho[1:, :] + rho[:-1, :]) * 0.5 * (u[1:, :] + u[:-1, :]) * 0.5 * R * dz[:, np.newaxis]
     phi[1:, :] = phi[:1, :] + np.cumsum(integrand_z, axis=0)
 
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", phi)
+    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", phi)
     print(f"t={t} done")
 
 

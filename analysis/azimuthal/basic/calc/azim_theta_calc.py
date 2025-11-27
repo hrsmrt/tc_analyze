@@ -31,7 +31,7 @@ def process_t(t):
     tem = np.load(f"{config.get_data_path('azim', 'ms_tem')}/t{str(t).zfill(3)}.npy")
     pres = np.load(f"{config.get_data_path('azim', 'ms_pres')}/t{str(t).zfill(3)}.npy")
     theta = tem * (pres_s / pres) ** (Rd / Cp)
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", theta)
+    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", theta)
     print(f"t={t} done")
 
 

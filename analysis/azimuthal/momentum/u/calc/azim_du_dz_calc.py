@@ -27,7 +27,7 @@ def process_t(t):
     du_dz = np.empty((config.nz - 1, nr))
     for z in range(config.nz - 1):
         du_dz[z, :] = (data[z + 1, :] - data[z, :]) / (vgrid[z + 1] - vgrid[z])
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", du_dz)
+    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", du_dz)
 
 
 Parallel(n_jobs=config.n_jobs)(

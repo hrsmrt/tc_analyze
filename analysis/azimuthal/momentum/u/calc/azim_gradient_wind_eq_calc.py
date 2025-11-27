@@ -26,7 +26,7 @@ def process_t(t):
     coriolis = np.load(f"{config.get_data_path('azim', 'eq_momentum_u', 'coriolis')}/t{str(t).zfill(3)}.npy")
     grad_p = np.load(f"{config.get_data_path('azim', 'eq_momentum_u', 'grad_p')}/t{str(t).zfill(3)}.npy")
     gradient_wind_eq = centrifugal[:, 1:-1] + coriolis[:, 1:-1] - grad_p
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", gradient_wind_eq)
+    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", gradient_wind_eq)
 
 
 Parallel(n_jobs=config.n_jobs)(

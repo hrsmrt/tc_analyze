@@ -24,7 +24,7 @@ os.makedirs(output_folder, exist_ok=True)
 def process_t(t):
     data = np.load(f"{config.get_data_path('azim', 'wind_relative_tangential')}/t{str(t).zfill(3)}.npy")
     coriolis = -data * f
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", coriolis)
+    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", coriolis)
 
 
 Parallel(n_jobs=config.n_jobs)(

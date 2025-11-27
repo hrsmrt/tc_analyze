@@ -33,7 +33,7 @@ g = 9.80665
 def process_t(t):
     theta = np.load(f"{config.get_data_path('azim', 'theta')}/t{str(t).zfill(3)}.npy")
     b = g * np.log(theta / theta_ref)
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", b)
+    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", b)
     print(f"t={t} done")
 
 

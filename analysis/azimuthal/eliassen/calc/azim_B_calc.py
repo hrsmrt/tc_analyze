@@ -33,7 +33,7 @@ g = 9.80665
 def process_t(t):
     b = np.load(f"{config.get_data_path('azim', 'eliassen', 'buoyancy')}/t{str(t).zfill(3)}.npy")
     db_dr = (b[:, 1:] - b[:, :-1]) / config.dx
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", db_dr)
+    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", db_dr)
     print(f"t={t} done")
 
 

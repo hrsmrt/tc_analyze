@@ -32,7 +32,7 @@ def process_t(t):
         + np.abs(grad_p)
         + 1e-10
     )
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", score)
+    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", score)
 
 
 Parallel(n_jobs=config.n_jobs)(

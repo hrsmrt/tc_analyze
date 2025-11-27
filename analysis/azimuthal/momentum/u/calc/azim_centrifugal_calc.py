@@ -26,7 +26,7 @@ def process_t(t):
     centrifugal = -(data**2)
     for r in range(nr):
         centrifugal[:, r] = centrifugal[:, r] / (rgrid[r])
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", centrifugal)
+    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", centrifugal)
 
 
 Parallel(n_jobs=config.n_jobs)(

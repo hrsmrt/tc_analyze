@@ -37,7 +37,7 @@ def process_t(t):
     gamma = np.load(f"{config.get_data_path('azim', 'eliassen')}/gamma/t{str(t).zfill(3)}.npy")
     B = np.load(f"{config.get_data_path('azim', 'eliassen')}/B/t{str(t).zfill(3)}.npy")
     I2_prime = I2 - (gamma[:, 1:] + gamma[:, :-1]) * 0.5 * B
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", I2_prime)
+    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", I2_prime)
     print(f"t={t} done")
 
 

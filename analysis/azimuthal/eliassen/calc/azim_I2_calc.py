@@ -41,7 +41,7 @@ def process_t(t):
         / 2
         * (dv_dr + (v[:, 1:] + v[:, :-1]) / (2 * R_wall) + f)
     )
-    np.save(f"{output_folder}t{str(t).zfill(3)}.npy", I2)
+    np.save(f"{output_folder}/t{str(t).zfill(3)}.npy", I2)
     print(f"t={t} done")
 
 

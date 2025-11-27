@@ -20,7 +20,7 @@ os.makedirs(folder, exist_ok=True)
 # メインループ
 def process_t(t):
     # データの読み込み
-    data = np.load(f"{folder}t{str(t).zfill(3)}.npy")
+    data = np.load(f"{folder}/t{str(t).zfill(3)}.npy")
     return data.max(), data.argmax() * config.dx
 
 
@@ -33,5 +33,5 @@ max_values = np.array(max_values)
 wind10m_tangential_max = max_values[:, 0]
 wind10m_tangential_rmw = max_values[:, 1]
 
-np.save(f"{folder}wind10m_tangential_max.npy", wind10m_tangential_max)
-np.save(f"{folder}wind10m_tangential_rmw.npy", wind10m_tangential_rmw)
+np.save(f"{folder}/wind10m_tangential_max.npy", wind10m_tangential_max)
+np.save(f"{folder}/wind10m_tangential_rmw.npy", wind10m_tangential_rmw)
