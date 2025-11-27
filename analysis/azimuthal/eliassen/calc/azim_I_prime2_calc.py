@@ -38,7 +38,7 @@ def process_t(t):
     B = np.load(os.path.join(config.get_data_path('azim', 'eliassen'), f"B/t{str(t).zfill(3)}.npy"))
     I2_prime = I2 - (gamma[:, 1:] + gamma[:, :-1]) * 0.5 * B
     np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), I2_prime)
-    print(f"t={t} done")
+    # print(f"t={t} done")
 
 
 Parallel(n_jobs=config.n_jobs)(

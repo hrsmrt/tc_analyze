@@ -51,7 +51,7 @@ def process_t(t):
     data = data_memmap[t]
     profile = np.mean(data[:, iy, ix], axis=1, dtype=np.float64)
 
-    print(f"t={t:03d}: mean={profile.mean():.3e}")
+    # print(f"t={t:03d}: mean={profile.mean():.3e}")
     return profile
 
 

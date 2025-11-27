@@ -55,7 +55,7 @@ def process_t(t):
         # 各z方向の平均を一度に計算
         z_profile_q_t[:, q] = np.nanmean(vals_all_z, axis=1)
 
-    print(f"Processed time step t={t}")
+    # print(f"Processed time step t={t}")
     return z_profile_q_t
 
 

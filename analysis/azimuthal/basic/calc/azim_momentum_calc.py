@@ -24,7 +24,7 @@ def process_t(t):
     rgrid = (np.arange(nr) + 0.5) * config.dx
     momentum = rgrid * u_tangential + 0.5 * CORIOLIS_PARAM * rgrid**2
     np.save(os.path.join(OUTPUT_FOLDER, f"t{str(t).zfill(3)}.npy"), momentum)
-    print(f"t={t} done")
+    # print(f"t={t} done")
 
 
 Parallel(n_jobs=config.n_jobs)(

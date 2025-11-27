@@ -30,7 +30,7 @@ def process_t(t):
     psi = np.array([streamfunction_twisted(data[z], config.dx, config.dy) for z in range(config.nz)])
 
     np.save(os.path.join(FOLDER, f"psi_t{str(t).zfill(3)}.npy"), psi)
-    print(f"t: {t} psi calc done")
+    # print(f"t: {t} psi calc done")
 
 
 def frac_roll_x_fft(row, shift):

@@ -69,7 +69,7 @@ def process_t(t):
     np.save(os.path.join(FOLDER1, f"t{str(t).zfill(3)}.npy"), v_radial)
     np.save(os.path.join(FOLDER2, f"t{str(t).zfill(3)}.npy"), v_tangential)
 
-    print(f"t: {t} done")
+    # print(f"t: {t} done")
 
 
 Parallel(n_jobs=config.n_jobs)(

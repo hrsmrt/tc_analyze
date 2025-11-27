@@ -50,7 +50,7 @@ def process_t(t):
     np.save(os.path.join(FOLDER_RADIAL, f"t{str(t).zfill(3)}.npy"), v_radial)
     np.save(os.path.join(FOLDER_TANGENTIAL, f"t{str(t).zfill(3)}.npy"), v_tangential)
 
-    print(f"t: {t} done")
+    # print(f"t: {t} done")
 
 
 # 並列処理で全時刻を処理

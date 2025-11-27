@@ -62,7 +62,7 @@ def process_t(t):
     count_r = np.zeros((max_bin, 8), dtype=int)
 
     data = data_all[t]  # shape = (nz, ny, nx)
-    print(f"3d data t: {t}, max: {data.max()}, min: {data.min()}")
+    # print(f"3d data t: {t}, max: {data.max()}, min: {data.min()}")
 
     # valid_data は (nz, npoints)
     valid_data = data[:, mask]

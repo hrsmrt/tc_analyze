@@ -32,7 +32,7 @@ def process_t(t):
     pres = np.load(os.path.join(config.get_data_path('azim', 'ms_pres'), f"t{str(t).zfill(3)}.npy"))
     theta = tem * (pres_s / pres) ** (Rd / Cp)
     np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), theta)
-    print(f"t={t} done")
+    # print(f"t={t} done")
 
 
 Parallel(n_jobs=config.n_jobs)(

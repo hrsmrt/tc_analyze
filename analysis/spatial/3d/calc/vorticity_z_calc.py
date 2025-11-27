@@ -72,7 +72,7 @@ def process_t(t):
     vor = dv_dx - du_dy
 
     np.save(os.path.join(FOLDER, f"vor_t{str(t).zfill(3)}.npy"), vor)
-    print(f"t: {t} vorticity calc done")
+    # print(f"t: {t} vorticity calc done")
 
 
 Parallel(n_jobs=config.n_jobs)(

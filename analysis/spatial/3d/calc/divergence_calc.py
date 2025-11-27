@@ -73,7 +73,7 @@ def process_t(t):
     div = du_dx + dv_dy
 
     np.save(os.path.join(FOLDER, f"div_t{str(t).zfill(3)}.npy"), div)
-    print(f"t: {t} divergence calc done")
+    # print(f"t: {t} divergence calc done")
 
 
 Parallel(n_jobs=config.n_jobs)(

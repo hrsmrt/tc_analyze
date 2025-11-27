@@ -34,7 +34,7 @@ def process_t(t):
         * np.exp(LATENT_HEAT * mixing_ratio / (HEAT_CAPACITY * temperature))
     )
     np.save(os.path.join(OUTPUT_FOLDER, f"t{str(t).zfill(3)}.npy"), theta_e)
-    print(f"t={t} done")
+    # print(f"t={t} done")
 
 
 Parallel(n_jobs=config.n_jobs)(

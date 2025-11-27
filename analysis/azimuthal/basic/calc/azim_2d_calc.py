@@ -54,7 +54,7 @@ def process_t(t):
     # 従来版: np.fromfile() でファイルシークを繰り返す
     data = data_all[t]
     data = data.reshape(config.ny, config.nx)
-    print(f"2d data t: {t}, max: {data.max()}, min: {data.min()}")
+    # print(f"2d data t: {t}, max: {data.max()}, min: {data.min()}")
 
     valid_data = data[mask]
     data_r = np.bincount(bin_idx, weights=valid_data, minlength=max_bin)
@@ -62,7 +62,7 @@ def process_t(t):
     # 割り算（ゼロ割回避）
     with np.errstate(divide="ignore", invalid="ignore"):
         azim_mean = np.where(count_r > 0, data_r / count_r, np.nan)
-    print(f"azim mean data t: {t}, max: {azim_mean.max()}, min: {azim_mean.min()}")
+    # print(f"azim mean data t: {t}, max: {azim_mean.max()}, min: {azim_mean.min()}")
     np.save(os.path.join(folder, f"t{str(t).zfill(3)}.npy"), azim_mean)
 
 

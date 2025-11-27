@@ -40,7 +40,7 @@ def process_t(t):
     bin_idx = np.clip(bin_idx, 0, max_bin - 1)
 
     data = np.load(os.path.join(config.get_data_path('3d', 'relative_wind_radial'), f"t{str(t).zfill(3)}.npy"))
-    print(f"3d data t: {t}, max: {data.max()}, min: {data.min()}")
+    # print(f"3d data t: {t}, max: {data.max()}, min: {data.min()}")
 
     valid_data = data[:, mask]
     azim_sum = np.zeros((config.nz, max_bin), dtype=np.float32)

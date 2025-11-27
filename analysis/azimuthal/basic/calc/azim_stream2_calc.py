@@ -42,7 +42,7 @@ def process_t(t):
     phi[1:, :] = phi[:1, :] + np.cumsum(integrand_z, axis=0)
 
     np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), phi)
-    print(f"t={t} done")
+    # print(f"t={t} done")
 
 
 Parallel(n_jobs=config.n_jobs)(

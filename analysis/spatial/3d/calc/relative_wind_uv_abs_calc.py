@@ -58,7 +58,7 @@ def process_t(t):
 
     np.save(os.path.join(OUTPUT_FOLDER, f"t{str(t).zfill(3)}.npy"), v_abs)
 
-    print(f"t: {t} done")
+    # print(f"t: {t} done")
 
 
 Parallel(n_jobs=config.n_jobs)(

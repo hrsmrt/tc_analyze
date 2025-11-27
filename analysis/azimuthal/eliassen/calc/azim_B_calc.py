@@ -34,7 +34,7 @@ def process_t(t):
     b = np.load(os.path.join(config.get_data_path('azim', 'eliassen', 'buoyancy'), f"t{str(t).zfill(3)}.npy"))
     db_dr = (b[:, 1:] - b[:, :-1]) / config.dx
     np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), db_dr)
-    print(f"t={t} done")
+    # print(f"t={t} done")
 
 
 Parallel(n_jobs=config.n_jobs)(

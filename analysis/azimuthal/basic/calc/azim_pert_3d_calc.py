@@ -54,7 +54,7 @@ def process_t(t):
     azim_mean = np.full((config.nz, len(count_r)), np.nan)
 
     data = data_all[t]
-    print(f"3d data t: {t}, max: {data.max()}, min: {data.min()}")
+    # print(f"3d data t: {t}, max: {data.max()}, min: {data.min()}")
 
     masked_data = np.where(mask_outside, data, np.nan)  # mask_outsideがFalseの場所はNaN
     mean_outside = np.nanmean(masked_data, axis=(1, 2))
@@ -70,7 +70,7 @@ def process_t(t):
     with np.errstate(divide="ignore", invalid="ignore"):
         azim_mean = np.where(count_r > 0, azim_sum / count_r, np.nan)
     azim_mean -= mean_outside[:, np.newaxis]
-    print(f"azim mean data t: {t}, max: {azim_mean.max()}, min: {azim_mean.min()}")
+    # print(f"azim mean data t: {t}, max: {azim_mean.max()}, min: {azim_mean.min()}")
     np.save(os.path.join(folder, f"t{str(t).zfill(3)}.npy"), azim_mean)
 
 

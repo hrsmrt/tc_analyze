@@ -34,7 +34,7 @@ def process_t(t):
     theta = np.load(os.path.join(config.get_data_path('azim', 'theta'), f"t{str(t).zfill(3)}.npy"))
     R_eliassen = R * rho * theta
     np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), R_eliassen)
-    print(f"t={t} done")
+    # print(f"t={t} done")
 
 
 Parallel(n_jobs=config.n_jobs)(
