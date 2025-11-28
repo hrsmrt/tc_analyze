@@ -1,11 +1,13 @@
 """Calculate tropical cyclone center from 3D pressure minimum at each z-level.
 
-Search for pressure minimum within R_max_m from ss_slp center.
+Search for pressure minimum within r_search from ss_slp center, then refine
+the position using weighted centroid method within r_refine.
 
 Usage:
     python $WORK/tc_analyze/analysis/center/calc/ms_pres_center_calc.py
     python $WORK/tc_analyze/analysis/center/calc/ms_pres_center_calc.py --z-first 0 --z-last 10
-    python $WORK/tc_analyze/analysis/center/calc/ms_pres_center_calc.py -zf 5 -zl 20 --r-max 300e3
+    python $WORK/tc_analyze/analysis/center/calc/ms_pres_center_calc.py -zf 5 -zl 20 --r-search 300e3
+    python $WORK/tc_analyze/analysis/center/calc/ms_pres_center_calc.py --r-search 250e3 --r-refine 150e3
 """
 
 import argparse
@@ -18,15 +20,16 @@ from utils.center import create_coordinate_meshgrid, find_pressure_center
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 
-R_MAX_ITE = 100e3  # Iteration search radius
-R_MAX_M_DEFAULT = 200e3  # Default search radius from ss_slp center
+R_REFINE_DEFAULT = 100e3  # Default refinement radius for weighted centroid iteration
+R_SEARCH_DEFAULT = 200e3  # Default initial search radius from ss_slp center
 
 
 def parse_args():
-    """Parse command-line arguments for z-level range and search radius."""
+    """Parse command-line arguments for z-level range and search radii."""
     parser = argparse.ArgumentParser(
-        description="Calculate TC center from 3D pressure data at each z-level, "
-        "searching within R_max_m from ss_slp center"
+        description="Calculate TC center from 3D pressure data at each z-level. "
+        "First finds pressure minimum within r_search from ss_slp center, "
+        "then refines position using weighted centroid within r_refine."
     )
     parser.add_argument(
         "--z-first",
@@ -43,11 +46,18 @@ def parse_args():
         help="Last z-level to process (default: nz-1)",
     )
     parser.add_argument(
-        "--r-max",
-        "-rm",
+        "--r-search",
+        "-rs",
         type=float,
-        default=R_MAX_M_DEFAULT,
-        help=f"Search radius from ss_slp center in meters (default: {R_MAX_M_DEFAULT:.0f})",
+        default=R_SEARCH_DEFAULT,
+        help=f"Initial search radius from ss_slp center in meters (default: {R_SEARCH_DEFAULT:.0f})",
+    )
+    parser.add_argument(
+        "--r-refine",
+        "-rr",
+        type=float,
+        default=R_REFINE_DEFAULT,
+        help=f"Refinement radius for weighted centroid iteration in meters (default: {R_REFINE_DEFAULT:.0f})",
     )
     parser.add_argument(
         "--config",
@@ -65,10 +75,11 @@ def main():
     config = AnalysisConfig()
     grid = GridHandler(config)
 
-    # Determine z-level range
+    # Determine z-level range and search radii
     z_first = args.z_first if args.z_first is not None else 0
     z_last = args.z_last if args.z_last is not None else config.nz - 1
-    r_max_m = args.r_max
+    r_search = args.r_search
+    r_refine = args.r_refine
 
     # Validate z-level range
     if z_first < 0 or z_last >= config.nz or z_first > z_last:
@@ -79,7 +90,8 @@ def main():
 
     print(f"Processing z-levels {z_first} to {z_last} (inclusive)")
     print(f"Processing time steps {config.t_first} to {config.t_last} (inclusive)")
-    print(f"Search radius from ss_slp center: {r_max_m:.0f} m ({r_max_m * 1e-3:.1f} km)")
+    print(f"Initial search radius from ss_slp center: {r_search:.0f} m ({r_search * 1e-3:.1f} km)")
+    print(f"Refinement radius for weighted centroid: {r_refine:.0f} m ({r_refine * 1e-3:.1f} km)")
 
     # Load ss_slp center coordinates (2D center, shape: nt, 2)
     ss_slp_center = load_ss_slp_center(config)
@@ -108,7 +120,7 @@ def main():
 
         # Parallel processing over time steps for this z-level
         results = Parallel(n_jobs=config.n_jobs)(
-            delayed(process_t)(t, z, data_memmap, X, Y, config, ss_slp_center, r_max_m)
+            delayed(process_t)(t, z, data_memmap, X, Y, config, ss_slp_center, r_search, r_refine)
             for t in range(config.t_first, config.t_last + 1)
         )
 
@@ -122,11 +134,14 @@ def main():
     OUTPUT_DIR = config.get_data_path("center/ms_pres")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+    # Generate filename based on parameters
+    filename = f"center_rsearch{r_search * 1e-3:.0f}km_rrefine{r_refine * 1e-3:.0f}km.npz"
+
     np.savez(
-        os.path.join(OUTPUT_DIR, "center.npz"),
+        os.path.join(OUTPUT_DIR, filename),
         center=center_all,
-        r_max_ite=R_MAX_ITE,
-        r_max_m=r_max_m,
+        r_refine=r_refine,
+        r_search=r_search,
         max_iterations=100,
         convergence_threshold_x=config.dx * 1e-2,
         convergence_threshold_y=config.dy * 1e-2,
@@ -136,16 +151,17 @@ def main():
     )
 
     print(f"\nCompleted processing z-levels {z_first} to {z_last}")
-    print(f"Saved center coordinates: {OUTPUT_DIR}/center.npz (shape: {center_all.shape})")
-    print(f"  r_max_m={r_max_m:.0f} m ({r_max_m * 1e-3:.1f} km)")
-    print(f"  r_max_ite={R_MAX_ITE:.0f} m, max_iterations=100")
+    print(f"Saved center coordinates: {OUTPUT_DIR}/{filename} (shape: {center_all.shape})")
+    print(f"  r_search={r_search:.0f} m ({r_search * 1e-3:.1f} km)")
+    print(f"  r_refine={r_refine:.0f} m ({r_refine * 1e-3:.1f} km), max_iterations=100")
     print(f"  Mean iterations: {np.mean(iterations_all):.1f}, Max: {np.max(iterations_all)}")
 
 
-def process_t(t, z, data_memmap, X, Y, config, ss_slp_center, r_max_m):
+def process_t(t, z, data_memmap, X, Y, config, ss_slp_center, r_search, r_refine):
     """Process a single time step at a specific z-level.
 
-    Search for pressure minimum within r_max_m from ss_slp center.
+    Search for pressure minimum within r_search from ss_slp center, then refine
+    the position using weighted centroid method within r_refine.
 
     Args:
         t: Time step index
@@ -155,7 +171,8 @@ def process_t(t, z, data_memmap, X, Y, config, ss_slp_center, r_max_m):
         Y: Y-coordinate meshgrid
         config: AnalysisConfig instance
         ss_slp_center: SS SLP center coordinates, shape (nt, 2)
-        r_max_m: Search radius from ss_slp center in meters
+        r_search: Initial search radius from ss_slp center in meters
+        r_refine: Refinement radius for weighted centroid iteration in meters
 
     Returns:
         Tuple of (x_center, y_center, num_iterations) in meters and count
@@ -168,8 +185,8 @@ def process_t(t, z, data_memmap, X, Y, config, ss_slp_center, r_max_m):
     # Calculate distance from ss_slp center
     R = np.sqrt((X - ss_x) ** 2 + (Y - ss_y) ** 2)
 
-    # Create mask for search region (within r_max_m from ss_slp center)
-    mask = R <= r_max_m
+    # Create mask for search region (within r_search from ss_slp center)
+    mask = R <= r_search
 
     # Find pressure minimum within the masked region
     masked_data = data.copy()
@@ -180,10 +197,10 @@ def process_t(t, z, data_memmap, X, Y, config, ss_slp_center, r_max_m):
     x_init = X[min_idx]
     y_init = Y[min_idx]
 
-    # Use find_pressure_center for refinement with initial position
+    # Refine center position using weighted centroid method
     x_c, y_c, num_iter = find_pressure_center(
         X, Y, data, config,
-        r_max_ite=R_MAX_ITE,
+        r_refine=r_refine,
         x_init=x_init,
         y_init=y_init
     )

@@ -8,13 +8,13 @@ import numpy as np
 
 
 def find_pressure_center(
-    X, Y, data_2d, config, r_max_ite=100e3, max_iterations=100, verbose=False,
+    X, Y, data_2d, config, r_refine=100e3, max_iterations=100, verbose=False,
     x_init=None, y_init=None
 ):
     """Find the center of low pressure using weighted centroid method.
 
     This function iteratively refines the center position by calculating
-    a weighted centroid within a search radius. The weights are based on
+    a weighted centroid within a refinement radius. The weights are based on
     pressure deficit (data_max - data), giving higher weight to lower pressure.
 
     Args:
@@ -22,7 +22,7 @@ def find_pressure_center(
         Y: 2D meshgrid of y-coordinates (m)
         data_2d: 2D pressure field (Pa)
         config: AnalysisConfig instance
-        r_max_ite: Maximum search radius for weighted centroid (m)
+        r_refine: Refinement radius for weighted centroid iteration (m)
         max_iterations: Maximum number of refinement iterations
         verbose: If True, print iteration details
         x_init: Initial x-coordinate guess (m). If None, uses location of minimum pressure
@@ -49,7 +49,7 @@ def find_pressure_center(
     num_iterations = max_iterations
     for i in range(max_iterations):
         x_c_n, y_c_n = _iteration_step(
-            X, Y, data_2d, x_c, y_c, r_max_ite, data_max, config
+            X, Y, data_2d, x_c, y_c, r_refine, data_max, config
         )
 
         # Check convergence
@@ -65,7 +65,7 @@ def find_pressure_center(
     return x_c, y_c, num_iterations
 
 
-def _iteration_step(X, Y, data, x_c, y_c, r_max_ite, data_max, config):
+def _iteration_step(X, Y, data, x_c, y_c, r_refine, data_max, config):
     """Perform one iteration of weighted centroid refinement.
 
     Args:
@@ -74,7 +74,7 @@ def _iteration_step(X, Y, data, x_c, y_c, r_max_ite, data_max, config):
         data: 2D pressure field
         x_c: Current x-center estimate (m)
         y_c: Current y-center estimate (m)
-        r_max_ite: Maximum radius for weighted centroid calculation (m)
+        r_refine: Refinement radius for weighted centroid calculation (m)
         data_max: Maximum pressure value in the field
         config: AnalysisConfig instance
 
@@ -89,7 +89,7 @@ def _iteration_step(X, Y, data, x_c, y_c, r_max_ite, data_max, config):
 
     # Distance squared for mask (avoid sqrt for performance)
     dist_sq = dx * dx + dy * dy
-    mask = dist_sq <= r_max_ite * r_max_ite
+    mask = dist_sq <= r_refine * r_refine
 
     # Calculate weights (higher weight for lower pressure)
     # w = data_max - data within search radius, 0 outside
