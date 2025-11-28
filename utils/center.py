@@ -8,7 +8,8 @@ import numpy as np
 
 
 def find_pressure_center(
-    X, Y, data_2d, config, r_max_ite=100e3, max_iterations=100, verbose=False
+    X, Y, data_2d, config, r_max_ite=100e3, max_iterations=100, verbose=False,
+    x_init=None, y_init=None
 ):
     """Find the center of low pressure using weighted centroid method.
 
@@ -24,14 +25,20 @@ def find_pressure_center(
         r_max_ite: Maximum search radius for weighted centroid (m)
         max_iterations: Maximum number of refinement iterations
         verbose: If True, print iteration details
+        x_init: Initial x-coordinate guess (m). If None, uses location of minimum pressure
+        y_init: Initial y-coordinate guess (m). If None, uses location of minimum pressure
 
     Returns:
         Tuple of (x_center, y_center, num_iterations) in meters and count
     """
-    # Initial guess: location of minimum pressure
-    iy, ix = np.unravel_index(np.argmin(data_2d, axis=None), data_2d.shape)
-    x_c = ix * config.dx + config.dx * 0.5
-    y_c = iy * config.dy + config.dy * 0.5
+    # Initial guess: use provided x_init/y_init or location of minimum pressure
+    if x_init is not None and y_init is not None:
+        x_c = x_init
+        y_c = y_init
+    else:
+        iy, ix = np.unravel_index(np.argmin(data_2d, axis=None), data_2d.shape)
+        x_c = ix * config.dx + config.dx * 0.5
+        y_c = iy * config.dy + config.dy * 0.5
 
     # Pre-calculate constants for optimization
     data_max = data_2d.max()

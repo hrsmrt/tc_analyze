@@ -1,9 +1,11 @@
 """Calculate tropical cyclone center from 3D pressure minimum at each z-level.
 
+Search for pressure minimum within R_max_m from ss_slp center.
+
 Usage:
     python $WORK/tc_analyze/analysis/center/calc/ms_pres_center_calc.py
     python $WORK/tc_analyze/analysis/center/calc/ms_pres_center_calc.py --z-first 0 --z-last 10
-    python $WORK/tc_analyze/analysis/center/calc/ms_pres_center_calc.py -zf 5 -zl 20
+    python $WORK/tc_analyze/analysis/center/calc/ms_pres_center_calc.py -zf 5 -zl 20 --r-max 300e3
 """
 
 import argparse
@@ -16,13 +18,15 @@ from utils.center import create_coordinate_meshgrid, find_pressure_center
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 
-R_MAX_ITE = 100e3
+R_MAX_ITE = 100e3  # Iteration search radius
+R_MAX_M_DEFAULT = 200e3  # Default search radius from ss_slp center
 
 
 def parse_args():
-    """Parse command-line arguments for z-level range."""
+    """Parse command-line arguments for z-level range and search radius."""
     parser = argparse.ArgumentParser(
-        description="Calculate TC center from 3D pressure data at each z-level"
+        description="Calculate TC center from 3D pressure data at each z-level, "
+        "searching within R_max_m from ss_slp center"
     )
     parser.add_argument(
         "--z-first",
@@ -37,6 +41,13 @@ def parse_args():
         type=int,
         default=None,
         help="Last z-level to process (default: nz-1)",
+    )
+    parser.add_argument(
+        "--r-max",
+        "-rm",
+        type=float,
+        default=R_MAX_M_DEFAULT,
+        help=f"Search radius from ss_slp center in meters (default: {R_MAX_M_DEFAULT:.0f})",
     )
     parser.add_argument(
         "--config",
@@ -57,6 +68,7 @@ def main():
     # Determine z-level range
     z_first = args.z_first if args.z_first is not None else 0
     z_last = args.z_last if args.z_last is not None else config.nz - 1
+    r_max_m = args.r_max
 
     # Validate z-level range
     if z_first < 0 or z_last >= config.nz or z_first > z_last:
@@ -67,6 +79,11 @@ def main():
 
     print(f"Processing z-levels {z_first} to {z_last} (inclusive)")
     print(f"Processing time steps {config.t_first} to {config.t_last} (inclusive)")
+    print(f"Search radius from ss_slp center: {r_max_m:.0f} m ({r_max_m * 1e-3:.1f} km)")
+
+    # Load ss_slp center coordinates (2D center, shape: nt, 2)
+    ss_slp_center = load_ss_slp_center(config)
+    print(f"Loaded ss_slp center: shape {ss_slp_center.shape}")
 
     # Create coordinate meshgrid
     X, Y = create_coordinate_meshgrid(config)
@@ -91,7 +108,7 @@ def main():
 
         # Parallel processing over time steps for this z-level
         results = Parallel(n_jobs=config.n_jobs)(
-            delayed(process_t)(t, z, data_memmap, X, Y, config)
+            delayed(process_t)(t, z, data_memmap, X, Y, config, ss_slp_center, r_max_m)
             for t in range(config.t_first, config.t_last + 1)
         )
 
@@ -109,6 +126,7 @@ def main():
         os.path.join(OUTPUT_DIR, "center.npz"),
         center=center_all,
         r_max_ite=R_MAX_ITE,
+        r_max_m=r_max_m,
         max_iterations=100,
         convergence_threshold_x=config.dx * 1e-2,
         convergence_threshold_y=config.dy * 1e-2,
@@ -119,12 +137,15 @@ def main():
 
     print(f"\nCompleted processing z-levels {z_first} to {z_last}")
     print(f"Saved center coordinates: {OUTPUT_DIR}/center.npz (shape: {center_all.shape})")
+    print(f"  r_max_m={r_max_m:.0f} m ({r_max_m * 1e-3:.1f} km)")
     print(f"  r_max_ite={R_MAX_ITE:.0f} m, max_iterations=100")
     print(f"  Mean iterations: {np.mean(iterations_all):.1f}, Max: {np.max(iterations_all)}")
 
 
-def process_t(t, z, data_memmap, X, Y, config):
+def process_t(t, z, data_memmap, X, Y, config, ss_slp_center, r_max_m):
     """Process a single time step at a specific z-level.
+
+    Search for pressure minimum within r_max_m from ss_slp center.
 
     Args:
         t: Time step index
@@ -133,13 +154,79 @@ def process_t(t, z, data_memmap, X, Y, config):
         X: X-coordinate meshgrid
         Y: Y-coordinate meshgrid
         config: AnalysisConfig instance
+        ss_slp_center: SS SLP center coordinates, shape (nt, 2)
+        r_max_m: Search radius from ss_slp center in meters
 
     Returns:
         Tuple of (x_center, y_center, num_iterations) in meters and count
     """
     data = data_memmap[t, z, :, :]
-    x_c, y_c, num_iter = find_pressure_center(X, Y, data, config, r_max_ite=R_MAX_ITE)
+
+    # Get ss_slp center for this time step
+    ss_x, ss_y = ss_slp_center[t]
+
+    # Calculate distance from ss_slp center
+    R = np.sqrt((X - ss_x) ** 2 + (Y - ss_y) ** 2)
+
+    # Create mask for search region (within r_max_m from ss_slp center)
+    mask = R <= r_max_m
+
+    # Find pressure minimum within the masked region
+    masked_data = data.copy()
+    masked_data[~mask] = np.inf  # Set values outside mask to infinity
+
+    # Find initial position (pressure minimum in masked region)
+    min_idx = np.unravel_index(np.argmin(masked_data), data.shape)
+    x_init = X[min_idx]
+    y_init = Y[min_idx]
+
+    # Use find_pressure_center for refinement with initial position
+    x_c, y_c, num_iter = find_pressure_center(
+        X, Y, data, config,
+        r_max_ite=R_MAX_ITE,
+        x_init=x_init,
+        y_init=y_init
+    )
+
     return x_c, y_c, num_iter
+
+
+def load_ss_slp_center(config):
+    """Load ss_slp center coordinates.
+
+    Args:
+        config: AnalysisConfig instance
+
+    Returns:
+        numpy array of shape (nt, 2) with [x, y] coordinates
+    """
+    center_dir = os.path.join(config.data_dir, "center/ss_slp")
+
+    # Try to load .npz file first
+    npz_path = os.path.join(center_dir, "center.npz")
+    if os.path.exists(npz_path):
+        data = np.load(npz_path)
+        center = data["center"]  # shape: (nt, 2)
+        return center
+
+    # Try .npy file
+    npy_path = os.path.join(center_dir, "center.npy")
+    if os.path.exists(npy_path):
+        center = np.load(npy_path)  # shape: (nt, 2)
+        return center
+
+    # Fall back to legacy .txt files
+    x_path = os.path.join(center_dir, "x.txt")
+    y_path = os.path.join(center_dir, "y.txt")
+    if os.path.exists(x_path) and os.path.exists(y_path):
+        x = np.loadtxt(x_path)
+        y = np.loadtxt(y_path)
+        return np.column_stack([x, y])
+
+    raise FileNotFoundError(
+        f"SS SLP center data not found in {center_dir}. "
+        "Please run ss_slp_center_calc.py first."
+    )
 
 
 if __name__ == "__main__":
