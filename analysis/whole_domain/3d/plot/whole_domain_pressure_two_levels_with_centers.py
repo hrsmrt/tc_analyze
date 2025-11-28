@@ -1,6 +1,7 @@
-"""Plot pressure at two z-levels with line contours and overlay 5 ms_pres centers."""
-# python $WORK/tc_analyze/analysis/whole_domain/3d/plot/whole_domain_pressure_two_levels_with_centers.py z1 z2 z_center1 z_center2 z_center3 z_center4 z_center5 $style
+"""Plot pressure at two z-levels with filled contour (lower) and line contour (upper), overlay 5 ms_pres centers."""
+# python $WORK/tc_analyze/analysis/whole_domain/3d/plot/whole_domain_pressure_two_levels_with_centers.py z1 z2 z_center1 z_center2 z_center3 z_center4 z_center5 $style [sigma]
 # 例: python $WORK/tc_analyze/analysis/whole_domain/3d/plot/whole_domain_pressure_two_levels_with_centers.py 0 36 0 9 17 23 29 $style
+# 例（smooth化）: python $WORK/tc_analyze/analysis/whole_domain/3d/plot/whole_domain_pressure_two_levels_with_centers.py 0 36 0 9 17 23 29 $style 2.0
 import os
 import sys
 
@@ -9,16 +10,29 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from joblib import Parallel, delayed
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from scipy.ndimage import gaussian_filter
 
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 from utils.plotting import parse_style_argument
 
 # 引数の解析
-Z1 = int(sys.argv[1])  # 1つ目のZ面（contour用）
-Z2 = int(sys.argv[2])  # 2つ目のZ面（contour用）
+Z1 = int(sys.argv[1])  # 1つ目のZ面（下層、塗りつぶし用）
+Z2 = int(sys.argv[2])  # 2つ目のZ面（上層、線contour用）
 Z_CENTERS = [int(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5]),
              int(sys.argv[6]), int(sys.argv[7])]  # 中心をプロットする5つのZ面
+
+# Smooth化パラメータの解析（最後の引数がfloatならsigma値）
+SIGMA = 0.0  # デフォルトはsmooth化なし
+if len(sys.argv) >= 9:
+    try:
+        SIGMA = float(sys.argv[-1])
+        # sigma値を指定した場合、最後の引数を除外してスタイルを解析
+        sys.argv = sys.argv[:-1]
+    except ValueError:
+        # floatに変換できない場合はsigma=0.0のまま
+        pass
 
 # スタイルシートの解析
 mpl_style_sheet = parse_style_argument()
@@ -27,12 +41,18 @@ mpl_style_sheet = parse_style_argument()
 config = AnalysisConfig(center_type="3d", center_path="center/ms_pres")
 grid = GridHandler(config)
 
-# 出力ディレクトリ
+# 出力ディレクトリ（smooth化の有無で分ける）
 z_center_str = "_".join([f"z{z}" for z in Z_CENTERS])
-OUTPUT_DIR = config.get_fig_path(
-    "3d", "whole_domain_pressure_two_levels_with_centers",
-    f"z{Z1}_z{Z2}_centers_{z_center_str}"
-)
+if SIGMA > 0:
+    OUTPUT_DIR = config.get_fig_path(
+        "3d", "whole_domain_pressure_two_levels_with_centers",
+        f"z{Z1}_z{Z2}_centers_{z_center_str}_smooth{SIGMA:.1f}"
+    )
+else:
+    OUTPUT_DIR = config.get_fig_path(
+        "3d", "whole_domain_pressure_two_levels_with_centers",
+        f"z{Z1}_z{Z2}_centers_{z_center_str}"
+    )
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")
@@ -63,32 +83,37 @@ def process_t(t):
     data1 = data_memmap[t, Z1, :, :].copy()
     data2 = data_memmap[t, Z2, :, :].copy()
 
-    plt.style.use(mpl_style_sheet)
-    fig, ax = plt.subplots(figsize=(7, 5.5))
+    # Smooth化を適用
+    if SIGMA > 0:
+        data1 = gaussian_filter(data1, sigma=SIGMA)
+        data2 = gaussian_filter(data2, sigma=SIGMA)
 
-    # 1つ目のZ面（線のcontour - 赤色）
-    levels1 = np.arange(90000, 105000, 1000)  # 圧力レベル [Pa]
-    cs1 = ax.contour(
+    plt.style.use(mpl_style_sheet)
+    fig, ax = plt.subplots(figsize=(7.5, 5.5))
+
+    # 下層（Z1）: 塗りつぶしcontour
+    levels1 = np.arange(900, 105000, 200)  # 圧力レベル [Pa]
+    cf = ax.contourf(
         X, Y, data1,
         levels=levels1,
-        colors='darkred',
-        linewidths=1.5,
-        linestyles='solid',
+        cmap='rainbow',
+        extend='both',
         alpha=0.7
     )
-    ax.clabel(cs1, inline=True, fontsize=8, fmt='%d')
 
-    # 2つ目のZ面（線のcontour - 青色）
-    levels2 = np.arange(90000, 105000, 1000)  # 圧力レベル [Pa]
+    # カラーバー
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="5%", pad=0.1)
+    fig.colorbar(cf, cax=cax, label=f'Pressure [Pa] @ z={vgrid[Z1] * 1e-3:.1f}km')
+
+    # 上層（Z2）: 線のcontour（levelsは自動）
     cs2 = ax.contour(
         X, Y, data2,
-        levels=levels2,
-        colors='darkblue',
+        colors='black',
         linewidths=1.5,
         linestyles='solid',
-        alpha=0.7
+        alpha=0.9
     )
-    ax.clabel(cs2, inline=True, fontsize=8, fmt='%d')
 
     # 5層の中心位置をプロット
     for i, z_center in enumerate(Z_CENTERS):
@@ -106,9 +131,11 @@ def process_t(t):
     # タイトル
     title = (
         f"Pressure | t={config.time_list[t]:3d}h | "
-        f"Red: z={vgrid[Z1] * 1e-3:.1f}km | "
-        f"Blue: z={vgrid[Z2] * 1e-3:.1f}km"
+        f"Filled: z={vgrid[Z1] * 1e-3:.1f}km | "
+        f"Contour: z={vgrid[Z2] * 1e-3:.1f}km"
     )
+    if SIGMA > 0:
+        title += f" | σ={SIGMA:.1f}"
     ax.set_title(title, fontsize=10)
 
     # 軸の設定
