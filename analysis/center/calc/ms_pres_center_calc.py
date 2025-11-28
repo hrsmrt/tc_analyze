@@ -134,8 +134,8 @@ def main():
     OUTPUT_DIR = config.get_data_path("center/ms_pres")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # Generate filename based on parameters
-    filename = f"center_rsearch{r_search * 1e-3:.0f}km_rrefine{r_refine * 1e-3:.0f}km.npz"
+    # Get filename from config (default: "center.npz")
+    filename = config.center_configs.get("ms_pres", "center.npz")
 
     np.savez(
         os.path.join(OUTPUT_DIR, filename),
@@ -155,6 +155,7 @@ def main():
     print(f"  r_search={r_search:.0f} m ({r_search * 1e-3:.1f} km)")
     print(f"  r_refine={r_refine:.0f} m ({r_refine * 1e-3:.1f} km), max_iterations=100")
     print(f"  Mean iterations: {np.mean(iterations_all):.1f}, Max: {np.max(iterations_all)}")
+    print(f"  Parameters are stored in the npz file metadata")
 
 
 def process_t(t, z, data_memmap, X, Y, config, ss_slp_center, r_search, r_refine):

@@ -72,8 +72,8 @@ def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     center = np.stack([x_c_evo, y_c_evo], axis=1)
 
-    # Generate filename based on parameters
-    filename = f"center_rrefine{r_refine * 1e-3:.0f}km.npz"
+    # Get filename from config (default: "center.npz")
+    filename = config.center_configs.get("ss_slp", "center.npz")
 
     np.savez(
         os.path.join(OUTPUT_DIR, filename),
@@ -87,6 +87,7 @@ def main():
     print(f"\nSaved center coordinates: {OUTPUT_DIR}/{filename} (shape: {center.shape})")
     print(f"  r_refine={r_refine:.0f} m ({r_refine * 1e-3:.1f} km), max_iterations=100")
     print(f"  Mean iterations: {np.mean(iterations):.1f}, Max: {np.max(iterations)}")
+    print(f"  Parameters are stored in the npz file metadata")
 
 
 def process_t(t, data_memmap, X, Y, config, r_refine):
