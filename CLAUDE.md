@@ -2,7 +2,7 @@
 
 このプロジェクトは修士課程の研究で使用している熱帯低気圧の解析コード群です。
 
-**プロジェクト規模**: 222ファイル、21,707行（Python）
+**プロジェクト規模**: 228ファイル、22,500+行（Python）
 
 ---
 
@@ -147,10 +147,16 @@ tc_analyze/
 │       ├── data.py                      # データ管理（list, info, stats）
 │       ├── config_cmd.py                # 設定管理（show, validate）
 │       └── center.py                    # 中心解析（plot）
-├── analysis/       # 解析スクリプト（170ファイル、13,484行）
+├── analysis/       # 解析スクリプト（174ファイル、14,100+行）
 │   ├── whole_domain/  # 領域全体（旧構造、2025-11-28に再編成）
 │   ├── vortex_region/ # 渦領域（旧構造、2025-11-28に再編成）
-│   ├── center/        # TC中心位置計算（9: ss_slp, ms_pres）
+│   ├── center/        # TC中心位置計算（13: ss_slp×3, ms_pres×3, 他7）
+│   │   ├── ss_slp/    # 海面気圧中心
+│   │   │   ├── calc/  # weighted.py, smoothed.py, ss_slp_center_calc.py
+│   │   │   └── plot/  # ss_slp_center_plot.py
+│   │   └── ms_pres/   # 3D圧力中心
+│   │       ├── calc/  # weighted.py, smoothed.py, ms_pres_center_calc.py
+│   │       └── plot/
 │   ├── azimuthal/     # 方位角解析（旧構造、2025-11-28に再編成）
 │   ├── vertical/      # 鉛直解析（旧構造、2025-11-28に再編成）
 │   └── diagnostics/   # 診断解析（旧構造、2025-11-28に再編成）
@@ -215,6 +221,21 @@ tc_analyze/
   - **相対風の正しい分類**
     - TC移動速度に依存する相対風を`tc_centric/`に分類
   - **詳細**: `DIRECTORY_REORGANIZATION_COMPLETE.md`、`WORK_LOG.md`を参照
+- ✅ **中心計算スクリプトのメソッド別分離**
+  - **ss_slp中心計算の分離**
+    - `analysis/center/ss_slp/calc/weighted.py` - weighted_centroid法専用
+    - `analysis/center/ss_slp/calc/smoothed.py` - smoothed_minimum法専用
+  - **ms_pres中心計算の分離**
+    - `analysis/center/ms_pres/calc/weighted.py` - weighted_centroid法専用
+    - `analysis/center/ms_pres/calc/smoothed.py` - smoothed_minimum法専用
+  - **center_configsの拡張** (`setting.json`)
+    - `ss_slp_weighted`, `ss_slp_smoothed` - ss_slp用の出力ファイル名
+    - `ms_pres_weighted`, `ms_pres_smoothed` - ms_pres用の出力ファイル名
+    - デフォルト: `weighted_center.npz`, `smoothed_center.npz`
+  - **run/analyze.shの更新**
+    - デフォルトで`weighted.py`を実行
+    - 他のメソッドはコメントで使用方法を明示
+  - **利点**: メソッドごとに独立して実行可能、パラメータ管理が明確化
 - ✅ **CLIツールの実装開始**（`tc-analyze`コマンド）
   - `tc_analyze/cli.py`: Typerベースのメインアプリケーション
   - データ管理コマンド: `data list`, `data info`, `data stats`
@@ -340,11 +361,11 @@ center_x = config.center_x[t, z]  # shape: (nt, nz)
 
 ## 📈 プロジェクト統計
 
-- **総Pythonファイル数**: 224ファイル
-- **総コード行数**: 21,900+行
+- **総Pythonファイル数**: 228ファイル
+- **総コード行数**: 22,500+行
 - **utils**: 15ファイル、2,900+行（vorticity.py追加）
-- **analysis**: 170ファイル、13,484行
-  - calc: 54ファイル（ss_slp_center, ms_pres_center含む）
+- **analysis**: 174ファイル、14,100+行
+  - calc: 58ファイル（center計算のメソッド別分離により増加）
   - plot: 82ファイル
   - その他: 34ファイル
 - **解析カテゴリ**: 7カテゴリ（whole_domain, vortex_region, azimuthal, vertical, center, diagnostics）
@@ -352,4 +373,4 @@ center_x = config.center_x[t, z]  # shape: (nt, nz)
 
 ---
 
-**最終更新**: 2025-11-28
+**最終更新**: 2025-11-29
