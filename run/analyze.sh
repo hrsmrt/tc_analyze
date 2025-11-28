@@ -334,8 +334,8 @@ fi
 
 run_center() {
     log_section "Center Analysis"
-    run_cmd "python ${TC_ANALYZE}/analysis/center/calc/ss_slp_center_calc.py"
-    run_cmd "python ${TC_ANALYZE}/analysis/center/plot/ss_slp_center_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/center/ss_slp/calc/ss_slp_center_calc.py"
+    run_cmd "python ${TC_ANALYZE}/analysis/center/ss_slp/plot/ss_slp_center_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/center/ss_slp_center_velocity.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/center/mass_all.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/center/mass_under20km.py ${STYLE}"

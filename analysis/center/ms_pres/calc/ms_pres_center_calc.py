@@ -5,11 +5,11 @@ Supports two methods:
 2. smoothed_minimum: Gaussian smoothing + minimum finding
 
 Usage:
-    python $WORK/tc_analyze/analysis/center/calc/ms_pres_center_calc.py
-    python $WORK/tc_analyze/analysis/center/calc/ms_pres_center_calc.py --z-first 0 --z-last 10
-    python $WORK/tc_analyze/analysis/center/calc/ms_pres_center_calc.py -zf 5 -zl 20 --r-search 300e3
-    python $WORK/tc_analyze/analysis/center/calc/ms_pres_center_calc.py --r-search 250e3 --r-refine 150e3
-    python $WORK/tc_analyze/analysis/center/calc/ms_pres_center_calc.py --method smoothed_minimum --r-smooth 500e3
+    python $WORK/tc_analyze/analysis/center/ms_pres/calc/ms_pres_center_calc.py
+    python $WORK/tc_analyze/analysis/center/ms_pres/calc/ms_pres_center_calc.py --z-first 0 --z-last 10
+    python $WORK/tc_analyze/analysis/center/ms_pres/calc/ms_pres_center_calc.py -zf 5 -zl 20 --r-search 300e3
+    python $WORK/tc_analyze/analysis/center/ms_pres/calc/ms_pres_center_calc.py --r-search 250e3 --r-refine 150e3
+    python $WORK/tc_analyze/analysis/center/ms_pres/calc/ms_pres_center_calc.py --method smoothed_minimum --r-smooth 500e3
 """
 
 import argparse

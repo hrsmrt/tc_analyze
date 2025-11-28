@@ -266,8 +266,8 @@ def load_center_coordinates(config, center_type):
         raise FileNotFoundError(
             f"Center file not found: {center_path}\n"
             f"Please run the corresponding center calculation script first:\n"
-            f"  - For ss_slp: python analysis/center/calc/ss_slp_center_calc.py\n"
-            f"  - For ms_pres: python analysis/center/calc/ms_pres_center_calc.py"
+            f"  - For ss_slp: python analysis/center/ss_slp/calc/ss_slp_center_calc.py\n"
+            f"  - For ms_pres: python analysis/center/ms_pres/calc/ms_pres_center_calc.py"
         )
 
     # Determine file format

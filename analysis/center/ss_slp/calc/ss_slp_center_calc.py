@@ -5,10 +5,10 @@ Supports two methods:
 2. smoothed_minimum: Gaussian smoothing + minimum finding
 
 Usage:
-    python $WORK/tc_analyze/analysis/center/calc/ss_slp_center_calc.py
-    python $WORK/tc_analyze/analysis/center/calc/ss_slp_center_calc.py --r-refine 150e3
-    python $WORK/tc_analyze/analysis/center/calc/ss_slp_center_calc.py --method smoothed_minimum
-    python $WORK/tc_analyze/analysis/center/calc/ss_slp_center_calc.py --method smoothed_minimum --r-smooth 500e3
+    python $WORK/tc_analyze/analysis/center/ss_slp/calc/ss_slp_center_calc.py
+    python $WORK/tc_analyze/analysis/center/ss_slp/calc/ss_slp_center_calc.py --r-refine 150e3
+    python $WORK/tc_analyze/analysis/center/ss_slp/calc/ss_slp_center_calc.py --method smoothed_minimum
+    python $WORK/tc_analyze/analysis/center/ss_slp/calc/ss_slp_center_calc.py --method smoothed_minimum --r-smooth 500e3
 """
 
 import argparse

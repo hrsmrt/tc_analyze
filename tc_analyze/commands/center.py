@@ -182,8 +182,8 @@ def inspect_center(
         if not os.path.exists(filepath):
             typer.secho(f"\n✗ File not found: {filepath}", fg=typer.colors.RED)
             typer.echo(f"  Please run center calculation first:")
-            typer.echo(f"    - For ss_slp: python analysis/center/calc/ss_slp_center_calc.py")
-            typer.echo(f"    - For ms_pres: python analysis/center/calc/ms_pres_center_calc.py")
+            typer.echo(f"    - For ss_slp: python analysis/center/ss_slp/calc/ss_slp_center_calc.py")
+            typer.echo(f"    - For ms_pres: python analysis/center/ms_pres/calc/ms_pres_center_calc.py")
             raise typer.Exit(1)
 
         # Load data

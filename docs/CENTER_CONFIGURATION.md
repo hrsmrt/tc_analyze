@@ -179,26 +179,26 @@ MS PRES中心計算時に、SS SLP中心からどれだけの範囲内で気圧�
 
 ```bash
 # デフォルトパラメータ（r_refine=100km）
-python analysis/center/calc/ss_slp_center_calc.py
+python analysis/center/ss_slp/calc/ss_slp_center_calc.py
 
 # r_refineを指定
-python analysis/center/calc/ss_slp_center_calc.py --r-refine 150e3
+python analysis/center/ss_slp/calc/ss_slp_center_calc.py --r-refine 150e3
 
 # メソッドを明示的に指定
-python analysis/center/calc/ss_slp_center_calc.py --method weighted_centroid
+python analysis/center/ss_slp/calc/ss_slp_center_calc.py --method weighted_centroid
 ```
 
 #### smoothed_minimum メソッド
 
 ```bash
 # デフォルトパラメータ（r_smooth=500km）
-python analysis/center/calc/ss_slp_center_calc.py --method smoothed_minimum
+python analysis/center/ss_slp/calc/ss_slp_center_calc.py --method smoothed_minimum
 
 # r_smoothを指定
-python analysis/center/calc/ss_slp_center_calc.py --method smoothed_minimum --r-smooth 600e3
+python analysis/center/ss_slp/calc/ss_slp_center_calc.py --method smoothed_minimum --r-smooth 600e3
 
 # 平滑化後に精密化
-python analysis/center/calc/ss_slp_center_calc.py --method smoothed_minimum --refine-after-smooth
+python analysis/center/ss_slp/calc/ss_slp_center_calc.py --method smoothed_minimum --refine-after-smooth
 ```
 
 **出力ファイル**: `data/center/ss_slp/[center_configs["ss_slp"]で指定したファイル名]`
@@ -209,26 +209,26 @@ python analysis/center/calc/ss_slp_center_calc.py --method smoothed_minimum --re
 
 ```bash
 # デフォルトパラメータ（r_search=200km, r_refine=100km）
-python analysis/center/calc/ms_pres_center_calc.py
+python analysis/center/ms_pres/calc/ms_pres_center_calc.py
 
 # パラメータを指定
-python analysis/center/calc/ms_pres_center_calc.py --r-search 250e3 --r-refine 150e3
+python analysis/center/ms_pres/calc/ms_pres_center_calc.py --r-search 250e3 --r-refine 150e3
 
 # z範囲を指定
-python analysis/center/calc/ms_pres_center_calc.py --z-first 0 --z-last 50 --r-search 200e3
+python analysis/center/ms_pres/calc/ms_pres_center_calc.py --z-first 0 --z-last 50 --r-search 200e3
 ```
 
 #### smoothed_minimum メソッド
 
 ```bash
 # デフォルトパラメータ（r_smooth=500km）
-python analysis/center/calc/ms_pres_center_calc.py --method smoothed_minimum
+python analysis/center/ms_pres/calc/ms_pres_center_calc.py --method smoothed_minimum
 
 # r_smoothを指定
-python analysis/center/calc/ms_pres_center_calc.py --method smoothed_minimum --r-smooth 600e3
+python analysis/center/ms_pres/calc/ms_pres_center_calc.py --method smoothed_minimum --r-smooth 600e3
 
 # 平滑化後に精密化
-python analysis/center/calc/ms_pres_center_calc.py --method smoothed_minimum --refine-after-smooth
+python analysis/center/ms_pres/calc/ms_pres_center_calc.py --method smoothed_minimum --refine-after-smooth
 ```
 
 **出力ファイル**: `data/center/ms_pres/[center_configs["ms_pres"]で指定したファイル名]`
@@ -395,7 +395,7 @@ FileNotFoundError: Center file not found: data/center/ss_slp/center.npz
 **解決方法:**
 ```bash
 # 中心座標を計算
-python analysis/center/calc/ss_slp_center_calc.py
+python analysis/center/ss_slp/calc/ss_slp_center_calc.py
 
 # または setting.json の center_configs を確認
 tc-analyze config show | grep center_configs
@@ -414,7 +414,7 @@ tc-analyze center inspect ss_slp
 **方法1: 同じファイルに上書き**
 ```bash
 # 新しいパラメータで計算（ファイルを上書き）
-python analysis/center/calc/ss_slp_center_calc.py --r-refine 150e3
+python analysis/center/ss_slp/calc/ss_slp_center_calc.py --r-refine 150e3
 ```
 
 **方法2: 別ファイルとして保存**
@@ -426,7 +426,7 @@ python analysis/center/calc/ss_slp_center_calc.py --r-refine 150e3
 ```
 ```bash
 # 新しいパラメータで計算（別ファイルとして保存）
-python analysis/center/calc/ss_slp_center_calc.py --r-refine 150e3
+python analysis/center/ss_slp/calc/ss_slp_center_calc.py --r-refine 150e3
 ```
 
 ### 古い.npyファイルを使いたい
@@ -507,8 +507,8 @@ cp data/center/ss_slp/center.npz.backup data/center/ss_slp/center.npz
 
 ### 関連スクリプト
 
-- `analysis/center/calc/ss_slp_center_calc.py` - SS SLP中心計算
-- `analysis/center/calc/ms_pres_center_calc.py` - MS PRES中心計算
+- `analysis/center/ss_slp/calc/ss_slp_center_calc.py` - SS SLP中心計算
+- `analysis/center/ms_pres/calc/ms_pres_center_calc.py` - MS PRES中心計算
 - `utils/center.py` - 中心座標読み込みユーティリティ
 - `tc_analyze/commands/center.py` - 中心座標CLIコマンド
 - `tc_analyze/commands/data.py` - データ管理CLIコマンド
