@@ -3,14 +3,16 @@
 import os
 import sys
 
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import ListedColormap
+from joblib import Parallel, delayed
 
 from utils.config import AnalysisConfig
 from utils.plotting import parse_style_argument
 
-# from joblib import Parallel, delayed
 VARNAME = sys.argv[1]
 mpl_style_sheet = parse_style_argument()
 
@@ -26,20 +28,23 @@ os.makedirs(DIR, exist_ok=True)
 
 y = np.arange(0, config.y_width, config.dy)
 
-data_all = np.memmap(
+# I/O最適化: memmapを使用
+data_memmap = np.memmap(
     f"{config.input_folder}{VARNAME}.grd",
     dtype=">f4",
     mode="r",
     shape=(config.nt, config.ny, config.nx),
 )
 
-for t in range(config.t_first, config.t_last + 1):
-    data = data_all[t].mean(axis=1)
+
+def process_t(t):
+    """時刻tのy平均データをプロットする"""
+    data = data_memmap[t].mean(axis=1)
 
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(2.5, 2))
     title = f"t = {config.time_list[t]}h"
-    c = ax.plot(y, data)
+    ax.plot(y, data)
     ax.set_title(title)
     ax.set_yticks(
         [
@@ -51,9 +56,12 @@ for t in range(config.t_first, config.t_last + 1):
         ],
         ["", "", "", "", ""],
     )
-    # ax.set_xlabel("x [km]")
-    # ax.set_ylabel("y [km]")
     fig.savefig(os.path.join(DIR, f"t{str(config.time_list[t]).zfill(4)}.png"))
     plt.close()
 
-# Parallel(n_jobs=config.n_jobs)(delayed(process_t)(t) for t in range(config.t_first, config.t_last + 1))
+
+# 並列処理で実行
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t)
+    for t in range(config.t_first, config.t_last + 1, config.t_step)
+)

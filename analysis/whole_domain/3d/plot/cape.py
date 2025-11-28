@@ -14,8 +14,11 @@ cape
 
 import os
 
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
+from joblib import Parallel, delayed
 
 from utils.basic import Cp, Lv, Rd, Rv, g, tetens
 from utils.config import AnalysisConfig
@@ -34,95 +37,120 @@ os.makedirs(OUT_DIR, exist_ok=True)
 os.makedirs(os.path.join(OUT_DIR, "parcel_T"), exist_ok=True)
 os.makedirs(os.path.join(OUT_DIR, "parcel_rho"), exist_ok=True)
 
-# 環境場
-T_env = np.zeros(config.nz)
-p_env = np.zeros(config.nz)
-rho_env = np.zeros(config.nz)
-rh_env = np.zeros(config.nz)
+# I/O最適化: memmapを使用
+ms_tem_memmap = np.memmap(
+    f"{config.input_folder}ms_tem.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+ms_pres_memmap = np.memmap(
+    f"{config.input_folder}ms_pres.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+ms_rho_memmap = np.memmap(
+    f"{config.input_folder}ms_rho.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+ms_rh_memmap = np.memmap(
+    f"{config.input_folder}ms_rh.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+
+
+def process_t(t):
+    """時刻tのCAPE計算とプロット生成を行い、CAPE値を返す"""
+    # データの読み込みと平均
+    T_env = ms_tem_memmap[t].mean(axis=(1, 2))  # (nz,)
+    p_env = ms_pres_memmap[t].mean(axis=(1, 2))  # (nz,)
+    ms_rho = ms_rho_memmap[t].mean(axis=(1, 2))  # (nz,)
+    rh_env = ms_rh_memmap[t].mean(axis=(1, 2))  # (nz,)
+
+    # パーセル温度の計算
+    T = calc_T(t, T_env[0], p_env, rh_env[0])
+    rho_env = p_env / Rd / T_env
+    rho = p_env / Rd / T
+
+    # CAPE計算
+    lfc = False
+    cape = 0
+    for z in range(1, config.nz):
+        b = (
+            (rho[z] + rho[z - 1] - rho_env[z] - rho_env[z - 1])
+            / (rho_env[z] + rho_env[z - 1])
+            * g
+        )
+        if lfc == False and rho[z] < rho_env[z]:
+            lfc = True
+        if lfc and rho[z] > rho_env[z]:
+            break
+        cape -= b * (vgrid[z] - vgrid[z - 1])
+
+    # Temperature plot
+    plt.style.use(mpl_style_sheet)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(T_env, vgrid * 1e-3, label="Environment")
+    ax.plot(T, vgrid * 1e-3, label="Percel")
+    ax.set_ylabel("z [km]")
+    ax.set_xlabel("Temperature [K]")
+    ax.set_title(f"t={config.time_list[t]} hour, CAPE={cape:.1f} J/kg")
+    ax.grid()
+    ax.legend()
+    fig.savefig(os.path.join(OUT_DIR, f"parcel_T/t{config.time_list[t]:04d}h.png"))
+    plt.close()
+
+    # Density plot
+    plt.style.use(mpl_style_sheet)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(rho_env - ms_rho, vgrid * 1e-3, label="Environment(rho_env-ms_rho)")
+    ax.plot(rho - ms_rho, vgrid * 1e-3, label="Percel-ms_rho")
+    ax.set_ylabel("z [km]")
+    ax.set_xlabel("Density [kg/m^3]")
+    ax.set_title(f"t={config.time_list[t]} hour")
+    ax.grid()
+    ax.legend()
+    fig.savefig(os.path.join(OUT_DIR, f"parcel_rho/t{config.time_list[t]:04d}h.png"))
+    plt.close()
+
+    return t, cape
 
 
 def main():
+    """並列処理でCAPE計算を実行"""
+    # 並列処理で各時刻のCAPEを計算
+    results = Parallel(n_jobs=config.n_jobs)(
+        delayed(process_t)(t)
+        for t in range(config.t_first, config.t_last + 1, config.t_step)
+    )
+
+    # 結果を集約（時刻順にソート）
+    results.sort(key=lambda x: x[0])
     cape_evol = np.zeros(config.nt)
-    for t in range(config.t_first, config.t_last + 1):
-        count = config.nx * config.ny * config.nz
-        offset = count * t * 4
-        data = np.fromfile(
-            f"{config.input_folder}ms_tem.grd", dtype=">f4", count=count, offset=offset
-        )
-        data = data.reshape(config.nz, config.ny, config.nx).T
-        T_env = data.mean(axis=(0, 1))
-        data = np.fromfile(
-            f"{config.input_folder}ms_pres.grd", dtype=">f4", count=count, offset=offset
-        )
-        data = data.reshape(config.nz, config.ny, config.nx).T
-        p_env = data.mean(axis=(0, 1))
-        data = np.fromfile(
-            f"{config.input_folder}ms_rho.grd", dtype=">f4", count=count, offset=offset
-        )
-        data = data.reshape(config.nz, config.ny, config.nx).T
-        ms_rho = data.mean(axis=(0, 1))
-        data = np.fromfile(
-            f"{config.input_folder}ms_rh.grd", dtype=">f4", count=count, offset=offset
-        )
-        data = data.reshape(config.nz, config.ny, config.nx).T
-        rh_env = data.mean(axis=(0, 1))
-        T = calc_T(t, T_env[0], p_env, rh_env[0])
-        rho_env = p_env / Rd / T_env
-        rho = p_env / Rd / T
-        lfc = False
-        cape = 0
-        for z in range(1, config.nz):
-            b = (
-                (rho[z] + rho[z - 1] - rho_env[z] - rho_env[z - 1])
-                / (rho_env[z] + rho_env[z - 1])
-                * g
-            )
-            print(z, vgrid[z], b, rho[z], rho_env[z])
-            if lfc == False and rho[z] < rho_env[z]:
-                lfc = True
-            if lfc and rho[z] > rho_env[z]:
-                break
-            cape -= b * (vgrid[z] - vgrid[z - 1])
+    for t, cape in results:
         cape_evol[t] = cape
-        print(f" CAPE: {cape:.4f} J/kg")
+        print(f"t={config.time_list[t]:3d}h: CAPE={cape:.1f} J/kg")
 
-        # Temperature
-        plt.style.use(mpl_style_sheet)
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(T_env, vgrid * 1e-3, label="Environment")
-        ax.plot(T, vgrid * 1e-3, label="Percel")
-        ax.set_ylabel("z [km]")
-        ax.set_xlabel("Temperature [K]")
-        ax.set_title(f"t={config.time_list[t]} hour")
-        ax.grid()
-        ax.legend()
-        fig.savefig(os.path.join(OUT_DIR, f"parcel_T/t{config.time_list[t]:04d}h.png"))
-        plt.close()
-
-        # Density
-        plt.style.use(mpl_style_sheet)
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(rho_env - ms_rho, vgrid * 1e-3, label="Environment(rho_env-ms_rho)")
-        ax.plot(rho - ms_rho, vgrid * 1e-3, label="Percel-ms_rho")
-        ax.set_ylabel("z [km]")
-        ax.set_xlabel("Density [kg/m^3]")
-        ax.set_title(f"t={config.time_list[t]} hour")
-        ax.grid()
-        ax.legend()
-        fig.savefig(
-            os.path.join(OUT_DIR, f"parcel_rho/t{config.time_list[t]:04d}h.png")
-        )
-        plt.close()
-
+    # CAPE時系列プロット
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(config.time_list, cape_evol)
+    time_values = [config.time_list[t] for t, _ in results]
+    cape_values = [cape for _, cape in results]
+    ax.plot(time_values, cape_values, 'o-', linewidth=2, markersize=6)
     ax.set_ylim([0, 5000])
-    ax.set_title("CAPE")
-    ax.set_xlabel("Time [hour]")
-    ax.set_ylabel("CAPE [J/kg]")
-    fig.savefig(os.path.join(OUT_DIR, "cape.png"))
+    ax.set_title("CAPE Evolution", fontsize=14, fontweight='bold')
+    ax.set_xlabel("Time [hour]", fontsize=12)
+    ax.set_ylabel("CAPE [J/kg]", fontsize=12)
+    ax.grid(True, alpha=0.3)
+    fig.savefig(os.path.join(OUT_DIR, "cape.png"), dpi=150, bbox_inches='tight')
     plt.close()
+
+    print(f"\n✅ 完了: {OUT_DIR}")
 
 
 def calc_T(t, T_zb, p_env, rh_zb):

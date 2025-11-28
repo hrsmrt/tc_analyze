@@ -7,9 +7,12 @@
 import os
 import sys
 
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from joblib import Parallel, delayed
 
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
@@ -34,8 +37,8 @@ custom_rainbow = create_custom_colormap("rainbow", 3)
 OUTPUT_DIR = config.get_fig_path("2d", "whole_domain", VARNAME)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# データの読み込み
-data_all = np.memmap(
+# I/O最適化: memmapを使用
+data_memmap = np.memmap(
     f"{config.input_folder}{VARNAME}.grd",
     dtype=">f4",
     mode="r",
@@ -120,9 +123,10 @@ for var, cfg in additional_configs.items():
             cfg.get("data_transform"),
         )
 
-# 各時刻のデータをプロット
-for t in range(config.t_first, config.t_last + 1):
-    data = data_all[t]
+
+def process_t(t):
+    """時刻tのデータをプロットする"""
+    data = data_memmap[t]
 
     # スタイル適用
     if mpl_style_sheet:
@@ -157,4 +161,11 @@ for t in range(config.t_first, config.t_last + 1):
     fig.savefig(os.path.join(OUTPUT_DIR, f"t{str(config.time_list[t]).zfill(4)}.png"))
     plt.close()
 
-print(f"プロット完了: {OUTPUT_DIR}")
+
+# 並列処理で実行
+Parallel(n_jobs=config.n_jobs)(
+    delayed(process_t)(t)
+    for t in range(config.t_first, config.t_last + 1, config.t_step)
+)
+
+print(f"✅ プロット完了: {OUTPUT_DIR}")
