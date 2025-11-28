@@ -87,6 +87,8 @@ pip install -e .
   "_comment_center_configs": "中心座標ファイル名の設定（異なるパラメータで複数管理する場合に変更）",
   "center_configs": {
     "ss_slp": "center.npz",
+    "ss_slp_weighted": "weighted_center.npz",
+    "ss_slp_smoothed": "smoothed_center.npz",
     "ms_pres": "center.npz",
     "ms_pres_weighted": "weighted_center.npz",
     "ms_pres_smoothed": "smoothed_center.npz"
@@ -122,7 +124,7 @@ pip install -e .
 | `fig_dir` | 図出力ディレクトリ | `"./fig"` |
 | **TC中心検出設定** |
 | `center_method` | 中心検出方法（`weighted_centroid` または `smoothed_minimum`） | `"weighted_centroid"` |
-| `center_configs` | 中心座標ファイル名の設定（ss_slp, ms_pres, ms_pres_weighted, ms_pres_smoothed） | `{"ss_slp": "center.npz"}` |
+| `center_configs` | 中心座標ファイル名の設定（ss_slp, ss_slp_weighted, ss_slp_smoothed, ms_pres, ms_pres_weighted, ms_pres_smoothed） | `{"ss_slp": "center.npz"}` |
 
 **注意**:
 - グリッドサイズは自動計算されます: `nx = ny = 2^glevel`（例: glevel=7 → 128×128）
