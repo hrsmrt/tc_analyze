@@ -23,6 +23,8 @@
     "_comment_center_configs": "中心座標ファイル名の設定（異なるパラメータで複数管理する場合に変更）",
     "center_configs": {
         "ss_slp": "center.npz",
-        "ms_pres": "center.npz"
+        "ms_pres": "center.npz",
+        "ms_pres_weighted": "weighted_center.npz",
+        "ms_pres_smoothed": "smoothed_center.npz"
     }
 }
