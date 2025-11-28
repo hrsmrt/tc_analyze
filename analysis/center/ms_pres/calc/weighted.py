@@ -224,14 +224,29 @@ def load_ss_slp_center(config):
     """
     center_dir = config.get_center_path("ss_slp")
 
-    # Try to load .npz file first
+    # Try multiple possible filenames from center_configs
+    possible_keys = ["ss_slp_weighted", "ss_slp", "ss_slp_smoothed"]
+    for key in possible_keys:
+        filename = config.center_configs.get(key)
+        if filename:
+            # Try .npz file
+            file_path = os.path.join(center_dir, filename)
+            if os.path.exists(file_path):
+                if filename.endswith('.npz'):
+                    data = np.load(file_path)
+                    center = data["center"]  # shape: (nt, 2)
+                    return center
+                elif filename.endswith('.npy'):
+                    center = np.load(file_path)  # shape: (nt, 2)
+                    return center
+
+    # Try default filenames
     npz_path = os.path.join(center_dir, "center.npz")
     if os.path.exists(npz_path):
         data = np.load(npz_path)
         center = data["center"]  # shape: (nt, 2)
         return center
 
-    # Try .npy file
     npy_path = os.path.join(center_dir, "center.npy")
     if os.path.exists(npy_path):
         center = np.load(npy_path)  # shape: (nt, 2)
@@ -247,7 +262,7 @@ def load_ss_slp_center(config):
 
     raise FileNotFoundError(
         f"SS SLP center data not found in {center_dir}. "
-        "Please run ss_slp_center_calc.py first."
+        "Please run ss_slp center calculation (weighted.py or smoothed.py) first."
     )
 
 
