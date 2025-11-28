@@ -114,21 +114,60 @@ tc-analyze --help
 
 ### 解析カテゴリ
 
-| カテゴリ | ファイル数 | 説明 |
-|---------|-----------|------|
-| **center** | 8 | TC中心位置の自動検出、中心速度の計算 |
-| **whole_domain/3d** | 19 | 3次元全領域解析（CAPE、渦度、発散など）**中心位置非依存** |
-| **whole_domain/2d** | 12 | 2次元全領域解析（SLP、風速最大値など）**中心位置非依存** |
-| **vortex_region/3d** | 18 | 3次元渦領域解析（相対風、動力学量など）**中心位置依存** |
-| **vortex_region/2d** | 7 | 2次元渦領域解析（相対風成分など）**中心位置依存** |
-| **azimuthal/basic** | 56 | 基本的な方位角平均（風速、温位、ストリーム関数など） |
-| **azimuthal/eliassen** | 16 | Eliassen循環解析（N², I², γ, ξなど） |
+解析は3つの主要カテゴリに分類され、明確なディレクトリ構造で管理されています：
+
+#### 1. **domain/** - 中心非依存データ
+TC中心位置に依存しない全領域解析
+
+| サブカテゴリ | ファイル数 | 説明 |
+|------------|-----------|------|
+| **whole_domain/3d** | 19 | 3次元全領域解析（CAPE、渦度、発散など） |
+| **whole_domain/2d** | 12 | 2次元全領域解析（SLP、風速最大値など） |
+| **vertical/profile** | 4 | 鉛直プロファイル（全領域平均） |
+
+#### 2. **center/** - 中心座標データ
+TC中心座標そのもの
+
+| サブカテゴリ | ファイル数 | 説明 |
+|------------|-----------|------|
+| **ss_slp** | 4 | 海面気圧最小値による中心検出 |
+| **ms_pres** | 4 | 3次元圧力場による中心検出 |
+
+#### 3. **tc_centric/** - TC相対座標系データ
+TC中心を基準とした相対座標系の解析（中心依存）
+
+| サブカテゴリ | ファイル数 | 説明 |
+|------------|-----------|------|
+| **azimuthal/basic** | 56 | 基本的な方位角平均（風速、温位等） |
+| **azimuthal/eliassen** | 16 | Eliassen循環解析（N², I², γ, ξ等） |
 | **azimuthal/momentum** | 22 | 運動量方程式解析（u, w成分） |
 | **azimuthal/q8** | 5 | 8方位分割解析 |
-| **vertical/profile** | 4 | 鉛直プロファイルの抽出 |
+| **vortex_region/3d** | 18 | 3次元渦領域（**相対風含む**） |
+| **vortex_region/2d** | 7 | 2次元渦領域 |
+| **vertical/profile_vortex** | 2 | 鉛直プロファイル（渦領域平均） |
 | **vertical/q4** | 4 | 4象限分割解析 |
-| **diagnostics/sums** | 4 | 積算値の計算 |
 | **diagnostics/symmetrisity** | 4 | 対称性解析 |
+| **diagnostics/sums** | 4 | 積算値の計算 |
+
+### 新しいパスメソッド
+
+`utils/config.py`で提供される新しいパス生成メソッド：
+
+```python
+from utils.config import AnalysisConfig
+
+config = AnalysisConfig()
+
+# 中心非依存データ（全領域解析）
+path = config.get_domain_path("whole_domain", "3d/vorticity_z")
+
+# 中心座標
+path = config.get_center_path("ss_slp")
+
+# TC相対座標系データ（中心依存）
+path = config.get_tc_centric_path("azimuthal", "basic/wind")
+path = config.get_tc_centric_path("vortex_region", "3d/ms_wind_relative_radial")  # 相対風
+```
 
 ### データフロー
 
@@ -275,7 +314,7 @@ tc-analyze center --help
 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | **アーキテクチャ設計書** - システム構成、データフロー、モジュール設計、拡張ガイド |
 | [docs/CENTER_CONFIGURATION.md](./docs/CENTER_CONFIGURATION.md) | **中心座標設定ガイド** - TC中心座標の計算、設定、読み込み、メタデータ管理 |
 | [docs/UTILS_PHYSICS_REFERENCE.md](./docs/UTILS_PHYSICS_REFERENCE.md) | **物理計算リファレンス** - utils内の物理定数、熱力学計算、風速場計算など |
-| [docs/WORK_LOG.md](./docs/WORK_LOG.md) | **作業履歴とコーディング規約** - 確立されたコーディングパターン、既知の問題と解決策 |
+| [WORK_LOG.md](./WORK_LOG.md) | **作業履歴とコーディング規約** - 確立されたコーディングパターン、既知の問題と解決策 |
 
 ### 初めての方へ
 
@@ -283,7 +322,7 @@ tc-analyze center --help
 2. **コマンド実行**: [docs/COMMAND_REFERENCE.md](./docs/COMMAND_REFERENCE.md)
 3. **物理計算の理解**: [docs/UTILS_PHYSICS_REFERENCE.md](./docs/UTILS_PHYSICS_REFERENCE.md)
 4. **コード修正・追加**: [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)の拡張ガイド
-5. **コーディング規約**: [docs/WORK_LOG.md](./docs/WORK_LOG.md)の確立されたコーディングパターン
+5. **コーディング規約**: [WORK_LOG.md](./WORK_LOG.md)の確立されたコーディングパターン
 
 ### utilsモジュールの概要
 

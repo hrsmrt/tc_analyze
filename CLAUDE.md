@@ -29,9 +29,10 @@
    - 風速場計算、方位角平均、流線関数など
 
 5. **作業履歴とコーディング規約**
-   @./docs/WORK_LOG.md
+   @./WORK_LOG.md
    - 確立されたコーディングパターン
    - グリッド生成、ビニング方法の統一
+   - ディレクトリ構造とパス生成
 
 ### 補足ドキュメント
 
@@ -63,7 +64,7 @@ sh $WORK/tc_analyze/run/analyze.sh center 3d azim
 sh $WORK/tc_analyze/run/analyze.sh --list
 ```
 
-### utilsモジュール（14ファイル、2,800+行）
+### utilsモジュール（15ファイル、2,900+行）
 ```python
 from utils.config import AnalysisConfig      # 設定管理（中心座標読み込み含む）
 from utils.grid import GridHandler           # グリッド計算
@@ -74,6 +75,7 @@ from utils.thermodynamics import calculate_theta_e  # 相当温位
 from utils.wind import calculate_relative_wind      # 相対風
 from utils.azimuthal import calculate_azimuthal_mean_3d  # 方位角平均
 from utils.streamfunction import solve_poisson_jacobi    # 流線関数
+from utils.vorticity import calculate_vorticity_z        # 渦度計算（NEW! 2025-11-28）
 from utils.metadata import read_data_metadata, get_data_statistics  # メタデータ読み込み
 ```
 
@@ -93,6 +95,30 @@ tc-analyze center plot --method ss_slp --config run/setting.json
 tc-analyze center plot --method ms_pres --z-level 10 --config run/setting.json
 ```
 
+### 新しいパスメソッド（2025-11-28導入）
+データ/図の出力パスを3つのカテゴリに明確に分類：
+```python
+from utils.config import AnalysisConfig
+config = AnalysisConfig()
+
+# 1. 中心非依存データ（全領域解析、領域平均）
+path = config.get_domain_path("whole_domain", "3d/vorticity_z")
+path = config.get_domain_path("vertical", "profile")
+
+# 2. 中心座標データ
+path = config.get_center_path("ss_slp")
+path = config.get_center_path("ms_pres")
+
+# 3. TC相対座標系データ（中心依存）
+path = config.get_tc_centric_path("azimuthal", "basic/wind")
+path = config.get_tc_centric_path("vortex_region", "3d/ms_wind_relative_radial")  # 相対風
+path = config.get_tc_centric_path("vertical", "q4/zeta")
+path = config.get_tc_centric_path("diagnostics", "symmetrisity")
+
+# data_type="fig" で図の出力パス
+path = config.get_domain_path("whole_domain", "2d/slp", data_type="fig")
+```
+
 ### 物理定数の命名規則（2025-11-27統一）
 - **普遍定数**: `K_B`, `N_A` (大文字+アンダースコア)
 - **物理記号**: `Cp`, `Rd`, `Rv`, `Lv`, `g` (教科書表記)
@@ -101,12 +127,13 @@ tc-analyze center plot --method ms_pres --z-level 10 --config run/setting.json
 ### ディレクトリ構成
 ```
 tc_analyze/
-├── utils/          # 共通モジュール（14ファイル、2,800+行）
+├── utils/          # 共通モジュール（15ファイル、2,900+行）
 │   ├── config.py, grid.py, plotting.py  # コア機能
 │   ├── center.py                        # 中心検出アルゴリズム
 │   ├── basic.py, thermodynamics.py      # 物理定数・計算
 │   ├── wind.py, azimuthal.py            # 風速・方位角平均
 │   ├── streamfunction.py                # 流線関数
+│   ├── vorticity.py                     # 渦度計算（NEW! 2025-11-28）
 │   └── metadata.py                      # メタデータ読み込み（.npz/.npy）
 ├── tc_analyze/     # CLIツール（6ファイル）
 │   ├── cli.py                           # メインCLIアプリケーション
@@ -115,15 +142,25 @@ tc_analyze/
 │       ├── config_cmd.py                # 設定管理（show, validate）
 │       └── center.py                    # 中心解析（plot）
 ├── analysis/       # 解析スクリプト（170ファイル、13,484行）
-│   ├── whole_domain/  # 領域全体（31、中心位置非依存: 3d: 19, 2d: 12）
-│   ├── vortex_region/ # 渦領域（25、中心位置依存: 3d: 18, 2d: 7）
-│   ├── azimuthal/ # 方位角解析（basic: 56, eliassen: 16, momentum: 22, q8: 5）
-│   ├── vertical/  # 鉛直解析（profile: 4, q4: 4）
-│   ├── center/    # TC中心位置計算（9: ss_slp, ms_pres, utils/center使用）
-│   └── diagnostics/ # 診断解析（sums: 4, symmetrisity: 4）
+│   ├── whole_domain/  # 領域全体（旧構造、2025-11-28に再編成）
+│   ├── vortex_region/ # 渦領域（旧構造、2025-11-28に再編成）
+│   ├── center/        # TC中心位置計算（9: ss_slp, ms_pres）
+│   ├── azimuthal/     # 方位角解析（旧構造、2025-11-28に再編成）
+│   ├── vertical/      # 鉛直解析（旧構造、2025-11-28に再編成）
+│   └── diagnostics/   # 診断解析（旧構造、2025-11-28に再編成）
+├── data/           # データ出力（2025-11-28に3カテゴリに再編成）
+│   ├── domain/        # 中心非依存データ（全領域解析、鉛直プロファイル）
+│   ├── center/        # 中心座標データ（ss_slp, ms_pres）
+│   └── tc_centric/    # TC相対座標系データ（方位角平均、渦領域等）
+├── fig/            # 図出力（2025-11-28に3カテゴリに再編成）
+│   ├── domain/        # 中心非依存データの図
+│   ├── center/        # 中心座標データの図
+│   └── tc_centric/    # TC相対座標系データの図
 ├── docs/           # ドキュメント
-│   ├── COMMAND_REFERENCE.md, ARCHITECTURE.md, WORK_LOG.md
-│   └── UTILS_PHYSICS_REFERENCE.md  # 物理計算リファレンス
+│   ├── COMMAND_REFERENCE.md, ARCHITECTURE.md
+│   ├── WORK_LOG.md  # 作業履歴とコーディング規約
+│   ├── UTILS_PHYSICS_REFERENCE.md  # 物理計算リファレンス
+│   └── DIRECTORY_REORGANIZATION_COMPLETE.md  # ディレクトリ再編成完了報告
 ├── run/            # 実行スクリプト（analyze.sh）
 ├── script/         # 設定ファイル（setting.json）
 └── archive/        # アーカイブ
@@ -138,6 +175,8 @@ tc_analyze/
 - **物理定数**: `utils.basic`から必ずインポート（Cp, Rd, Rv, Lv, g, PRES_S）
 - **グリッド計算**: `GridHandler`を使用（直接計算しない）
 - **方位角平均**: `utils.azimuthal`の関数を使用（ビニング方法統一済み）
+- **渦度計算**: `utils.vorticity.calculate_vorticity_z()`を使用（重複コード削減）
+- **パス生成**: 新しいパスメソッドを使用（`get_domain_path`, `get_center_path`, `get_tc_centric_path`）
 - **設定管理**: `AnalysisConfig`を使用（setting.json直接読み込み禁止）
 - **中心座標**: `config.center_x`, `config.center_y`を使用（2d: nt, 3d: nt×nz）
 - **中心検出**: `utils.center.find_pressure_center()`を使用（アルゴリズム統一済み）
@@ -152,6 +191,24 @@ tc_analyze/
 ### 最近の主要変更
 
 #### 2025-11-28
+- ✅ **ディレクトリ再編成の完了**（全170ファイルマイグレーション）
+  - **3つのカテゴリへの明確な分類**: data/とfig/を3カテゴリに整理
+    - `domain/` - 中心非依存データ（全領域解析、鉛直プロファイル）
+    - `center/` - 中心座標データ（ss_slp, ms_pres）
+    - `tc_centric/` - TC相対座標系データ（方位角平均、渦領域、診断解析）
+  - **新しいパスメソッドの追加** (`utils/config.py`)
+    - `get_domain_path()` - 中心非依存データのパス生成
+    - `get_center_path()` - 中心座標データのパス生成
+    - `get_tc_centric_path()` - TC相対座標系データのパス生成
+  - **渦度計算の共通化** (`utils/vorticity.py`新規作成)
+    - `calculate_vorticity_z()` - z方向渦度計算
+    - 重複コード52行削減、オンデマンド計算でストレージ節約
+  - **流線関数プロットのオンデマンド化**
+    - u/v → 渦度 → 流線関数を全て実行時計算
+    - 数GB〜数百GBのストレージ節約
+  - **相対風の正しい分類**
+    - TC移動速度に依存する相対風を`tc_centric/`に分類
+  - **詳細**: `DIRECTORY_REORGANIZATION_COMPLETE.md`、`WORK_LOG.md`を参照
 - ✅ **CLIツールの実装開始**（`tc-analyze`コマンド）
   - `tc_analyze/cli.py`: Typerベースのメインアプリケーション
   - データ管理コマンド: `data list`, `data info`, `data stats`
@@ -266,22 +323,25 @@ center_x = config.center_x[t, z]  # shape: (nt, nz)
 | **中心座標を指定したい** | このページの「中心座標の柔軟な読み込み機能」セクション |
 | **TC中心を検出したい** | `utils.center.find_pressure_center()` を使用 |
 | **新しい解析を追加したい** | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) の拡張ガイド |
-| **コーディング規約を確認したい** | [docs/WORK_LOG.md](./docs/WORK_LOG.md) の確立されたコーディングパターン |
+| **コーディング規約を確認したい** | [WORK_LOG.md](./WORK_LOG.md) の確立されたコーディングパターン |
 | **エラーが発生した** | [docs/COMMAND_REFERENCE.md](./docs/COMMAND_REFERENCE.md) のトラブルシューティング |
 | **データフローを理解したい** | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) のデータフロー |
-| **グリッド計算を使いたい** | [docs/WORK_LOG.md](./docs/WORK_LOG.md) のグリッド生成の統一化 |
+| **グリッド計算を使いたい** | [WORK_LOG.md](./WORK_LOG.md) のグリッド生成の統一化 |
 | **方位角平均を計算したい** | [docs/UTILS_PHYSICS_REFERENCE.md](./docs/UTILS_PHYSICS_REFERENCE.md) の方位角平均計算 |
+| **ディレクトリ構造を理解したい** | [DIRECTORY_REORGANIZATION_COMPLETE.md](./DIRECTORY_REORGANIZATION_COMPLETE.md) 参照 |
+| **新しいパスメソッドを使いたい** | このページの「新しいパスメソッド」セクション |
 
 ## 📈 プロジェクト統計
 
-- **総Pythonファイル数**: 223ファイル
-- **総コード行数**: 21,842行
-- **utils**: 13ファイル、2,679行
+- **総Pythonファイル数**: 224ファイル
+- **総コード行数**: 21,900+行
+- **utils**: 15ファイル、2,900+行（vorticity.py追加）
 - **analysis**: 170ファイル、13,484行
   - calc: 54ファイル（ss_slp_center, ms_pres_center含む）
   - plot: 82ファイル
   - その他: 34ファイル
 - **解析カテゴリ**: 7カテゴリ（whole_domain, vortex_region, azimuthal, vertical, center, diagnostics）
+- **データ出力構造**: 3カテゴリ（domain, center, tc_centric）
 
 ---
 
