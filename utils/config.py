@@ -297,6 +297,18 @@ class AnalysisConfig:
         }
         return self._data.get("center_configs", default_configs)
 
+    @property
+    def center_method(self) -> str:
+        """
+        中心特定方法の設定
+
+        Returns:
+            str: 中心特定方法
+                 - "weighted_centroid": 重み付き重心法（デフォルト）
+                 - "smoothed_minimum": 平滑化後の極小点法
+        """
+        return self._data.get("center_method", "weighted_centroid")
+
     # === 計算された設定値 ===
 
     @property

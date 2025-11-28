@@ -1,12 +1,15 @@
 """Utility functions for finding tropical cyclone centers from pressure fields.
 
-This module provides functions to locate low pressure centers using
-weighted centroid method with iterative refinement, and to load center
-coordinates from files.
+This module provides functions to locate low pressure centers using:
+1. Weighted centroid method with iterative refinement
+2. Smoothed minimum method using Gaussian filtering
+
+It also provides functions to load center coordinates from files.
 """
 
 import os
 import numpy as np
+from scipy.ndimage import gaussian_filter
 
 
 def find_pressure_center(
@@ -113,6 +116,70 @@ def _iteration_step(X, Y, data, x_c, y_c, r_refine, data_max, config):
     y_c_new = y_c_new % config.y_width  # Periodic boundary in y
 
     return x_c_new, y_c_new
+
+
+def find_pressure_center_smoothed(
+    X, Y, data_2d, config, r_smooth=500e3, refine=False, r_refine=100e3,
+    max_iterations=100, verbose=False
+):
+    """Find the center of low pressure using smoothed minimum method.
+
+    This function smooths the pressure field using a Gaussian filter with
+    radius r_smooth, then finds the minimum of the smoothed field as the
+    center position. Optionally, it can further refine the position using
+    the weighted centroid method.
+
+    Args:
+        X: 2D meshgrid of x-coordinates (m)
+        Y: 2D meshgrid of y-coordinates (m)
+        data_2d: 2D pressure field (Pa)
+        config: AnalysisConfig instance
+        r_smooth: Smoothing radius for Gaussian filter (m), default 500 km
+        refine: If True, further refine using weighted centroid method
+        r_refine: Refinement radius for weighted centroid (m), used only if refine=True
+        max_iterations: Maximum iterations for refinement, used only if refine=True
+        verbose: If True, print details
+
+    Returns:
+        Tuple of (x_center, y_center, num_iterations) in meters and count
+        If refine=False, num_iterations is always 0
+    """
+    # Calculate sigma for Gaussian filter (in grid cells)
+    # Using sigma ≈ r_smooth / (2.355 * dx) for FWHM ≈ r_smooth
+    # Simplified to sigma = r_smooth / (3 * dx) for effective smoothing
+    sigma_x = r_smooth / (3.0 * config.dx)
+    sigma_y = r_smooth / (3.0 * config.dy)
+
+    if verbose:
+        print(f"  Smoothing with r_smooth={r_smooth*1e-3:.1f} km")
+        print(f"  Gaussian sigma: ({sigma_x:.1f}, {sigma_y:.1f}) grid cells")
+
+    # Apply Gaussian smoothing
+    data_smoothed = gaussian_filter(data_2d, sigma=(sigma_y, sigma_x), mode='wrap')
+
+    # Find minimum of smoothed field
+    iy, ix = np.unravel_index(np.argmin(data_smoothed, axis=None), data_smoothed.shape)
+    x_c = ix * config.dx + config.dx * 0.5
+    y_c = iy * config.dy + config.dy * 0.5
+
+    if verbose:
+        print(f"  Smoothed minimum at: x={x_c*1e-3:.1f} km, y={y_c*1e-3:.1f} km")
+
+    # Optional refinement using weighted centroid method
+    num_iterations = 0
+    if refine:
+        if verbose:
+            print(f"  Refining with weighted centroid (r_refine={r_refine*1e-3:.1f} km)...")
+        x_c, y_c, num_iterations = find_pressure_center(
+            X, Y, data_2d, config,
+            r_refine=r_refine,
+            max_iterations=max_iterations,
+            verbose=verbose,
+            x_init=x_c,
+            y_init=y_c
+        )
+
+    return x_c, y_c, num_iterations
 
 
 def create_coordinate_meshgrid(config):

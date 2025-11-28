@@ -227,12 +227,17 @@ def inspect_center(
                 value = data[key]
 
                 # Format specific keys
-                if key in ["r_refine", "r_search"]:
+                if key == "method":
+                    # Display method prominently
+                    typer.echo(f"  {key:30s}: {value}")
+                elif key in ["r_refine", "r_search", "r_smooth"]:
                     if isinstance(value, (int, float, np.number)):
                         km_value = value / 1e3
                     else:
                         km_value = value.item() / 1e3
                     typer.echo(f"  {key:30s}: {value:.0f} m ({km_value:.1f} km)")
+                elif key == "refine_after_smooth":
+                    typer.echo(f"  {key:30s}: {value}")
                 elif key == "actual_iterations":
                     if isinstance(value, np.ndarray):
                         typer.echo(f"  {key:30s}: mean={value.mean():.2f}, max={value.max()}")

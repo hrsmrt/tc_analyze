@@ -3,6 +3,7 @@
 ## 📋 目次
 - [環境セットアップ](#環境セットアップ)
 - [よく使うコマンド](#よく使うコマンド)
+- [CLIツール（tc-analyze）](#cliツールtc-analyze)
 - [解析実行](#解析実行)
 - [カテゴリ一覧](#カテゴリ一覧)
 - [トラブルシューティング](#トラブルシューティング)
@@ -106,6 +107,194 @@ tail -f ./logs/run01_stderr.log
 
 # または環境変数で制御（開発中）
 ```
+
+---
+
+## 🛠️ CLIツール（tc-analyze）
+
+`tc-analyze`コマンドは、データ管理、設定確認、可視化を簡単に行うためのコマンドラインインターフェースです。
+
+### インストール
+
+```bash
+# プロジェクトルートで開発モードでインストール
+cd /path/to/tc_analyze
+pip install -e .
+
+# インストール確認
+tc-analyze --help
+```
+
+### データ管理コマンド
+
+#### データファイル一覧表示
+
+```bash
+# 全てのデータファイルをリスト表示
+tc-analyze data list --config run/setting.json
+
+# 特定タイプのみ表示
+tc-analyze data list --type center --config run/setting.json
+tc-analyze data list --type azim --config run/setting.json
+```
+
+#### データファイル情報表示
+
+```bash
+# ファイルの詳細情報を表示（形状、データ型、メタデータ）
+tc-analyze data info center/ss_slp/center.npz --config run/setting.json
+tc-analyze data info azim/azim_wind_radial/t000.npy --config run/setting.json
+
+# .npz/.npyどちらも対応
+tc-analyze data info center/ms_pres/center.npz
+```
+
+#### データ統計表示
+
+```bash
+# データの統計情報を表示（最小値、最大値、平均、標準偏差）
+tc-analyze data stats center/ss_slp/center.npz --config run/setting.json
+```
+
+#### メタデータの編集（.npzファイル）
+
+```bash
+# 対話的にメタデータを追加・編集・削除
+tc-analyze data annotate center/ss_slp/center.npz --config run/setting.json
+
+# 絶対パスでも可
+tc-analyze data annotate /path/to/data/center.npz
+```
+
+**対話メニュー:**
+- `[a]` Add - 新しいメタデータを追加（description, notes, authorなど）
+- `[e]` Edit - 既存のメタデータを編集
+- `[d]` Delete - メタデータを削除
+- `[s]` Save - 変更を保存（自動バックアップ作成）
+- `[q]` Quit - 保存せずに終了
+
+**使用例:**
+```
+Choose an option: a
+Enter key name: description
+Value type: string
+Enter value: SS SLP center with r_refine=100km, calculated on 2025-11-28
+
+Choose an option: s
+Save changes? [y/N]: y
+✓ Saved changes to center.npz
+```
+
+### 設定管理コマンド
+
+#### 設定情報の表示
+
+```bash
+# 設定ファイルの内容を整形表示
+tc-analyze config show --config run/setting.json
+
+# 全てのパラメータを確認
+tc-analyze config show | less
+```
+
+#### 設定ファイルの検証
+
+```bash
+# 設定ファイルの妥当性を検証
+tc-analyze config validate --config run/setting.json
+```
+
+### 中心座標コマンド
+
+#### 中心座標のメタデータ確認
+
+```bash
+# SS SLP中心座標の詳細情報を表示
+tc-analyze center inspect ss_slp --config run/setting.json
+
+# MS PRES中心座標の詳細情報を表示
+tc-analyze center inspect ms_pres --config run/setting.json
+
+# 詳細モード（全メタデータを表示）
+tc-analyze center inspect ss_slp --verbose --config run/setting.json
+```
+
+**出力例:**
+```
+🔍 Inspecting ss_slp center coordinates
+
+  File: data/center/ss_slp/center.npz
+  Format: .npz
+
+📍 Center Coordinates:
+  Shape: (145, 2)
+  Type: 2D center (nt=145)
+  X range: [1200.50, 1350.75] km
+  Y range: [1100.25, 1250.80] km
+
+📊 Metadata:
+  r_refine                      : 100000 m (100.0 km)
+  actual_iterations             : mean=5.23, max=15
+  max_iterations                : 100
+
+✓ Inspection complete
+```
+
+#### 中心軌道のプロット
+
+```bash
+# SS SLP中心の軌道をプロット
+tc-analyze center plot --method ss_slp --config run/setting.json
+
+# MS PRES中心の軌道をプロット（z=10）
+tc-analyze center plot --method ms_pres --z-level 10 --config run/setting.json
+
+# グリッド線を表示
+tc-analyze center plot --method ss_slp --grid --config run/setting.json
+
+# 出力先を指定
+tc-analyze center plot --method ss_slp --output ./custom_path.png
+```
+
+### ヘルプの表示
+
+```bash
+# メインヘルプ
+tc-analyze --help
+
+# サブコマンドのヘルプ
+tc-analyze data --help
+tc-analyze config --help
+tc-analyze center --help
+
+# 特定コマンドのヘルプ
+tc-analyze data list --help
+tc-analyze center plot --help
+```
+
+### 設定ファイルの指定方法
+
+```bash
+# --config オプションで指定
+tc-analyze data list --config run/setting.json
+
+# カレントディレクトリのsetting.jsonを使用
+cd /path/to/workdir
+tc-analyze data list
+
+# 相対パスでも可
+tc-analyze data list --config ../other_dir/setting.json
+```
+
+### 中心座標の管理
+
+詳細な中心座標の設定と管理については、[CENTER_CONFIGURATION.md](./CENTER_CONFIGURATION.md)を参照してください。
+
+**主な機能:**
+- パラメータの異なる複数の中心座標を管理
+- setting.jsonで使用する中心座標ファイルを切り替え
+- 計算パラメータの確認と編集
+- メタデータの追加と管理
 
 ---
 
@@ -378,12 +567,14 @@ sh $WORK/tc_analyze/run/analyze.sh azim
 
 ## 📚 関連ドキュメント
 
-- [README.md](./README.md) - プロジェクト概要
+- [README.md](../README.md) - プロジェクト概要
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - アーキテクチャ設計
-- [WORK_LOG.md](./WORK_LOG.md) - コーディングパターンと作業履歴
-- [MIGRATION_COMPLETE.md](./MIGRATION_COMPLETE.md) - リファクタリング完了報告
+- [CENTER_CONFIGURATION.md](./CENTER_CONFIGURATION.md) - 中心座標設定ガイド
+- [UTILS_PHYSICS_REFERENCE.md](./UTILS_PHYSICS_REFERENCE.md) - 物理計算リファレンス
+- [WORK_LOG.md](../WORK_LOG.md) - コーディングパターンと作業履歴
+- [MIGRATION_COMPLETE.md](../MIGRATION_COMPLETE.md) - リファクタリング完了報告
 
 ---
 
-**最終更新日**: 2025-11-27
-**バージョン**: 1.0
+**最終更新日**: 2025-11-28
+**バージョン**: 1.1

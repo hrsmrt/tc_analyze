@@ -106,7 +106,7 @@ tc-analyze center plot --method ss_slp --config run/setting.json
 tc-analyze --help
 ```
 
-詳細は[COMMAND_REFERENCE.md](./COMMAND_REFERENCE.md)を参照してください。
+詳細は[docs/COMMAND_REFERENCE.md](./docs/COMMAND_REFERENCE.md)を参照してください。
 
 ---
 
@@ -158,7 +158,7 @@ tc-analyze --help
 ```
 例: 2d/whole_domain.py など
 
-詳細は[ARCHITECTURE.md](./ARCHITECTURE.md)を参照してください。
+詳細は[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)を参照してください。
 
 ---
 
@@ -263,7 +263,7 @@ tc-analyze config --help
 tc-analyze center --help
 ```
 
-詳細は[COMMAND_REFERENCE.md](./COMMAND_REFERENCE.md)を参照してください。
+詳細は[COMMAND_REFERENCE.md](./docs/COMMAND_REFERENCE.md)を参照してください。
 
 ---
 
@@ -271,20 +271,19 @@ tc-analyze center --help
 
 | ドキュメント | 説明 |
 |-------------|------|
-| [COMMAND_REFERENCE.md](./COMMAND_REFERENCE.md) | **コマンドリファレンス** - よく使うコマンド、実行方法、トラブルシューティング |
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | **アーキテクチャ設計書** - システム構成、データフロー、モジュール設計、拡張ガイド |
+| [docs/COMMAND_REFERENCE.md](./docs/COMMAND_REFERENCE.md) | **コマンドリファレンス** - よく使うコマンド、実行方法、CLIツール、トラブルシューティング |
+| [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | **アーキテクチャ設計書** - システム構成、データフロー、モジュール設計、拡張ガイド |
+| [docs/CENTER_CONFIGURATION.md](./docs/CENTER_CONFIGURATION.md) | **中心座標設定ガイド** - TC中心座標の計算、設定、読み込み、メタデータ管理 |
 | [docs/UTILS_PHYSICS_REFERENCE.md](./docs/UTILS_PHYSICS_REFERENCE.md) | **物理計算リファレンス** - utils内の物理定数、熱力学計算、風速場計算など |
-| [WORK_LOG.md](./WORK_LOG.md) | **作業履歴とコーディング規約** - 確立されたコーディングパターン、既知の問題と解決策 |
-| [MIGRATION_COMPLETE.md](./MIGRATION_COMPLETE.md) | リファクタリング完了報告 |
-| [REFACTORING_SUMMARY.md](./REFACTORING_SUMMARY.md) | リファクタリング成果報告 |
+| [docs/WORK_LOG.md](./docs/WORK_LOG.md) | **作業履歴とコーディング規約** - 確立されたコーディングパターン、既知の問題と解決策 |
 
 ### 初めての方へ
 
 1. **環境構築**: このREADMEの[環境構築](#環境構築)セクション
-2. **コマンド実行**: [COMMAND_REFERENCE.md](./COMMAND_REFERENCE.md)
+2. **コマンド実行**: [docs/COMMAND_REFERENCE.md](./docs/COMMAND_REFERENCE.md)
 3. **物理計算の理解**: [docs/UTILS_PHYSICS_REFERENCE.md](./docs/UTILS_PHYSICS_REFERENCE.md)
-4. **コード修正・追加**: [ARCHITECTURE.md](./ARCHITECTURE.md)の拡張ガイド
-5. **コーディング規約**: [WORK_LOG.md](./WORK_LOG.md)の確立されたコーディングパターン
+4. **コード修正・追加**: [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)の拡張ガイド
+5. **コーディング規約**: [docs/WORK_LOG.md](./docs/WORK_LOG.md)の確立されたコーディングパターン
 
 ### utilsモジュールの概要
 
@@ -343,7 +342,11 @@ tc_analyze/
 │       └── center.py        # 中心解析（plot）
 │
 ├── docs/                     # ドキュメント
-│   └── UTILS_PHYSICS_REFERENCE.md  # 物理計算リファレンス
+│   ├── COMMAND_REFERENCE.md         # コマンドリファレンス
+│   ├── ARCHITECTURE.md              # アーキテクチャ設計書
+│   ├── CENTER_CONFIGURATION.md      # 中心座標設定ガイド
+│   ├── UTILS_PHYSICS_REFERENCE.md   # 物理計算リファレンス
+│   └── WORK_LOG.md                  # 作業履歴・コーディング規約
 │
 ├── run/                      # 実行スクリプト
 │   └── analyze.sh           # 統合実行スクリプト（最重要）
@@ -404,13 +407,10 @@ tc_analyze/
 │
 ├── setup.py                  # パッケージ設定
 ├── README.md                 # このファイル
-├── COMMAND_REFERENCE.md      # コマンドリファレンス
-├── ARCHITECTURE.md           # アーキテクチャ設計書
-├── WORK_LOG.md               # 作業履歴・コーディング規約
 └── CLAUDE.md                 # AI支援用コンテキスト
 ```
 
-詳細は[ARCHITECTURE.md](./ARCHITECTURE.md)を参照してください。
+詳細は[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)を参照してください。
 
 ---
 
@@ -440,7 +440,7 @@ ls setting.json  # 確認
 sh $WORK/tc_analyze/run/analyze.sh center
 ```
 
-その他のトラブルシューティングは[COMMAND_REFERENCE.md](./COMMAND_REFERENCE.md#トラブルシューティング)を参照してください。
+その他のトラブルシューティングは[docs/COMMAND_REFERENCE.md](./docs/COMMAND_REFERENCE.md#トラブルシューティング)を参照してください。
 
 ---
 
@@ -492,14 +492,23 @@ sh $WORK/tc_analyze/run/analyze.sh center
 
 ## 📅 更新履歴
 
-### v2.2.0 (2025-11-28) - 進行中
-- CLIツールの実装開始（`tc-analyze`コマンド）
+### v2.2.0 (2025-11-28)
+- **中心座標設定の大幅改善**
+  - パラメータ名を明確化（`r_max_ite` → `r_refine`、`r_max_m` → `r_search`）
+  - `setting.json`で中心座標ファイル名を管理（`center_configs`）
+  - 計算パラメータをnpzメタデータに保存（ファイル名ではなく）
+  - .npy/.npz両形式のサポート（自動フォールバック）
+  - 包括的なドキュメント作成（[CENTER_CONFIGURATION.md](./docs/CENTER_CONFIGURATION.md)）
+- **CLIツールの拡張**
+  - `tc-analyze center inspect` - 中心座標メタデータの確認
+  - `tc-analyze data annotate` - npzファイルへの対話的メタデータ編集
   - データ管理コマンド（list, info, stats）
   - 設定管理コマンド（show, validate）
-  - 中心解析コマンド（plot）
+  - 中心軌道可視化コマンド（plot）
+- **新規可視化スクリプト**
+  - SS SLPとMS PRES分布の重ね合わせプロット
 - utils/metadata.pyを追加（.npz/.npyメタデータ読み込み）
-- 中心座標の柔軟な読み込み機能（2d/3d、カスタムパス指定）
-- 中心座標の出力形式を.npzに統一（メタデータ保存）
+- utils/center.pyに`load_center_coordinates()`関数を追加
 
 ### v2.1.0 (2025-11-27)
 - 物理定数の命名規則を統一（物理記号優先）
@@ -523,4 +532,4 @@ sh $WORK/tc_analyze/run/analyze.sh center
 
 ---
 
-**最終更新**: 2025-11-27
+**最終更新**: 2025-11-28

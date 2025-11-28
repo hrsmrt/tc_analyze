@@ -15,5 +15,14 @@
     "work_dir": "/hogehoge/work",
     "vgrid_filepath": "/hogehoge/work/p-nicam/database/vgrid/vgrid_c74.txt",
     "data_dir": "./data",
-    "fig_dir": "./fig"
+    "fig_dir": "./fig",
+
+    "_comment_center_method": "TC中心特定方法: 'weighted_centroid' (デフォルト) または 'smoothed_minimum'",
+    "center_method": "weighted_centroid",
+
+    "_comment_center_configs": "中心座標ファイル名の設定（異なるパラメータで複数管理する場合に変更）",
+    "center_configs": {
+        "ss_slp": "center.npz",
+        "ms_pres": "center.npz"
+    }
 }
