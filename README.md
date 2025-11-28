@@ -58,19 +58,73 @@ pip install -e .
 
 ### 2. 設定ファイルの準備
 
-作業ディレクトリに`setting.json`を配置します（サンプル: `script/setting.json`）。
+作業ディレクトリに`setting.json`を配置します（サンプル: `run/setting.json`）。
 
 ```json
 {
   "nt": 101,
-  "glevel": 7,
+  "t_first": 0,
+  "t_last": 100,
+  "t_step": 1,
   "triangle_size": 256000.0,
+  "glevel": 7,
+  "nz": 74,
   "dt_output": 86400,
+  "dt_hour": 24,
+  "time_tick_step": 6,
+  "f": 3.77468e-05,
+  "n_jobs": 4,
   "input_folder": "../convert/",
+  "work_dir": "/path/to/work",
   "vgrid_filepath": "/path/to/vgrid_c74.txt",
-  "n_jobs": 4
+  "data_dir": "./data",
+  "fig_dir": "./fig",
+
+  "_comment_center_method": "TC中心特定方法: 'weighted_centroid' (デフォルト) または 'smoothed_minimum'",
+  "center_method": "weighted_centroid",
+
+  "_comment_center_configs": "中心座標ファイル名の設定（異なるパラメータで複数管理する場合に変更）",
+  "center_configs": {
+    "ss_slp": "center.npz",
+    "ms_pres": "center.npz"
+  }
 }
 ```
+
+#### 設定項目の説明
+
+| 項目 | 説明 | 例 |
+|-----|------|-----|
+| **時間設定** |
+| `nt` | 総時刻数（Time steps） | `101` |
+| `t_first` | 解析開始時刻インデックス（0始まり） | `0` |
+| `t_last` | 解析終了時刻インデックス | `100` |
+| `t_step` | 時刻ステップの間隔（通常は1） | `1` |
+| `dt_output` | データ出力間隔（秒） | `86400` (24時間) |
+| `dt_hour` | データ出力間隔（時間） | `24` |
+| `time_tick_step` | プロット時の時刻軸の目盛り間隔 | `6` (6時刻ごと) |
+| **空間設定** |
+| `glevel` | グリッドレベル（NICAM icosahedralグリッド） | `7` |
+| `triangle_size` | 三角形領域のサイズ（メートル） | `256000.0` (256km) |
+| `nz` | 鉛直層数 | `74` |
+| **物理パラメータ** |
+| `f` | コリオリパラメータ（1/秒） | `3.77468e-05` (北緯15度) |
+| **計算設定** |
+| `n_jobs` | 並列処理数（-1で全CPU使用） | `4` |
+| **ディレクトリ設定** |
+| `input_folder` | 入力データフォルダのパス | `"../convert/"` |
+| `work_dir` | 作業ディレクトリのパス | `"/path/to/work"` |
+| `vgrid_filepath` | 鉛直グリッドファイルのパス | `"/path/to/vgrid_c74.txt"` |
+| `data_dir` | データ出力ディレクトリ | `"./data"` |
+| `fig_dir` | 図出力ディレクトリ | `"./fig"` |
+| **TC中心検出設定** |
+| `center_method` | 中心検出方法（`weighted_centroid` または `smoothed_minimum`） | `"weighted_centroid"` |
+| `center_configs` | 中心座標ファイル名の設定（ss_slp, ms_pres） | `{"ss_slp": "center.npz"}` |
+
+**注意**:
+- グリッドサイズは自動計算されます: `nx = ny = 2^glevel`（例: glevel=7 → 128×128）
+- グリッド間隔も自動計算: `dx = triangle_size / nx`, `dy = triangle_size * √3/2 / ny`
+- `center_method`の選択については`docs/CENTER_CONFIGURATION.md`を参照
 
 ### 3. 解析の実行
 
