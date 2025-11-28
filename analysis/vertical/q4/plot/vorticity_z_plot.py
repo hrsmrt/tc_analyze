@@ -24,12 +24,12 @@ vgrid = grid.create_vertical_grid() * 1e-3
 
 X, Y = np.meshgrid(time_list, vgrid)
 
-output_dir = config.get_fig_path("z_profile_q4", "zeta")
+output_dir = config.get_tc_centric_path("vertical", "q4/zeta", data_type="fig")
 os.makedirs(output_dir, exist_ok=True)
 for q in range(4):
     os.makedirs(os.path.join(output_dir, f"q{q}"), exist_ok=True)
 
-data_all = np.load(os.path.join(config.get_data_path('z_profile_q4', 'zeta'), "z_zeta_quadrants.npy"))
+data_all = np.load(os.path.join(config.get_tc_centric_path("vertical", "q4/zeta"), "z_zeta_quadrants.npy"))
 
 for q in range(4):
     plt.style.use(mpl_style_sheet)

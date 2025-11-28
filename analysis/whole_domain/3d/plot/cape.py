@@ -32,7 +32,7 @@ config = AnalysisConfig()
 
 vgrid = np.loadtxt(config.vgrid_filepath)
 
-OUT_DIR = config.get_fig_path("cape")
+OUT_DIR = config.get_domain_path("whole_domain", "3d/cape", data_type="fig")
 os.makedirs(OUT_DIR, exist_ok=True)
 os.makedirs(os.path.join(OUT_DIR, "parcel_T"), exist_ok=True)
 os.makedirs(os.path.join(OUT_DIR, "parcel_rho"), exist_ok=True)

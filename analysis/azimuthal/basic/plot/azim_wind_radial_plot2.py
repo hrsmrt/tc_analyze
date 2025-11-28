@@ -17,18 +17,18 @@ grid = GridHandler(config)
 mpl_style_sheet = parse_style_argument()
 
 # グリッド設定：データから実際のビン数を取得
-sample_data = np.load(os.path.join(config.get_data_path('azim', 'wind_radial2'), f"t{str(config.t_first).zfill(3)}.npy"))
+sample_data = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/wind_radial2'), f"t{str(config.t_first).zfill(3)}.npy"))
 nr = sample_data.shape[1]
 R_MAX = nr * config.dx
 r_mesh, z_mesh = grid.create_radial_vertical_meshgrid(R_MAX)
 
-folder = config.get_fig_path("azim", "wind_radial", "b")
+folder = config.get_tc_centric_path("azimuthal", "basic/wind_radial_b", data_type="fig")
 
 os.makedirs(folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(os.path.join(config.get_data_path('azim', 'wind_radial2'), f"t{str(t).zfill(3)}.npy"))
+    data = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/wind_radial2'), f"t{str(t).zfill(3)}.npy"))
 
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(5, 2))

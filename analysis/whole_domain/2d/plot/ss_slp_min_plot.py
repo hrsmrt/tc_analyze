@@ -15,11 +15,11 @@ mpl_style_sheet = parse_style_argument()
 # 設定の初期化
 config = AnalysisConfig()
 
-folder = config.get_fig_path("center")
+folder = config.get_domain_path("whole_domain", "2d/ss_slp_min", data_type="fig")
 os.makedirs(folder, exist_ok=True)
 
 # データの読み込み
-data = np.load(os.path.join(config.get_data_path(), "ss_slp_min.npy"))
+data = np.load(os.path.join(config.get_domain_path("whole_domain", "2d"), "ss_slp_min.npy"))
 
 # プロット
 plt.style.use(mpl_style_sheet)

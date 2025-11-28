@@ -29,8 +29,8 @@ custom_cmap = ListedColormap(colors)
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-FOLDER_INPUT = config.get_data_path("2d", "wind10m_radial")
-OUTPUT_DIR = config.get_fig_path("2d", "vortex_region", "wind10m_radial")
+FOLDER_INPUT = config.get_tc_centric_path("vortex_region", "2d/ss_wind10m_radial")
+OUTPUT_DIR = config.get_tc_centric_path("vortex_region", "2d/wind10m_radial", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 EXTENT = 500e3
 

@@ -34,7 +34,7 @@ grid = GridHandler(config)
 custom_rainbow = create_custom_colormap("rainbow", 3)
 
 # 出力ディレクトリの作成
-OUTPUT_DIR = config.get_fig_path("2d", "whole_domain", VARNAME)
+OUTPUT_DIR = config.get_domain_path("whole_domain", f"2d/{VARNAME}", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # I/O最適化: memmapを使用

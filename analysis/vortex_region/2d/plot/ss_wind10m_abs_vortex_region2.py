@@ -23,11 +23,11 @@ custom_cmap = ListedColormap(colors)
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-OUTPUT_DIR = config.get_fig_path("2d", "vortex_region2", "wind10m_abs")
+OUTPUT_DIR = config.get_tc_centric_path("vortex_region", "2d_v2/wind10m_abs", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 EXTENT = 500e3
 
-center_list = np.loadtxt(os.path.join(config.get_data_path(), "low_2.txt"), delimiter=",", skiprows=1)
+center_list = np.loadtxt(os.path.join(config.get_domain_path("whole_domain", "2d"), "low_2.txt"), delimiter=",", skiprows=1)
 center_x_list = center_list[:, 1] * config.dx
 center_y_list = center_list[:, 2] * config.dy
 

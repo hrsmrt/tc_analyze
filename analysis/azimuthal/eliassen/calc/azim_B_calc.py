@@ -1,5 +1,5 @@
 # python $WORK/tc_analyze/analysis/azimuthal/eliassen/calc/azim_B_calc.py
-# input: os.path.join(config.get_data_path('azim', 'buoyancy'), f"t{str(t).zfill(3)}.npy") 温度
+# input: os.path.join(config.get_tc_centric_path('azimuthal', 'basic/buoyancy'), f"t{str(t).zfill(3)}.npy") 温度
 # output: B = db/dr
 
 import os
@@ -22,14 +22,14 @@ f = config.f
 pres_s = PRES_S
 L = Lv
 
-output_folder = config.get_data_path("azim", "eliassen", "B")
+output_folder = config.get_tc_centric_path("azimuthal", "eliassen/B")
 os.makedirs(output_folder, exist_ok=True)
 
 theta_ref = 300.0  # 基準温位 K
 
 
 def process_t(t):
-    b = np.load(os.path.join(config.get_data_path('azim', 'eliassen', 'buoyancy'), f"t{str(t).zfill(3)}.npy"))
+    b = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'eliassen/buoyancy'), f"t{str(t).zfill(3)}.npy"))
     db_dr = (b[:, 1:] - b[:, :-1]) / config.dx
     np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), db_dr)
     # print(f"t={t} done")

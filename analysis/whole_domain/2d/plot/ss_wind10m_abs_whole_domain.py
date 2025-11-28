@@ -23,7 +23,7 @@ custom_cmap = ListedColormap(colors)
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-OUTPUT_DIR = config.get_fig_path("2d", "whole_domain", "wind10m_abs")
+OUTPUT_DIR = config.get_domain_path("whole_domain", "2d/ss_wind10m_abs_whole_domain", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 ss_u10m = np.fromfile(f"{config.input_folder}ss_u10m.grd", dtype=">f4").reshape(
     config.nt, config.ny, config.nx

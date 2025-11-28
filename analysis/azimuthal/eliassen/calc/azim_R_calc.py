@@ -21,15 +21,15 @@ f = config.f
 pres_s = PRES_S
 L = Lv
 
-output_folder = config.get_data_path("azim", "eliassen", "R")
+output_folder = config.get_tc_centric_path("azimuthal", "eliassen/R")
 os.makedirs(output_folder, exist_ok=True)
 
 theta_ref = 300.0  # 基準温位 K
 
 
 def process_t(t):
-    rho = np.load(os.path.join(config.get_data_path('azim', 'ms_rho'), f"t{str(t).zfill(3)}.npy"))
-    theta = np.load(os.path.join(config.get_data_path('azim', 'theta'), f"t{str(t).zfill(3)}.npy"))
+    rho = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/ms_rho'), f"t{str(t).zfill(3)}.npy"))
+    theta = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/theta'), f"t{str(t).zfill(3)}.npy"))
     R_eliassen = R * rho * theta
     np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), R_eliassen)
     # print(f"t={t} done")

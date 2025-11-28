@@ -1,8 +1,9 @@
 """
 psi_r200 のプロット
 
-✅ ストレージ節約版: オンデマンド計算を使用
-渦度データから流線関数を計算し、データ保存不要で数GB〜数百GBのストレージを節約
+✅ ストレージ節約版: 完全オンデマンド計算を使用
+u/vから渦度を計算し、さらに流線関数を計算
+データ保存不要で数GB〜数百GBのストレージを節約
 
 プロット処理を実行します。
 """
@@ -20,6 +21,7 @@ from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 from utils.plotting import parse_style_argument, set_vortex_region_ticks_empty
 from utils.streamfunction import calculate_streamfunction
+from utils.vorticity import calculate_vorticity_z
 
 # スタイルシートの解析
 mpl_style_sheet = parse_style_argument()
@@ -33,7 +35,7 @@ EXTENT = 200e3
 center_x_list = config.center_x
 center_y_list = config.center_y
 
-OUTPUT_FOLDER = config.get_fig_path("3d", "psi", "r200")
+OUTPUT_FOLDER = config.get_tc_centric_path("vortex_region", "3d/psi_r200", data_type="fig")
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)
@@ -44,10 +46,26 @@ for z in z_list:
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
+# u/vデータの読み込み（memmap使用）
+u_all = np.memmap(
+    f"{config.input_folder}ms_u.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+v_all = np.memmap(
+    f"{config.input_folder}ms_v.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+
 
 def process_t(t):
-    # ✅ オンデマンド計算: 渦度から流線関数を計算（保存データ不要）
-    vorticity_z = np.load(os.path.join(config.get_data_path('3d', 'vorticity_z'), f"vor_t{str(t).zfill(3)}.npy"))
+    # ✅ 完全オンデマンド計算: u/vから渦度を計算し、さらに流線関数を計算（保存データ不要）
+    u_t = u_all[t, :, :, :]
+    v_t = v_all[t, :, :, :]
+    vorticity_z = calculate_vorticity_z(u_t, v_t, config.dx, config.dy)
     data_t = calculate_streamfunction(vorticity_z, config.dx, config.dy)
 
     center_x = center_x_list[t]

@@ -53,7 +53,7 @@ data_v = np.memmap(
     shape=(config.nt, config.nz, config.ny, config.nx),
 )
 
-OUTPUT_DIR = config.get_fig_path("3d", "vortex_region", "relative_wind_tangential")
+OUTPUT_DIR = config.get_tc_centric_path("vortex_region", "3d/ms_wind_relative_tangential", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)

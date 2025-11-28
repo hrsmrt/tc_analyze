@@ -26,7 +26,7 @@ from utils.grid import GridHandler
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-output_folder = config.get_data_path("azim", "stream2")
+output_folder = config.get_tc_centric_path("azimuthal", "basic/stream2")
 os.makedirs(output_folder, exist_ok=True)
 
 vgrid = grid.create_vertical_grid()

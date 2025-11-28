@@ -17,13 +17,13 @@ grid = GridHandler(config)
 
 mpl_style_sheet = parse_style_argument()
 
-OUTPUT_FOLDER = config.get_fig_path("azim", "momentum_theta_e")
+OUTPUT_FOLDER = config.get_tc_centric_path("azimuthal", "basic/momentum_theta_e", data_type="fig")
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 
 def process_t(t):
     # 運動量データの読み込み
-    momentum_data = np.load(os.path.join(config.get_data_path('azim', 'momentum'), f"t{str(t).zfill(3)}.npy"))
+    momentum_data = np.load(os.path.join(config.get_tc_centric_path("azimuthal", "basic/momentum"), f"t{str(t).zfill(3)}.npy"))
 
     # グリッド設定：データから実際のビン数を取得
     nr = momentum_data.shape[1]
@@ -48,7 +48,7 @@ def process_t(t):
     fig.colorbar(contour_filled, ax=ax)
 
     # 相当温位データの読み込みと等値線プロット
-    theta_e_data = np.load(os.path.join(config.get_data_path('azim', 'theta_e'), f"t{str(t).zfill(3)}.npy"))
+    theta_e_data = np.load(os.path.join(config.get_tc_centric_path("azimuthal", "basic/theta_e"), f"t{str(t).zfill(3)}.npy"))
 
     # theta_eのデータサイズが異なる場合は、theta_e用のグリッドを生成
     if theta_e_data.shape[1] != nr:

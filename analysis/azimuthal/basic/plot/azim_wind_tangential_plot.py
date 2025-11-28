@@ -26,7 +26,7 @@ mpl_style_sheet = parse_style_argument()
 
 vgrid = grid.create_vertical_grid()
 
-folder = config.get_fig_path("azim", "wind_tangential")
+folder = config.get_tc_centric_path("azimuthal", "basic/wind_tangential", data_type="fig")
 
 os.makedirs(folder, exist_ok=True)
 

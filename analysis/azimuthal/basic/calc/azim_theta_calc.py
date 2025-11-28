@@ -22,7 +22,7 @@ from utils.grid import GridHandler
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-output_folder = config.get_data_path("azim", "theta")
+output_folder = config.get_tc_centric_path("azimuthal", "basic/theta")
 os.makedirs(output_folder, exist_ok=True)
 
 center_x_list = config.center_x

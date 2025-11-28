@@ -14,7 +14,7 @@ varname = sys.argv[1]
 
 config = AnalysisConfig()
 
-output_dir = config.get_data_path("z_profile", "vortex_region")
+output_dir = config.get_tc_centric_path("vertical", "profile_vortex")
 os.makedirs(output_dir, exist_ok=True)
 
 center_x_list = config.center_x
@@ -64,6 +64,5 @@ results = Parallel(n_jobs=config.n_jobs, verbose=5)(
 z_profile_all = np.stack(results, axis=0)
 
 # === 保存 ===
-os.makedirs(output_dir, exist_ok=True)
 np.save(os.path.join(output_dir, f"z_{varname}.npy"), z_profile_all)
-print(f"✅ Saved z_profile data for {varname} to {output_dir}z_{varname}.npy")
+print(f"✅ Saved z_profile data for {varname} to {output_dir}/z_{varname}.npy")

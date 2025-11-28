@@ -15,7 +15,7 @@ grid = GridHandler(config)
 mpl_style_sheet = parse_style_argument()
 
 # グリッド設定：データから実際のビン数を取得
-sample_data = np.load(os.path.join(config.get_data_path('azim', 'wind_tangential'), f"t{str(config.t_first).zfill(3)}.npy"))
+sample_data = np.load(os.path.join(config.get_tc_centric_path("azimuthal", "basic/wind_tangential"), f"t{str(config.t_first).zfill(3)}.npy"))
 nr = sample_data.shape[1]
 R_MAX = nr * config.dx
 rgrid = grid.create_radial_grid(R_MAX)
@@ -23,7 +23,7 @@ vgrid = grid.create_vertical_grid()
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
 
-folder = config.get_fig_path("azim", "wind_tangential")
+folder = config.get_tc_centric_path("azimuthal", "basic/wind_tangential", data_type="fig")
 
 os.makedirs(folder, exist_ok=True)
 for z in z_list:
@@ -31,7 +31,7 @@ for z in z_list:
 
 
 def process_t(t):
-    data = np.load(os.path.join(config.get_data_path('azim', 'wind_tangential'), f"t{str(t).zfill(3)}.npy"))
+    data = np.load(os.path.join(config.get_tc_centric_path("azimuthal", "basic/wind_tangential"), f"t{str(t).zfill(3)}.npy"))
     for z in z_list:
         folder_z = os.path.join(folder, f"z{str(z).zfill(2)}")
         plt.style.use(mpl_style_sheet)

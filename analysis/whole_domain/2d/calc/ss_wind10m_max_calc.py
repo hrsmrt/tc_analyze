@@ -8,7 +8,7 @@ from utils.config import AnalysisConfig
 
 # 設定の初期化
 config = AnalysisConfig()
-output_folder = config.get_data_path()
+output_folder = config.get_domain_path("whole_domain", "2d/ss_wind10m_max")
 os.makedirs(output_folder, exist_ok=True)
 
 ss_u10m = np.fromfile(f"{config.input_folder}ss_u10m.grd", dtype=">f4").reshape(

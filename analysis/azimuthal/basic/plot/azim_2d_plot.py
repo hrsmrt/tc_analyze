@@ -16,7 +16,7 @@ mpl_style_sheet = parse_style_argument()
 
 config = AnalysisConfig()
 
-folder = config.get_fig_path("azim", "{varname}")
+folder = config.get_tc_centric_path("azimuthal", "basic/{varname}", data_type="fig")
 
 os.makedirs(folder, exist_ok=True)
 
@@ -24,7 +24,7 @@ os.makedirs(folder, exist_ok=True)
 # メインループ
 def process_t(t):
     # データの読み込み
-    data = np.load(os.path.join(config.get_data_path('azim', varname), f"t{str(t).zfill(3)}.npy"))
+    data = np.load(os.path.join(config.get_tc_centric_path("azimuthal", f"basic/{varname}"), f"t{str(t).zfill(3)}.npy"))
 
     # プロット
     plt.style.use(mpl_style_sheet)

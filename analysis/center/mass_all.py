@@ -13,7 +13,7 @@ mpl_style_sheet = parse_style_argument()
 
 config = AnalysisConfig()
 
-output_folder = config.get_fig_path("center")
+output_folder = config.get_center_path("ss_slp", data_type="fig")
 os.makedirs(output_folder, exist_ok=True)
 
 center_x_list = config.center_x

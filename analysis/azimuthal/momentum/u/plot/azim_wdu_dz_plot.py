@@ -27,13 +27,13 @@ rgrid = np.array([r * config.dx + config.dx / 2 for r in range(int(nr))]) * 1e-3
 
 X, Y = np.meshgrid(rgrid, vgrid_wall)
 
-output_folder = config.get_fig_path("azim", "eq_momentum_u", "wdu_dz")
+output_folder = config.get_tc_centric_path("azimuthal", "momentum/u/wdu_dz", data_type="fig")
 
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(os.path.join(config.get_data_path('azim', 'eq_momentum_u'), f"wdu_dz/t{str(t).zfill(3)}.npy"))
+    data = np.load(os.path.join(config.get_tc_centric_path("azimuthal", "momentum/u"), f"wdu_dz/t{str(t).zfill(3)}.npy"))
 
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(5, 2))

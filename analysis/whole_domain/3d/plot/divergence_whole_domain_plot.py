@@ -22,7 +22,7 @@ config = AnalysisConfig()
 grid = GridHandler(config)
 F = config.f
 
-OUTPUT_DIR = config.get_fig_path("3d", "whole_domain", "divergence")
+OUTPUT_DIR = config.get_domain_path("whole_domain", "3d/divergence", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
@@ -42,7 +42,7 @@ def process_t(t):
         Time step index
     """
     data_z = np.memmap(
-        os.path.join(config.get_data_path("3d", "divergence"), f"div_t{str(t).zfill(3)}.npy"),
+        os.path.join(config.get_domain_path("whole_domain", "3d/divergence"), f"div_t{str(t).zfill(3)}.npy"),
         dtype=np.float32,
         mode="r",
         shape=(config.nz, config.ny, config.nx),

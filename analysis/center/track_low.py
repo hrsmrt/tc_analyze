@@ -39,7 +39,7 @@ def main():
         )
         print(f"Time {t}: Found {len(lows)} low pressure centers")
         lows_all.append(lows)
-    with open(os.path.join(config.get_data_path(), "ss_slp_lows.pkl"), "wb") as f:
+    with open(os.path.join(config.get_domain_path("whole_domain", "2d"), "ss_slp_lows.pkl"), "wb") as f:
         pickle.dump(lows_all, f)
 
 

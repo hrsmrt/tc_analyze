@@ -28,7 +28,7 @@ grid = GridHandler(config)
 
 vgrid = grid.create_vertical_grid()
 
-output_folder = config.get_data_path("azim", "stream")
+output_folder = config.get_tc_centric_path("azimuthal", "basic/stream")
 os.makedirs(output_folder, exist_ok=True)
 
 center_x_list = config.center_x

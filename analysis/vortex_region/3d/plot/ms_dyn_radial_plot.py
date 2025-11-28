@@ -51,7 +51,7 @@ X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
-OUTPUT_DIR = config.get_fig_path("3d", "vortex_region", "dyn_radial")
+OUTPUT_DIR = config.get_tc_centric_path("vortex_region", "3d/dyn_radial", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
 for z in z_list:

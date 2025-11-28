@@ -113,7 +113,7 @@ def main():
         iterations.append(num_iter)
 
     # Save results as .npz file with metadata: shape (nt, 2)
-    OUTPUT_DIR = config.get_data_path("center/ss_slp")
+    OUTPUT_DIR = config.get_center_path("ss_slp")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     center = np.stack([x_c_evo, y_c_evo], axis=1)
 

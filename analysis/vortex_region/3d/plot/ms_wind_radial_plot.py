@@ -44,7 +44,7 @@ data_v = np.memmap(
     shape=(config.nt, config.nz, config.ny, config.nx),
 )
 
-OUTPUT_DIR = config.get_fig_path("3d", "vortex_region", "wind_radial")
+OUTPUT_DIR = config.get_tc_centric_path("vortex_region", "3d/wind_radial", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)

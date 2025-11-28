@@ -18,13 +18,13 @@ grid = GridHandler(config)
 
 # グリッド設定：データから実際のサイズを取得
 sample_data = np.load(
-    os.path.join(config.get_data_path('symmetrisity', 'relative_wind_tangential'), f"t{str(config.t_first).zfill(3)}.npy")
+    os.path.join(config.get_tc_centric_path("diagnostics", "symmetrisity/relative_wind_tangential"), f"t{str(config.t_first).zfill(3)}.npy")
 )
 nr = sample_data.shape[1]
 R_MAX = nr * config.dx
 r_mesh, z_mesh = grid.create_radial_vertical_meshgrid(R_MAX)
 
-output_folder = config.get_fig_path("symmetrisity", "relative_wind_tangential")
+output_folder = config.get_tc_centric_path("diagnostics", "symmetrisity/relative_wind_tangential", data_type="fig")
 
 os.makedirs(output_folder, exist_ok=True)
 
@@ -32,7 +32,7 @@ os.makedirs(output_folder, exist_ok=True)
 def process_t(t):
     # データの読み込み
     data = np.load(
-        os.path.join(config.get_data_path('symmetrisity', 'relative_wind_tangential'), f"t{str(t).zfill(3)}.npy")
+        os.path.join(config.get_tc_centric_path("diagnostics", "symmetrisity/relative_wind_tangential"), f"t{str(t).zfill(3)}.npy")
     )
 
     # プロット

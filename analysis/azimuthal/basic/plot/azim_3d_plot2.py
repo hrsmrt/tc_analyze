@@ -30,14 +30,14 @@ xgrid = np.arange(nr) * config.dx
 
 X, Y = np.meshgrid(xgrid, vgrid)
 
-output_folder = config.get_fig_path("azim2", varname)
+output_folder = config.get_tc_centric_path("azimuthal", f"basic2/{varname}", data_type="fig")
 
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
     # データの読み込み
-    data = np.load(os.path.join(config.get_data_path('azim2', varname), f"t{str(t).zfill(3)}.npy"))
+    data = np.load(os.path.join(config.get_tc_centric_path('azimuthal', f'basic2/{varname}'), f"t{str(t).zfill(3)}.npy"))
 
     # プロット
     plt.style.use(mpl_style_sheet)

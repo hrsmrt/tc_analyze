@@ -30,7 +30,7 @@ grid.X, grid.Y = np.meshgrid(x, y)
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
 
-FOLDER = config.get_fig_path("3d", "whole_domain", "streamplot")
+FOLDER = config.get_domain_path("whole_domain", "3d/streamplot", data_type="fig")
 os.makedirs(FOLDER, exist_ok=True)
 
 for z in z_list:

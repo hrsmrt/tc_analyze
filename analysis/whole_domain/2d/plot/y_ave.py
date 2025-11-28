@@ -23,7 +23,7 @@ custom_rainbow = ListedColormap(colors)
 
 # 設定の初期化
 config = AnalysisConfig()
-DIR = config.get_fig_path("2d", "y_ave", VARNAME)
+DIR = config.get_domain_path("whole_domain", f"2d/y_ave/{VARNAME}", data_type="fig")
 os.makedirs(DIR, exist_ok=True)
 
 y = np.arange(0, config.y_width, config.dy)

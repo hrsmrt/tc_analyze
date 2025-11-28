@@ -22,13 +22,13 @@ nr = int(radius / config.dx)
 
 X, Y = grid.create_radial_vertical_meshgrid(1000e3)
 
-output_folder = config.get_fig_path("azim", "eq_momentum_u", "centrifugal")
+output_folder = config.get_tc_centric_path("azimuthal", "momentum/u/centrifugal", data_type="fig")
 
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(os.path.join(config.get_data_path('azim', 'eq_momentum_u', 'centrifugal'), f"t{str(t).zfill(3)}.npy"))
+    data = np.load(os.path.join(config.get_tc_centric_path("azimuthal", "momentum/u/centrifugal"), f"t{str(t).zfill(3)}.npy"))
 
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(5, 2))

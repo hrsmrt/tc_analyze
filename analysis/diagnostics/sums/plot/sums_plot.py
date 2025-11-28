@@ -15,11 +15,11 @@ varname = sys.argv[1]
 
 mpl_style_sheet = parse_style_argument()
 
-folder = config.get_fig_path("sums")
+folder = config.get_tc_centric_path("diagnostics", "sums", data_type="fig")
 os.makedirs(folder, exist_ok=True)
 
 # データの読み込み
-data = np.load(os.path.join(config.get_data_path('sums'), f"{varname}.npy"))
+data = np.load(os.path.join(config.get_tc_centric_path("diagnostics", "sums"), f"{varname}.npy"))
 
 # プロット
 plt.style.use(mpl_style_sheet)

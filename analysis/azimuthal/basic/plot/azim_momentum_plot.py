@@ -25,7 +25,7 @@ grid = GridHandler(config)
 
 mpl_style_sheet = parse_style_argument()
 
-OUTPUT_FOLDER = config.get_fig_path("azim", "momentum")
+OUTPUT_FOLDER = config.get_tc_centric_path("azimuthal", "basic/momentum", data_type="fig")
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 center_x_list = config.center_x

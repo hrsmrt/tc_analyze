@@ -24,7 +24,7 @@ mpl_style_sheet = parse_style_argument()
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-OUTPUT_FOLDER = config.get_fig_path("3d", "whole_domain", "wind_uv_abs")
+OUTPUT_FOLDER = config.get_domain_path("whole_domain", "3d/whole_domain_wind_uv_abs", data_type="fig")
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]

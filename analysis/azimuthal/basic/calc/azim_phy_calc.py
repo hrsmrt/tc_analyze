@@ -14,8 +14,8 @@ r_max = 1000e3
 
 X, Y = grid.X, grid.Y
 
-folder1 = config.get_data_path("azim", "phy_radial")
-folder2 = config.get_data_path("azim", "phy_tangential")
+folder1 = config.get_tc_centric_path("azimuthal", "basic/phy_radial")
+folder2 = config.get_tc_centric_path("azimuthal", "basic/phy_tangential")
 
 os.makedirs(folder1, exist_ok=True)
 os.makedirs(folder2, exist_ok=True)

@@ -18,13 +18,13 @@ mpl_style_sheet = parse_style_argument()
 
 vgrid = grid.create_vertical_grid()
 
-folder = config.get_fig_path("azim", "wind_tangential", "b")
+folder = config.get_tc_centric_path("azimuthal", "basic/wind_tangential_b", data_type="fig")
 
 os.makedirs(folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(os.path.join(config.get_data_path('azim', 'wind_tangential2'), f"t{str(t).zfill(3)}.npy"))
+    data = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/wind_tangential2'), f"t{str(t).zfill(3)}.npy"))
     # データの形状から半径方向のグリッドを作成
     nr = data.shape[1]
     rgrid = (np.arange(nr) + 0.5) * config.dx

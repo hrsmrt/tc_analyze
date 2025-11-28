@@ -50,5 +50,6 @@ cax = divider.append_axes(
     "right", size="5%", pad=0.1
 )  # size: colorbar幅, pad: 図との距離
 plt.colorbar(sc, cax=cax, label="step")
-os.makedirs("fig", exist_ok=True)
-fig.savefig("fig/ss_slp_center.png")
+output_dir = config.get_center_path("ss_slp", data_type="fig")
+os.makedirs(output_dir, exist_ok=True)
+fig.savefig(os.path.join(output_dir, "trajectory.png"))

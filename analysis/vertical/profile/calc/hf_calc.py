@@ -18,7 +18,7 @@ Lv = 2.8e6  # J/kg, An introduction to clouds, Table 2.1(温度依存性あり)
 g = 9.81  # m/s
 
 # 出力ディレクトリ
-output_dir = config.get_data_path("z_profile")
+output_dir = config.get_domain_path("vertical", "profile")
 os.makedirs(output_dir, exist_ok=True)
 
 # 鉛直グリッドの読み込み
@@ -62,4 +62,4 @@ hf_all = Parallel(n_jobs=config.n_jobs)(
 
 hf_all = np.array(hf_all)
 np.save(os.path.join(output_dir, "hf.npy"), hf_all)
-print(f"✅ Saved hf data to {output_dir}hf.npy")
+print(f"✅ Saved hf data to {output_dir}/hf.npy")

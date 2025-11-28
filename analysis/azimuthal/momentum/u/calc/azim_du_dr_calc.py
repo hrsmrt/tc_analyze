@@ -14,13 +14,13 @@ nr = int(radius / config.dx)
 
 # rgrid generated via grid.create_radial_vertical_meshgrid * 1e-3
 
-output_folder = config.get_data_path("azim", "eq_momentum_u", "du_dr")
+output_folder = config.get_tc_centric_path("azimuthal", "momentum/u/du_dr")
 
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(os.path.join(config.get_data_path('azim', 'wind_relative_radial'), f"t{str(t).zfill(3)}.npy"))
+    data = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/wind_relative_radial'), f"t{str(t).zfill(3)}.npy"))
     du_dr = (data[:, 1:] - data[:, :-1]) / config.dx
     np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), du_dr)
 

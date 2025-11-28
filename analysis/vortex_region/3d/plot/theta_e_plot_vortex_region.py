@@ -30,7 +30,7 @@ EXTENT = 500e3
 center_x_list = config.center_x
 center_y_list = config.center_y
 
-OUTPUT_DIR = config.get_fig_path("3d", "theta_e", "vortex_region")
+OUTPUT_DIR = config.get_tc_centric_path("vortex_region", "3d/theta_e", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)

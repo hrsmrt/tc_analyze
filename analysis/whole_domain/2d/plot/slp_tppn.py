@@ -28,7 +28,7 @@ grid = GridHandler(config)
 custom_rainbow = create_custom_colormap("rainbow", 3)
 
 # 出力ディレクトリの作成
-OUTPUT_DIR = config.get_fig_path("2d", "whole_domain", "slp_tppn")
+OUTPUT_DIR = config.get_domain_path("whole_domain", "2d/slp_tppn", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # ✅ 高速化: levelsを事前計算（毎回np.arange()を呼ばないように）

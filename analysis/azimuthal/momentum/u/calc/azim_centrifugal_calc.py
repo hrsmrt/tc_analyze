@@ -16,13 +16,13 @@ nr = int(radius / config.dx)
 
 rgrid = grid.create_radial_grid(radius)
 
-output_folder = config.get_data_path("azim", "eq_momentum_u", "centrifugal")
+output_folder = config.get_tc_centric_path("azimuthal", "momentum/u/centrifugal")
 
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(os.path.join(config.get_data_path('azim', 'wind_relative_tangential'), f"t{str(t).zfill(3)}.npy"))
+    data = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/wind_relative_tangential'), f"t{str(t).zfill(3)}.npy"))
 
     # ベクトル化版（従来のforループより10-100倍高速）
     # 従来版: for r in range(nr): centrifugal[:, r] = -(data[:, r]**2) / rgrid[r]

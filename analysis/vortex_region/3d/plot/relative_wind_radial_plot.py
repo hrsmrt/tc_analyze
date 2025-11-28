@@ -29,7 +29,7 @@ grid = GridHandler(config)
 mpl_style_sheet = parse_style_argument()
 
 # 出力フォルダの作成
-output_folder = config.get_fig_path("3d", "vortex_region", "relative_wind_radial")
+output_folder = config.get_tc_centric_path("vortex_region", "3d/ms_wind_relative_radial", data_type="fig")
 os.makedirs(output_folder, exist_ok=True)
 
 # 描画設定

@@ -16,7 +16,7 @@ config = AnalysisConfig()
 grid = GridHandler(config)
 
 r_max = 1000e3
-output_folder = config.get_data_path("symmetrisity", varname)
+output_folder = config.get_tc_centric_path("diagnostics", f"symmetrisity/{varname}")
 os.makedirs(output_folder, exist_ok=True)
 
 center_x_list = config.center_x
@@ -34,7 +34,7 @@ data_all = np.memmap(
 # メインループ
 def process_t(t):
     # 軸対称成分
-    data_azim_mean = np.load(os.path.join(config.get_data_path('azim', varname), f"t{str(t).zfill(3)}.npy"))
+    data_azim_mean = np.load(os.path.join(config.get_tc_centric_path('azimuthal', f'basic/{varname}'), f"t{str(t).zfill(3)}.npy"))
     max_bin = data_azim_mean.shape[1]  # azim_meanのビン数に合わせる
 
     # 中心座標（m単位）

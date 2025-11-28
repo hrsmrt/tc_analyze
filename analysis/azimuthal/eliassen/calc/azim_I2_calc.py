@@ -24,15 +24,15 @@ f = config.f
 pres_s = PRES_S
 L = Lv
 
-output_folder = config.get_data_path("azim", "eliassen", "I2")
+output_folder = config.get_tc_centric_path("azimuthal", "eliassen/I2")
 os.makedirs(output_folder, exist_ok=True)
 
 theta_ref = 300.0  # 基準温位 K
 
 
 def process_t(t):
-    xi = np.load(os.path.join(config.get_data_path('azim', 'eliassen'), f"xi/t{str(t).zfill(3)}.npy"))
-    v = np.load(os.path.join(config.get_data_path('azim', 'wind_relative_tangential'), f"t{str(t).zfill(3)}.npy"))
+    xi = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/eliassen'), f"xi/t{str(t).zfill(3)}.npy"))
+    v = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/wind_relative_tangential'), f"t{str(t).zfill(3)}.npy"))
     dv_dr = (v[:, 1:] - v[:, :-1]) / config.dx
     I2 = (
         (xi[:, 1:] + xi[:, :-1])

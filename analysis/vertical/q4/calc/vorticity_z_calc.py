@@ -11,7 +11,7 @@ from utils.grid import GridHandler
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-output_dir = config.get_data_path("z_profile_q4", "zeta")
+output_dir = config.get_tc_centric_path("vertical", "q4/zeta")
 
 center_x_list = config.center_x
 center_y_list = config.center_y
@@ -22,7 +22,7 @@ R_max = 300e3
 def process_t(t):
     """各時刻の象限別鉛直プロファイルを計算（ベクトル化版）"""
     # 3Dデータを読み込む (nz, ny, nx)
-    data_3d = np.load(os.path.join(config.get_data_path('3d', 'vorticity_z'), f"vor_t{str(t).zfill(3)}.npy"))
+    data_3d = np.load(os.path.join(config.get_domain_path('whole_domain', '3d/vorticity_z'), f"vor_t{str(t).zfill(3)}.npy"))
 
     cx = center_x_list[t]
     cy = center_y_list[t]

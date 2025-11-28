@@ -17,7 +17,7 @@ r_max = 1000e3
 
 X, Y = grid.X, grid.Y
 
-folder = config.get_data_path("azim", varname)
+folder = config.get_tc_centric_path("azimuthal", f"basic/{varname}")
 
 os.makedirs(folder, exist_ok=True)
 

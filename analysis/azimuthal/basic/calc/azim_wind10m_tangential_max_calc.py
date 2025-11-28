@@ -12,7 +12,7 @@ grid = GridHandler(config)
 
 time_list = config.time_list
 
-folder = config.get_data_path("azim", "wind10m_tangential")
+folder = config.get_tc_centric_path("azimuthal", "basic/wind10m_tangential")
 
 os.makedirs(folder, exist_ok=True)
 

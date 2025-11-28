@@ -45,15 +45,9 @@ grid = GridHandler(config)
 # 出力ディレクトリ（smooth化の有無で分ける）
 z_center_str = "_".join([f"z{z}" for z in Z_CENTERS])
 if SIGMA > 0:
-    OUTPUT_DIR = config.get_fig_path(
-        "3d", "whole_domain_pressure_two_levels_with_centers",
-        f"z{Z1}_z{Z2}_centers_{z_center_str}_smooth{SIGMA:.1f}"
-    )
+    OUTPUT_DIR = config.get_domain_path("whole_domain", f"3d/whole_domain_pressure_two_levels_with_centers/z{Z1}_z{Z2}_centers_{z_center_str}_smooth{SIGMA:.1f}", data_type="fig")
 else:
-    OUTPUT_DIR = config.get_fig_path(
-        "3d", "whole_domain_pressure_two_levels_with_centers",
-        f"z{Z1}_z{Z2}_centers_{z_center_str}"
-    )
+    OUTPUT_DIR = config.get_domain_path("whole_domain", f"3d/whole_domain_pressure_two_levels_with_centers/z{Z1}_z{Z2}_centers_{z_center_str}", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")

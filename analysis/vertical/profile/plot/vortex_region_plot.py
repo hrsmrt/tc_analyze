@@ -21,11 +21,11 @@ varname = sys.argv[1]
 mpl_style_sheet = parse_style_argument()
 
 # 出力ディレクトリ
-output_dir = config.get_fig_path("z_profile", "vortex_region", varname)
+output_dir = config.get_tc_centric_path("vertical", f"profile_vortex/{varname}", data_type="fig")
 os.makedirs(output_dir, exist_ok=True)
 
 # データの読み込み
-data_all = np.load(os.path.join(config.get_data_path('z_profile', 'vortex_region'), f"z_{varname}.npy"))
+data_all = np.load(os.path.join(config.get_tc_centric_path('vertical', 'profile_vortex'), f"z_{varname}.npy"))
 vgrid = np.loadtxt(config.vgrid_filepath)
 
 
@@ -33,9 +33,9 @@ def process_t(t):
     data = data_all[t, :]
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(5, 3))
-    ax.plot(data, vgrid)
+    ax.plot(data, vgrid * 1e-3)
     ax.set_xlim(-15, 15)
-    ax.set_ylim(0, 20e3)
+    ax.set_ylim(0, 20)
     ax.set_ylabel("高度 [km]")
     ax.set_xlabel("")
     ax.set_title(f"t = {config.time_list[t]} hour")

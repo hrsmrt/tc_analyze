@@ -25,7 +25,7 @@ mpl_style_sheet = parse_style_argument()
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-OUTPUT_DIR = config.get_fig_path("3d", "psi", "whole_region")
+OUTPUT_DIR = config.get_domain_path("whole_domain", "3d/psi", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
@@ -38,7 +38,7 @@ vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 def process_t(t):
     # ✅ オンデマンド計算: 渦度から流線関数を計算（保存データ不要）
     # 渦度データを読み込み
-    vorticity_z = np.load(os.path.join(config.get_data_path('3d', 'vorticity_z'), f"vor_t{str(t).zfill(3)}.npy"))
+    vorticity_z = np.load(os.path.join(config.get_domain_path('whole_domain', '3d/vorticity_z'), f"vor_t{str(t).zfill(3)}.npy"))
 
     # 流線関数を計算
     data_t = calculate_streamfunction(vorticity_z, config.dx, config.dy)

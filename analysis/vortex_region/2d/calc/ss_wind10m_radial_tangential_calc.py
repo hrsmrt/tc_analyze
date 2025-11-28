@@ -12,8 +12,8 @@ from utils.grid import GridHandler
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-folder1 = config.get_data_path("2d", "wind10m_radial")
-folder2 = config.get_data_path("2d", "wind10m_tangential")
+folder1 = config.get_tc_centric_path("vortex_region", "2d/ss_wind10m_radial")
+folder2 = config.get_tc_centric_path("vortex_region", "2d/ss_wind10m_tangential")
 
 os.makedirs(folder1, exist_ok=True)
 os.makedirs(folder2, exist_ok=True)

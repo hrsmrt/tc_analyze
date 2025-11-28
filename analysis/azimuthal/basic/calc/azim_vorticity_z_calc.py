@@ -17,6 +17,7 @@ from joblib import Parallel, delayed
 
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
+from utils.vorticity import calculate_vorticity_z
 
 config = AnalysisConfig()
 grid = GridHandler(config)
@@ -25,7 +26,7 @@ r_max = 1000e3
 
 X, Y = grid.X, grid.Y
 
-folder = config.get_data_path("azim", "vorticity_z")
+folder = config.get_tc_centric_path("azimuthal", "basic/vorticity_z")
 
 os.makedirs(folder, exist_ok=True)
 
@@ -68,25 +69,8 @@ def process_t(t):
     data_u = data_all_u[t]
     data_v = data_all_v[t]
 
-    # z方向渦度を計算（vorticity_z_calc.pyのロジックと同じ）
-    dv_dx = (np.roll(data_v, -1, axis=2) - np.roll(data_v, 1, axis=2)) / (2 * config.dx)
-    du_dy = (np.roll(data_u, -1, axis=1) - np.roll(data_u, 1, axis=1)) / (2 * config.dy)
-
-    # 境界条件の処理（北極と南極）
-    du_dy[:, 0, : config.nx // 2] = (
-        data_u[:, 1, : config.nx // 2] - data_u[:, -1, config.nx // 2:]
-    ) / (2 * config.dy)
-    du_dy[:, 0, config.nx // 2:] = (
-        data_u[:, 1, config.nx // 2:] - data_u[:, -1, : config.nx // 2]
-    ) / (2 * config.dy)
-    du_dy[:, -1, : config.nx // 2] = (
-        data_u[:, 0, : config.nx // 2] - data_u[:, -2, config.nx // 2:]
-    ) / (2 * config.dy)
-    du_dy[:, -1, config.nx // 2:] = (
-        data_u[:, 0, config.nx // 2:] - data_u[:, -2, : config.nx // 2]
-    ) / (2 * config.dy)
-
-    data = dv_dx - du_dy
+    # ✅ 共通関数を使用: utils/vorticity.py
+    data = calculate_vorticity_z(data_u, data_v, config.dx, config.dy)
 
     valid_data = data[:, mask]
 

@@ -171,7 +171,7 @@ def main():
             iterations_all[t_idx, z_idx] = num_iter
 
     # Save results as .npz file with metadata: shape (nt, nz, 2)
-    OUTPUT_DIR = config.get_data_path("center/ms_pres")
+    OUTPUT_DIR = config.get_center_path("ms_pres")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     # Get filename from config (default: "center.npz")
@@ -300,7 +300,7 @@ def load_ss_slp_center(config):
     Returns:
         numpy array of shape (nt, 2) with [x, y] coordinates
     """
-    center_dir = os.path.join(config.data_dir, "center/ss_slp")
+    center_dir = config.get_center_path("ss_slp")
 
     # Try to load .npz file first
     npz_path = os.path.join(center_dir, "center.npz")

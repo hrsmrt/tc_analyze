@@ -24,16 +24,16 @@ f = config.f
 pres_s = PRES_S
 L = Lv
 
-output_folder = config.get_data_path("azim", "eliassen", "I_prime2")
+output_folder = config.get_tc_centric_path("azimuthal", "eliassen/I_prime2")
 os.makedirs(output_folder, exist_ok=True)
 
 theta_ref = 300.0  # 基準温位 K
 
 
 def process_t(t):
-    I2 = np.load(os.path.join(config.get_data_path('azim', 'eliassen'), f"I2/t{str(t).zfill(3)}.npy"))
-    gamma = np.load(os.path.join(config.get_data_path('azim', 'eliassen'), f"gamma/t{str(t).zfill(3)}.npy"))
-    B = np.load(os.path.join(config.get_data_path('azim', 'eliassen'), f"B/t{str(t).zfill(3)}.npy"))
+    I2 = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/eliassen'), f"I2/t{str(t).zfill(3)}.npy"))
+    gamma = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/eliassen'), f"gamma/t{str(t).zfill(3)}.npy"))
+    B = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/eliassen'), f"B/t{str(t).zfill(3)}.npy"))
     I2_prime = I2 - (gamma[:, 1:] + gamma[:, :-1]) * 0.5 * B
     np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), I2_prime)
     # print(f"t={t} done")

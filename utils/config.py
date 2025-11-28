@@ -502,6 +502,88 @@ class AnalysisConfig:
         """
         return os.path.join(self.fig_dir, *paths)
 
+    def get_domain_path(
+        self, category: str, subcategory: str = "", data_type: str = "data"
+    ) -> str:
+        """
+        中心非依存データのパスを生成
+
+        Args:
+            category (str): カテゴリ名（whole_domain, vertical など）
+            subcategory (str, optional): サブカテゴリ（2d, 3d, profile など）
+            data_type (str): "data" または "fig"
+
+        Returns:
+            str: 完全なパス
+
+        Examples:
+            >>> config.get_domain_path("whole_domain", "2d/ss_slp_min")
+            "./data/domain/whole_domain/2d/ss_slp_min"
+
+            >>> config.get_domain_path("vertical", "profile/z_profile", data_type="fig")
+            "./fig/domain/vertical/profile/z_profile"
+        """
+        base = self.data_dir if data_type == "data" else self.fig_dir
+        path_parts = ["domain", category]
+        if subcategory:
+            path_parts.append(subcategory)
+        return os.path.join(base, *path_parts)
+
+    def get_center_path(self, center_type: str, data_type: str = "data") -> str:
+        """
+        中心座標データのパスを生成
+
+        Args:
+            center_type (str): "ss_slp" または "ms_pres"
+            data_type (str): "data" または "fig"
+
+        Returns:
+            str: 完全なパス
+
+        Examples:
+            >>> config.get_center_path("ss_slp")
+            "./data/center/ss_slp"
+
+            >>> config.get_center_path("ms_pres", data_type="fig")
+            "./fig/center/ms_pres"
+        """
+        base = self.data_dir if data_type == "data" else self.fig_dir
+        return os.path.join(base, "center", center_type)
+
+    def get_tc_centric_path(
+        self, category: str, subcategory: str = "", data_type: str = "data"
+    ) -> str:
+        """
+        TC相対座標系データのパスを生成
+
+        Args:
+            category (str): カテゴリ名（vortex_region, azimuthal, vertical, diagnostics など）
+            subcategory (str, optional): サブカテゴリ（階層的に指定可能）
+                                         例: "basic/wind", "momentum/u/du_dr"
+            data_type (str): "data" または "fig"
+
+        Returns:
+            str: 完全なパス
+
+        Examples:
+            >>> config.get_tc_centric_path("vortex_region", "2d/ss_wind10m")
+            "./data/tc_centric/vortex_region/2d/ss_wind10m"
+
+            >>> config.get_tc_centric_path("azimuthal", "basic/wind")
+            "./data/tc_centric/azimuthal/basic/wind"
+
+            >>> config.get_tc_centric_path("azimuthal", "momentum/u/du_dr", data_type="fig")
+            "./fig/tc_centric/azimuthal/momentum/u/du_dr"
+
+            >>> config.get_tc_centric_path("diagnostics", "sums")
+            "./data/tc_centric/diagnostics/sums"
+        """
+        base = self.data_dir if data_type == "data" else self.fig_dir
+        path_parts = ["tc_centric", category]
+        if subcategory:
+            path_parts.append(subcategory)
+        return os.path.join(base, *path_parts)
+
     # === 領域計算用のヘルパーメソッド ===
 
     def get_extent_indices(

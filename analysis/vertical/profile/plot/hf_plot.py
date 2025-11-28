@@ -19,11 +19,11 @@ config = AnalysisConfig()
 mpl_style_sheet = parse_style_argument()
 
 # 出力ディレクトリ
-output_dir = config.get_fig_path("z_profile", "hf")
+output_dir = config.get_domain_path("vertical", "profile/hf", data_type="fig")
 os.makedirs(output_dir, exist_ok=True)
 
 # データの読み込み
-hf_all = np.load(os.path.join(config.get_data_path('z_profile'), "hf.npy"))
+hf_all = np.load(os.path.join(config.get_domain_path("vertical", "profile"), "hf.npy"))
 vgrid = np.loadtxt(config.vgrid_filepath)
 
 # 統計量の計算

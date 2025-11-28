@@ -15,7 +15,7 @@ from utils.config import AnalysisConfig
 # 設定とグリッドの初期化
 config = AnalysisConfig()
 
-FOLDER = config.get_data_path("3d", "divergence")
+FOLDER = config.get_domain_path("whole_domain", "3d/divergence")
 
 os.makedirs(FOLDER, exist_ok=True)
 

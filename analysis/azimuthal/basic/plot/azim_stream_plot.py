@@ -19,12 +19,12 @@ mpl_style_sheet = parse_style_argument()
 
 vgrid = grid.create_vertical_grid()
 
-output_folder = config.get_fig_path("azim", "stream")
+output_folder = config.get_tc_centric_path("azimuthal", "basic/stream", data_type="fig")
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(os.path.join(config.get_data_path('azim', 'stream'), f"t{str(t).zfill(3)}.npy"))
+    data = np.load(os.path.join(config.get_tc_centric_path("azimuthal", "basic/stream"), f"t{str(t).zfill(3)}.npy"))
     # データの形状から半径方向のグリッドを作成
     nr = data.shape[1]
     rgrid = (np.arange(nr) + 0.5) * config.dx

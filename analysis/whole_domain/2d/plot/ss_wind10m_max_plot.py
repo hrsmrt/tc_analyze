@@ -15,11 +15,11 @@ mpl_style_sheet = parse_style_argument()
 # 設定の初期化
 config = AnalysisConfig()
 
-folder = config.get_fig_path("ss_wind10m")
+folder = config.get_domain_path("whole_domain", "2d/ss_wind10m_max", data_type="fig")
 os.makedirs(folder, exist_ok=True)
 
 # データの読み込み
-data = np.load(os.path.join(config.get_data_path(), "ss_wind10m_max.npy"))
+data = np.load(os.path.join(config.get_domain_path("whole_domain", "2d/ss_wind10m_max"), "ss_wind10m_max.npy"))
 
 # プロット
 plt.style.use(mpl_style_sheet)

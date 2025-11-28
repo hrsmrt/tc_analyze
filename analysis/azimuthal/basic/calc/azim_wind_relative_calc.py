@@ -26,8 +26,8 @@ from utils.grid import GridHandler
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-output_folder1 = config.get_data_path("azim", "wind_relative_radial")
-output_folder2 = config.get_data_path("azim", "wind_relative_tangential")
+output_folder1 = config.get_tc_centric_path("azimuthal", "basic/wind_relative_radial")
+output_folder2 = config.get_tc_centric_path("azimuthal", "basic/wind_relative_tangential")
 
 os.makedirs(output_folder1, exist_ok=True)
 os.makedirs(output_folder2, exist_ok=True)

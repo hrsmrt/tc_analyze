@@ -26,7 +26,7 @@ grid = GridHandler(config)
 
 vgrid = grid.create_vertical_grid()
 
-folder = config.get_fig_path("azim", "wind_radial")
+folder = config.get_tc_centric_path("azimuthal", "basic/wind_radial", data_type="fig")
 
 os.makedirs(folder, exist_ok=True)
 

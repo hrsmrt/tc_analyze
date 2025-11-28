@@ -40,9 +40,9 @@ grid = GridHandler(config)
 
 # 出力ディレクトリ（smooth化の有無で分ける）
 if SIGMA > 0:
-    OUTPUT_DIR = config.get_fig_path("3d", "whole_domain_two_levels", os.path.join(VARNAME, f"_z{Z1}_z{Z2}_smooth{SIGMA:.1f}"))
+    OUTPUT_DIR = config.get_domain_path("whole_domain", os.path.join(f"3d/whole_domain_two_levels/{VARNAME}", f"_z{Z1}_z{Z2}_smooth{SIGMA:.1f}"), data_type="fig")
 else:
-    OUTPUT_DIR = config.get_fig_path("3d", "whole_domain_two_levels", os.path.join(VARNAME, f"_z{Z1}_z{Z2}"))
+    OUTPUT_DIR = config.get_domain_path("whole_domain", os.path.join(f"3d/whole_domain_two_levels/{VARNAME}", f"_z{Z1}_z{Z2}"), data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")

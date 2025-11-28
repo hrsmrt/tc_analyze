@@ -31,11 +31,11 @@ r_max = 1000e3
 
 X, Y = grid.X, grid.Y
 
-output_folder = config.get_data_path("azim2", varname)
+output_folder = config.get_tc_centric_path("azimuthal", f"basic2/{varname}")
 
 os.makedirs(output_folder, exist_ok=True)
 
-center_list = np.loadtxt(os.path.join(config.get_data_path(), "low_2.txt"), delimiter=",", skiprows=1)
+center_list = np.loadtxt(os.path.join(config.get_domain_path("whole_domain", "2d"), "low_2.txt"), delimiter=",", skiprows=1)
 center_x_list = center_list[:, 1] * config.dx
 center_y_list = center_list[:, 2] * config.dy
 

@@ -25,7 +25,7 @@ grid = GridHandler(config)
 
 mpl_style_sheet = parse_style_argument()
 
-OUTPUT_FOLDER = config.get_fig_path("azim", "wind_relative_radial")
+OUTPUT_FOLDER = config.get_tc_centric_path("azimuthal", "basic/wind_relative_radial", data_type="fig")
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 center_x_list = config.center_x

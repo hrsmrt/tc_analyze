@@ -20,19 +20,19 @@ config = AnalysisConfig()
 grid = GridHandler(config)
 
 # グリッド設定：データから実際のサイズを取得
-sample_data = np.load(os.path.join(config.get_data_path('symmetrisity', varname), f"t{str(config.t_first).zfill(3)}.npy"))
+sample_data = np.load(os.path.join(config.get_tc_centric_path('diagnostics', f'symmetrisity/{varname}'), f"t{str(config.t_first).zfill(3)}.npy"))
 nr = sample_data.shape[1]
 R_MAX = nr * config.dx
 r_mesh, z_mesh = grid.create_radial_vertical_meshgrid(R_MAX)
 
-output_folder = config.get_fig_path("symmetrisity", varname)
+output_folder = config.get_tc_centric_path("diagnostics", f"symmetrisity/{varname}", data_type="fig")
 
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
     # データの読み込み
-    data = np.load(os.path.join(config.get_data_path('symmetrisity', varname), f"t{str(t).zfill(3)}.npy"))
+    data = np.load(os.path.join(config.get_tc_centric_path('diagnostics', f'symmetrisity/{varname}'), f"t{str(t).zfill(3)}.npy"))
 
     # プロット
     plt.style.use(mpl_style_sheet)

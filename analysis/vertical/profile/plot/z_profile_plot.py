@@ -21,11 +21,11 @@ varname = sys.argv[1]
 mpl_style_sheet = parse_style_argument()
 
 # 出力ディレクトリ
-output_dir = config.get_fig_path("z_profile", "whole_domain", varname)
+output_dir = config.get_domain_path("vertical", f"profile/{varname}", data_type="fig")
 os.makedirs(output_dir, exist_ok=True)
 
 # データの読み込み
-data_all = np.load(os.path.join(config.get_data_path('z_profile'), f"z_{varname}.npy"))
+data_all = np.load(os.path.join(config.get_domain_path('vertical', 'profile'), f"z_{varname}.npy"))
 vgrid = np.loadtxt(config.vgrid_filepath)
 
 

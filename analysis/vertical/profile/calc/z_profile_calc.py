@@ -13,7 +13,7 @@ config = AnalysisConfig()
 varname = sys.argv[1]
 
 # 出力ディレクトリ
-output_dir = config.get_data_path("z_profile")
+output_dir = config.get_domain_path("vertical", "profile")
 os.makedirs(output_dir, exist_ok=True)
 
 # データの読み込みと処理
@@ -28,4 +28,4 @@ z_profile_all = data_memmap.mean(axis=(2, 3))
 
 # 保存
 np.save(os.path.join(output_dir, f"z_{varname}.npy"), z_profile_all)
-print(f"✅ Saved z_profile data for {varname} to {output_dir}z_{varname}.npy")
+print(f"✅ Saved z_profile data for {varname} to {output_dir}/z_{varname}.npy")

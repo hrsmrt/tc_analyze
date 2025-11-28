@@ -27,7 +27,7 @@ custom_rainbow = ListedColormap(colors)
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-OUTPUT_DIR = config.get_fig_path("2d", "whole_domain_with_center", VARNAME)
+OUTPUT_DIR = config.get_domain_path("whole_domain", f"2d/whole_domain_with_center/{VARNAME}", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 center_x_list = config.center_x

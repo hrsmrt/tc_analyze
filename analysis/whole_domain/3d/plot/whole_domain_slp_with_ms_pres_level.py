@@ -49,15 +49,9 @@ grid = GridHandler(config)
 
 # 出力ディレクトリ（smooth化の有無で分ける）
 if SIGMA > 0:
-    OUTPUT_DIR = config.get_fig_path(
-        "3d", "whole_domain_slp_with_ms_pres_level",
-        f"z{Z_MS_PRES}_smooth{SIGMA:.1f}"
-    )
+    OUTPUT_DIR = config.get_domain_path("whole_domain", f"3d/whole_domain_slp_with_ms_pres_level/z{Z_MS_PRES}_smooth{SIGMA:.1f}", data_type="fig")
 else:
-    OUTPUT_DIR = config.get_fig_path(
-        "3d", "whole_domain_slp_with_ms_pres_level",
-        f"z{Z_MS_PRES}"
-    )
+    OUTPUT_DIR = config.get_domain_path("whole_domain", f"3d/whole_domain_slp_with_ms_pres_level/z{Z_MS_PRES}", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")

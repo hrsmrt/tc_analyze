@@ -16,13 +16,13 @@ nr = int(radius / config.dx)
 
 # rgrid generated via grid.create_radial_vertical_meshgrid
 
-output_folder = config.get_data_path("azim", "eq_momentum_u", "coriolis")
+output_folder = config.get_tc_centric_path("azimuthal", "momentum/u/coriolis")
 
 os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(os.path.join(config.get_data_path('azim', 'wind_relative_tangential'), f"t{str(t).zfill(3)}.npy"))
+    data = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/wind_relative_tangential'), f"t{str(t).zfill(3)}.npy"))
     coriolis = -data * f
     np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), coriolis)
 

@@ -55,7 +55,7 @@ data_v = np.memmap(
 
 X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)
 
-OUTPUT_FOLDER = config.get_fig_path("3d", "vortex_region", "relative_wind_uv_abs")
+OUTPUT_FOLDER = config.get_tc_centric_path("vortex_region", "3d/ms_wind_relative_uv_abs", data_type="fig")
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]

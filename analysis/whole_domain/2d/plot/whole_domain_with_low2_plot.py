@@ -26,10 +26,10 @@ custom_rainbow = ListedColormap(colors)
 # 設定の初期化
 config = AnalysisConfig()
 grid = GridHandler(config)
-OUTPUT_DIR = config.get_fig_path("2d", "whole_domain_with_low2", VARNAME)
+OUTPUT_DIR = config.get_domain_path("whole_domain", f"2d/whole_domain_with_low2/{VARNAME}", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-center_list = np.loadtxt(os.path.join(config.get_data_path(), "low_2.txt"), delimiter=",", skiprows=1)
+center_list = np.loadtxt(os.path.join(config.get_domain_path("whole_domain", "2d"), "low_2.txt"), delimiter=",", skiprows=1)
 center_x_list = center_list[:, 1] * config.dx
 center_y_list = center_list[:, 2] * config.dy
 

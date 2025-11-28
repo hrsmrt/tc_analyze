@@ -24,7 +24,7 @@ EXTENT = 500e3
 center_x_list = config.center_x
 center_y_list = config.center_y
 
-OUTPUT_DIR = config.get_fig_path("3d", "vortex_region", "vorticity_z")
+OUTPUT_DIR = config.get_tc_centric_path("vortex_region", "3d/vorticity_z", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)
@@ -37,7 +37,7 @@ vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
 
 def process_t(t):
-    data_t = np.load(os.path.join(config.get_data_path("3d", "vorticity_z"), f"vor_t{str(t).zfill(3)}.npy"))
+    data_t = np.load(os.path.join(config.get_domain_path("whole_domain", "3d/vorticity_z"), f"vor_t{str(t).zfill(3)}.npy"))
     center_x = center_x_list[t]
     center_y = center_y_list[t]
     for z in z_list:

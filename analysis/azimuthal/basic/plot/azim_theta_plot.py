@@ -27,7 +27,7 @@ mpl_style_sheet = parse_style_argument()
 
 vgrid = np.loadtxt(config.vgrid_filepath)
 
-output_folder = config.get_fig_path("azim", "theta")
+output_folder = config.get_tc_centric_path("azimuthal", "basic/theta", data_type="fig")
 os.makedirs(output_folder, exist_ok=True)
 
 center_x_list = config.center_x

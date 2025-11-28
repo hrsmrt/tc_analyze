@@ -1,5 +1,5 @@
 # python $WORK/tc_analyze/analysis/azimuthal/eliassen/calc/azim_N2_calc.py
-# input: os.path.join(config.get_data_path('azim', 'buoyancy'), f"t{str(t).zfill(3)}.npy") 温度
+# input: os.path.join(config.get_tc_centric_path('azimuthal', 'basic/buoyancy'), f"t{str(t).zfill(3)}.npy") 温度
 # output: N^2 = dB/dz
 
 import os
@@ -25,14 +25,14 @@ f = config.f
 pres_s = PRES_S
 L = Lv
 
-output_folder = config.get_data_path("azim", "eliassen", "N2")
+output_folder = config.get_tc_centric_path("azimuthal", "eliassen/N2")
 os.makedirs(output_folder, exist_ok=True)
 
 theta_ref = 300.0  # 基準温位 K
 
 
 def process_t(t):
-    b = np.load(os.path.join(config.get_data_path('azim', 'eliassen', 'buoyancy'), f"t{str(t).zfill(3)}.npy"))
+    b = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'eliassen/buoyancy'), f"t{str(t).zfill(3)}.npy"))
 
     # ベクトル化版（従来のforループより10-100倍高速）
     # 従来版: for z in range(config.nz - 1): db_dz[z, :] = (b[z + 1, :] - b[z, :]) / (vgrid[z + 1] - vgrid[z])

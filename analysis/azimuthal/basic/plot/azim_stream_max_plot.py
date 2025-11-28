@@ -16,12 +16,12 @@ grid = GridHandler(config)
 
 mpl_style_sheet = parse_style_argument()
 
-output_folder = config.get_fig_path("azim", "stream")
+output_folder = config.get_tc_centric_path("azimuthal", "basic/stream", data_type="fig")
 os.makedirs(output_folder, exist_ok=True)
 
 max_phi = []
 for t in range(config.t_first, config.t_last + 1):
-    data = np.load(os.path.join(config.get_data_path('azim', 'stream'), f"t{str(t).zfill(3)}.npy"))
+    data = np.load(os.path.join(config.get_tc_centric_path("azimuthal", "basic/stream"), f"t{str(t).zfill(3)}.npy"))
     print(f"t={t} max: {np.nanmax(data)}")
     max_phi.append(np.nanmax(data))
 
