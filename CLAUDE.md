@@ -14,21 +14,27 @@
    @./README.md
    - 全体像、環境構築、クイックスタート
 
-2. **コマンドリファレンス（よく使うコマンド）**
+2. **解析ワークフロー（NEW! 2025-11-28）**
+   @./ANALYSIS_WORKFLOW.md
+   - 解析の実行順序、依存関係の整理
+   - 並列実行可能な処理の明確化
+   - 中心非依存 vs 中心依存解析
+
+3. **コマンドリファレンス（よく使うコマンド）**
    @./docs/COMMAND_REFERENCE.md
    - analyze.shの使い方、トラブルシューティング
 
-3. **アーキテクチャ設計書**
+4. **アーキテクチャ設計書**
    @./docs/ARCHITECTURE.md
    - システム構成、データフロー、拡張ガイド
 
-4. **物理計算リファレンス（NEW! 2025-11-27）**
+5. **物理計算リファレンス（2025-11-27）**
    @./docs/UTILS_PHYSICS_REFERENCE.md
    - utils内の全物理定数（Cp, Rd, g, PRES_Sなど）
    - 熱力学計算（温位θ、相当温位θ_e）
    - 風速場計算、方位角平均、流線関数など
 
-5. **作業履歴とコーディング規約**
+6. **作業履歴とコーディング規約**
    @./WORK_LOG.md
    - 確立されたコーディングパターン
    - グリッド生成、ビニング方法の統一
@@ -36,10 +42,10 @@
 
 ### 補足ドキュメント
 
-6. **リファクタリング概要**
+7. **リファクタリング概要**
    @./archive/docs/REFACTORING_SUMMARY.md
 
-7. **マイグレーション完了報告**
+8. **マイグレーション完了報告**
    @./archive/docs/MIGRATION_COMPLETE.md
 
 ---
@@ -313,6 +319,7 @@ center_x = config.center_x[t, z]  # shape: (nt, nz)
 
 | やりたいこと | 参照先 |
 |------------|--------|
+| **解析の実行順序を知りたい** | [ANALYSIS_WORKFLOW.md](./ANALYSIS_WORKFLOW.md) |
 | **コマンド実行方法を知りたい** | [docs/COMMAND_REFERENCE.md](./docs/COMMAND_REFERENCE.md) |
 | **CLIツールを使いたい** | このページの「CLIツール」セクション、または `tc-analyze --help` |
 | **データファイル情報を確認したい** | `tc-analyze data list/info/stats` コマンド |

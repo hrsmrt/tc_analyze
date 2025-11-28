@@ -10,6 +10,7 @@
 
 - [概要](#概要)
 - [クイックスタート](#クイックスタート)
+- [解析ワークフロー](#解析ワークフロー)
 - [主な機能](#主な機能)
 - [環境構築](#環境構築)
 - [使い方](#使い方)
@@ -161,6 +162,34 @@ tc-analyze --help
 ```
 
 詳細は[docs/COMMAND_REFERENCE.md](./docs/COMMAND_REFERENCE.md)を参照してください。
+
+---
+
+## 🔄 解析ワークフロー
+
+TC解析は以下の順序で実行します：
+
+### ステップ1: 準備
+- `setting.json` - 解析設定
+- `filenames_2d.txt` - 2次元変数リスト
+- `filenames_3d.txt` - 3次元変数リスト
+
+### ステップ2: 並列実行可能（中心位置非依存）
+
+以下の解析は**任意の順序または並列で実行可能**です：
+
+- **TC中心位置の特定** → `sh $WORK/tc_analyze/run/analyze.sh center`
+- **時系列解析**（気圧極小値、最大風速等）
+- **全領域分布の描画** → `sh $WORK/tc_analyze/run/analyze.sh 2d 3d`
+
+### ステップ3: TC中心依存解析
+
+**前提条件**: ステップ2でTC中心座標が計算済みであること
+
+- **渦領域解析** → `sh $WORK/tc_analyze/run/analyze.sh vortex_region`
+- **方位角平均解析** → `sh $WORK/tc_analyze/run/analyze.sh azim`
+
+詳細なワークフローは **[ANALYSIS_WORKFLOW.md](./ANALYSIS_WORKFLOW.md)** を参照してください。
 
 ---
 
@@ -364,6 +393,7 @@ tc-analyze center --help
 
 | ドキュメント | 説明 |
 |-------------|------|
+| [ANALYSIS_WORKFLOW.md](./ANALYSIS_WORKFLOW.md) | **解析ワークフロー** - 解析の実行順序、依存関係、並列実行可能な処理の整理 |
 | [docs/COMMAND_REFERENCE.md](./docs/COMMAND_REFERENCE.md) | **コマンドリファレンス** - よく使うコマンド、実行方法、CLIツール、トラブルシューティング |
 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | **アーキテクチャ設計書** - システム構成、データフロー、モジュール設計、拡張ガイド |
 | [docs/CENTER_CONFIGURATION.md](./docs/CENTER_CONFIGURATION.md) | **中心座標設定ガイド** - TC中心座標の計算、設定、読み込み、メタデータ管理 |
