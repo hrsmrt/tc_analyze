@@ -10,6 +10,7 @@ Usage:
 """
 
 import argparse
+import datetime
 import os
 import numpy as np
 from joblib import Parallel, delayed
@@ -92,6 +93,7 @@ def main():
     metadata = {
         "center": center,
         "method": "weighted_centroid",
+        "created_at": datetime.datetime.utcnow().isoformat() + "Z",
         "actual_iterations": np.array(iterations),
         "r_refine": r_refine,
         "max_iterations": 100,

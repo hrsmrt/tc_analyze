@@ -12,6 +12,7 @@ Usage:
 """
 
 import argparse
+import datetime
 import os
 import numpy as np
 from joblib import Parallel, delayed
@@ -124,6 +125,7 @@ def main():
     metadata = {
         "center": center,
         "method": method,
+        "created_at": datetime.datetime.utcnow().isoformat() + "Z",
         "actual_iterations": np.array(iterations),
     }
 

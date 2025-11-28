@@ -13,6 +13,7 @@ Usage:
 """
 
 import argparse
+import datetime
 import os
 import numpy as np
 from joblib import Parallel, delayed
@@ -114,6 +115,7 @@ def main():
     metadata = {
         "center": center,
         "method": "smoothed_minimum",
+        "created_at": datetime.datetime.utcnow().isoformat() + "Z",
         "actual_iterations": np.array(iterations),
         "r_smooth": r_smooth,
         "refine_after_smooth": refine,

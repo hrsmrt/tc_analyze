@@ -14,6 +14,7 @@ Usage:
 """
 
 import argparse
+import datetime
 import os
 
 import numpy as np
@@ -151,6 +152,7 @@ def main():
     metadata = {
         "center": center_all,
         "method": "smoothed_minimum",
+        "created_at": datetime.datetime.utcnow().isoformat() + "Z",
         "actual_iterations": iterations_all,
         "z_first": z_first,
         "z_last": z_last,
