@@ -334,7 +334,17 @@ fi
 
 run_center() {
     log_section "Center Analysis"
-    run_cmd "python ${TC_ANALYZE}/analysis/center/ss_slp/calc/ss_slp_center_calc.py"
+    # SS SLP center calculation (weighted_centroid method by default)
+    run_cmd "python ${TC_ANALYZE}/analysis/center/ss_slp/calc/weighted.py"
+    # Alternatively, use smoothed_minimum method:
+    # run_cmd "python ${TC_ANALYZE}/analysis/center/ss_slp/calc/smoothed.py"
+    # Or use the combined script with --method option:
+    # run_cmd "python ${TC_ANALYZE}/analysis/center/ss_slp/calc/ss_slp_center_calc.py --method weighted_centroid"
+
+    # MS pressure center calculation (optional, uncomment if needed)
+    # run_cmd "python ${TC_ANALYZE}/analysis/center/ms_pres/calc/weighted.py"
+    # run_cmd "python ${TC_ANALYZE}/analysis/center/ms_pres/calc/smoothed.py"
+
     run_cmd "python ${TC_ANALYZE}/analysis/center/ss_slp/plot/ss_slp_center_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/center/ss_slp_center_velocity.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/center/mass_all.py ${STYLE}"
