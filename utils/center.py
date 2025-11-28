@@ -135,6 +135,7 @@ def load_center_coordinates(config, center_type):
 
     Loads center coordinates based on config.center_configs settings.
     The filename is determined by the center_configs dictionary in setting.json.
+    Supports both .npz and .npy formats.
 
     Args:
         config: AnalysisConfig instance
@@ -147,6 +148,7 @@ def load_center_coordinates(config, center_type):
                 - For ms_pres: shape (nt, nz)
             - center_y: numpy array (same shape as center_x)
             - metadata: dict containing additional information from the npz file
+                       (empty dict for .npy files)
 
     Raises:
         FileNotFoundError: If the center file is not found
@@ -175,7 +177,24 @@ def load_center_coordinates(config, center_type):
     center_dir = os.path.join(config.data_dir, f"center/{center_type}")
     center_path = os.path.join(center_dir, filename)
 
-    # Check if file exists
+    # Try to find the file with fallback to different extension
+    if not os.path.exists(center_path):
+        # Try alternative extension
+        base, ext = os.path.splitext(filename)
+        if ext == '.npz':
+            alt_filename = base + '.npy'
+        elif ext == '.npy':
+            alt_filename = base + '.npz'
+        else:
+            alt_filename = None
+
+        if alt_filename:
+            alt_path = os.path.join(center_dir, alt_filename)
+            if os.path.exists(alt_path):
+                center_path = alt_path
+                filename = alt_filename
+
+    # Final check if file exists
     if not os.path.exists(center_path):
         raise FileNotFoundError(
             f"Center file not found: {center_path}\n"
@@ -184,12 +203,25 @@ def load_center_coordinates(config, center_type):
             f"  - For ms_pres: python analysis/center/calc/ms_pres_center_calc.py"
         )
 
-    # Load data
-    data = np.load(center_path)
+    # Determine file format
+    file_ext = os.path.splitext(center_path)[1]
 
-    # Extract center coordinates
-    center = data["center"]  # shape: (nt, 2) or (nt, nz, 2)
+    # Load data based on file format
+    if file_ext == '.npz':
+        # Load .npz file
+        data = np.load(center_path)
+        center = data["center"]  # shape: (nt, 2) or (nt, nz, 2)
+        # Extract metadata (all keys except 'center')
+        metadata = {key: data[key] for key in data.files if key != "center"}
+    elif file_ext == '.npy':
+        # Load .npy file
+        center = np.load(center_path)  # shape: (nt, 2) or (nt, nz, 2)
+        # No metadata for .npy files
+        metadata = {}
+    else:
+        raise ValueError(f"Unsupported file format: {file_ext}. Must be .npz or .npy")
 
+    # Extract center coordinates based on center_type
     if center_type == "ss_slp":
         # 2D center: shape (nt, 2)
         center_x = center[:, 0]  # shape: (nt,)
@@ -201,8 +233,5 @@ def load_center_coordinates(config, center_type):
     else:
         # This should not happen due to the check at the beginning
         raise ValueError(f"Unsupported center_type: {center_type}")
-
-    # Extract metadata (all keys except 'center')
-    metadata = {key: data[key] for key in data.files if key != "center"}
 
     return center_x, center_y, metadata
