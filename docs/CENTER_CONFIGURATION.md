@@ -4,6 +4,9 @@
 
 本ドキュメントでは、TC中心座標の計算、設定、読み込み、メタデータ管理について説明します。
 
+**v2.4.0の新機能（2025-11-29）**:
+- MS PRES中心の3D可視化機能（高度プロファイル・平面散布図）
+
 **v2.3.0の新機能（2025-11-29）**:
 - メソッド別スクリプトの分離（weighted.py / smoothed.py）
 - center_configsの拡張（メソッド別ファイル名管理）
@@ -29,6 +32,8 @@
    - [メタデータの強化: created_at](#メタデータの強化-created_at)
    - [複数パラメータの管理](#複数パラメータの管理)
    - [旧スクリプトとの互換性](#旧スクリプトとの互換性)
+10. [v2.4.0の更新（2025-11-29）](#v240の更新2025-11-29)
+   - [MS PRES中心の3D可視化機能](#ms-pres中心の3d可視化機能)
 
 ---
 
@@ -676,6 +681,103 @@ python analysis/center/ss_slp/calc/ss_slp_center_calc.py --method smoothed_minim
 
 ---
 
+## v2.4.0の更新（2025-11-29）
+
+### MS PRES中心の3D可視化機能
+
+MS PRES（3D気圧中心）の高度依存性を可視化する新しいプロットスクリプトを追加しました。
+
+#### 新しいプロットスクリプト
+
+**1. 高度プロファイルプロット（Vertical Profile）**
+
+各時刻における中心位置の高度分布を2パネルで表示：
+- 左パネル: X座標 vs 高度
+- 右パネル: Y座標 vs 高度
+
+```bash
+# weighted_centroid法
+python analysis/center/ms_pres/plot/weighted_center_vertical_plot.py
+
+# smoothed_minimum法
+python analysis/center/ms_pres/plot/smoothed_center_vertical_plot.py
+
+# スタイル指定も可能
+python analysis/center/ms_pres/plot/weighted_center_vertical_plot.py dark_background
+```
+
+**出力ファイル:** `data/center/ms_pres/fig/vertical_profile_{weighted|smoothed}_t???.png`
+
+**2. 平面散布図プロット（Horizontal Scatter）**
+
+各時刻における中心位置をx-y平面上に高度別に色分けしてプロット：
+- 横軸: X座標 [km]
+- 縦軸: Y座標 [km]
+- 色: 高度 [km]（viridisカラーマップ）
+
+```bash
+# weighted_centroid法
+python analysis/center/ms_pres/plot/weighted_center_horizontal_plot.py
+
+# smoothed_minimum法
+python analysis/center/ms_pres/plot/smoothed_center_horizontal_plot.py
+```
+
+**出力ファイル:** `data/center/ms_pres/fig/horizontal_{weighted|smoothed}_t???.png`
+
+#### プロット機能の特徴
+
+1. **メタデータ表示**
+   - 計算メソッド（weighted_centroid / smoothed_minimum）
+   - パラメータ（r_search, r_refine, r_smooth）
+   - 時刻情報
+
+2. **自動ファイル読み込み**
+   - center_configsから適切な.npzファイルを自動選択
+   - z_first, z_lastのメタデータを使用して正しい高度範囲を取得
+
+3. **並列処理**
+   - joblibによる高速プロット生成
+   - 全時刻を効率的に処理
+
+#### analyze.shへの統合
+
+新しいプロットスクリプトは自動的に実行されるよう`run/analyze.sh`に追加されています：
+
+```bash
+# MS pressure center plots
+run_cmd "python ${TC_ANALYZE}/analysis/center/ms_pres/plot/weighted_center_vertical_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/analysis/center/ms_pres/plot/smoothed_center_vertical_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/analysis/center/ms_pres/plot/weighted_center_horizontal_plot.py ${STYLE}"
+run_cmd "python ${TC_ANALYZE}/analysis/center/ms_pres/plot/smoothed_center_horizontal_plot.py ${STYLE}"
+```
+
+#### 使用例
+
+```bash
+# 1. MS PRES中心を計算（両メソッド）
+python analysis/center/ms_pres/calc/weighted.py
+python analysis/center/ms_pres/calc/smoothed.py
+
+# 2. プロットを生成（自動で4種類）
+sh run/analyze.sh  # または個別に実行
+
+# 3. 結果の確認
+ls data/center/ms_pres/fig/
+# vertical_profile_weighted_t???.png
+# vertical_profile_smoothed_t???.png
+# horizontal_weighted_t???.png
+# horizontal_smoothed_t???.png
+```
+
+#### 注意事項
+
+- プロット実行前にMS PRES中心の計算が必要です
+- 高度範囲は0-20kmで固定表示（データは計算時のz_first〜z_lastに基づく）
+- カラーマップ'viridis'により高度が色で識別可能
+
+---
+
 ## 参考情報
 
 ### 関連ドキュメント
@@ -695,6 +797,17 @@ python analysis/center/ss_slp/calc/ss_slp_center_calc.py --method smoothed_minim
 - `analysis/center/ms_pres/calc/weighted.py` - weighted_centroid法（推奨）
 - `analysis/center/ms_pres/calc/smoothed.py` - smoothed_minimum法（推奨）
 - `analysis/center/ms_pres/calc/ms_pres_center_calc.py` - 統合スクリプト（互換性維持）
+
+**SS SLP中心プロット:**
+- `analysis/center/ss_slp/plot/ss_slp_center_plot.py` - 統合プロット（互換性維持）
+- `analysis/center/ss_slp/plot/weighted_center_plot.py` - weighted法の軌跡プロット
+- `analysis/center/ss_slp/plot/smoothed_center_plot.py` - smoothed法の軌跡プロット
+
+**MS PRES中心プロット:**
+- `analysis/center/ms_pres/plot/weighted_center_vertical_plot.py` - weighted法の高度プロファイル
+- `analysis/center/ms_pres/plot/smoothed_center_vertical_plot.py` - smoothed法の高度プロファイル
+- `analysis/center/ms_pres/plot/weighted_center_horizontal_plot.py` - weighted法の平面散布図
+- `analysis/center/ms_pres/plot/smoothed_center_horizontal_plot.py` - smoothed法の平面散布図
 
 **ユーティリティ:**
 - `utils/config.py` - AnalysisConfig（中心座標自動読み込み）
