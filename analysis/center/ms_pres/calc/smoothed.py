@@ -78,7 +78,7 @@ def parse_args():
 def main():
     """Main function to process all z-levels and time steps."""
     args = parse_args()
-    config = AnalysisConfig(config_path=args.config)
+    config = AnalysisConfig(config_file=args.config)
     grid = GridHandler(config)
 
     # Determine z-level range and smoothing parameters

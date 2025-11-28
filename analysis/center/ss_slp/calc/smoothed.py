@@ -62,7 +62,7 @@ def parse_args():
 def main():
     """Main function to find TC centers for all time steps."""
     args = parse_args()
-    config = AnalysisConfig(config_path=args.config)
+    config = AnalysisConfig(config_file=args.config)
     grid = GridHandler(config)
 
     r_smooth = args.r_smooth
