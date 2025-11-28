@@ -186,3 +186,245 @@ def data_stats(
     except Exception as e:
         typer.secho(f"✗ Error: {e}", fg=typer.colors.RED)
         raise typer.Exit(1)
+
+
+@app.command("annotate")
+def annotate_file(
+    filepath: str = typer.Argument(..., help="Path to .npz file (relative or absolute)"),
+    config_file: Optional[str] = typer.Option(None, "--config", "-c", help="Configuration file"),
+):
+    """Interactively add or edit metadata in .npz files.
+
+    This command allows you to add custom metadata (description, notes, author, etc.)
+    to existing .npz files through an interactive menu.
+
+    Examples:
+        tc-analyze data annotate center/ss_slp/center.npz
+        tc-analyze data annotate /path/to/file.npz
+    """
+    try:
+        # Resolve file path
+        if not os.path.isabs(filepath):
+            if os.path.exists(filepath):
+                full_path = os.path.abspath(filepath)
+            else:
+                try:
+                    config = AnalysisConfig(config_file=config_file, auto_parse_args=False)
+                    full_path = os.path.join(config.data_dir, filepath)
+                except:
+                    full_path = filepath
+        else:
+            full_path = filepath
+
+        # Check file existence
+        if not os.path.exists(full_path):
+            typer.secho(f"✗ File not found: {full_path}", fg=typer.colors.RED)
+            raise typer.Exit(1)
+
+        # Check file extension
+        if not full_path.endswith('.npz'):
+            typer.secho(f"✗ This command only works with .npz files", fg=typer.colors.RED)
+            typer.echo(f"  File: {full_path}")
+            raise typer.Exit(1)
+
+        # Load existing data
+        data = np.load(full_path)
+        save_dict = {key: data[key] for key in data.files}
+
+        typer.secho(f"\n📝 Annotating: {os.path.basename(full_path)}\n", fg=typer.colors.CYAN, bold=True)
+        typer.echo(f"  Path: {full_path}\n")
+
+        # Interactive loop
+        modified = False
+        while True:
+            # Display current keys
+            typer.secho("📦 Current keys:", fg=typer.colors.GREEN)
+            for key in sorted(save_dict.keys()):
+                value = save_dict[key]
+                if isinstance(value, np.ndarray):
+                    typer.echo(f"  {key:30} [ndarray, shape={value.shape}]")
+                else:
+                    value_str = str(value)
+                    if len(value_str) > 50:
+                        value_str = value_str[:47] + "..."
+                    typer.echo(f"  {key:30} = {value_str}")
+            typer.echo("")
+
+            # Show menu
+            typer.secho("Options:", fg=typer.colors.YELLOW)
+            typer.echo("  [a] Add new metadata")
+            typer.echo("  [e] Edit existing metadata")
+            typer.echo("  [d] Delete metadata")
+            typer.echo("  [s] Save and exit")
+            typer.echo("  [q] Quit without saving")
+            typer.echo("")
+
+            choice = typer.prompt("Choose an option", type=str).lower()
+
+            if choice == 'a':
+                # Add new metadata
+                typer.echo("")
+                key = typer.prompt("Enter key name (e.g., 'description', 'notes', 'author')")
+
+                if key in save_dict:
+                    overwrite = typer.confirm(f"Key '{key}' already exists. Overwrite?")
+                    if not overwrite:
+                        continue
+
+                value_type = typer.prompt(
+                    "Value type",
+                    type=typer.Choice(["string", "number", "array"], case_sensitive=False),
+                    default="string"
+                )
+
+                if value_type == "string":
+                    value = typer.prompt("Enter value")
+                    save_dict[key] = value
+                elif value_type == "number":
+                    value = typer.prompt("Enter number", type=float)
+                    save_dict[key] = value
+                elif value_type == "array":
+                    typer.echo("Enter array values separated by spaces (e.g., '1 2 3 4 5')")
+                    values_str = typer.prompt("Values")
+                    values = [float(x) for x in values_str.split()]
+                    save_dict[key] = np.array(values)
+
+                typer.secho(f"✓ Added '{key}'", fg=typer.colors.GREEN)
+                modified = True
+
+            elif choice == 'e':
+                # Edit existing metadata
+                typer.echo("")
+                # Filter out array keys (typically data, not metadata)
+                editable_keys = [k for k, v in save_dict.items() if not isinstance(v, np.ndarray) or v.size == 1]
+
+                if not editable_keys:
+                    typer.secho("No editable metadata found (only arrays present)", fg=typer.colors.YELLOW)
+                    continue
+
+                typer.echo("Editable keys:")
+                for i, key in enumerate(editable_keys, 1):
+                    value = save_dict[key]
+                    if isinstance(value, np.ndarray):
+                        value = value.item()
+                    typer.echo(f"  [{i}] {key} = {value}")
+                typer.echo("")
+
+                key_choice = typer.prompt("Enter key number or name")
+
+                # Try to parse as number
+                try:
+                    idx = int(key_choice) - 1
+                    if 0 <= idx < len(editable_keys):
+                        key = editable_keys[idx]
+                    else:
+                        typer.secho("Invalid number", fg=typer.colors.RED)
+                        continue
+                except ValueError:
+                    key = key_choice
+
+                if key not in save_dict:
+                    typer.secho(f"Key '{key}' not found", fg=typer.colors.RED)
+                    continue
+
+                current_value = save_dict[key]
+                if isinstance(current_value, np.ndarray):
+                    current_value = current_value.item()
+
+                typer.echo(f"Current value: {current_value}")
+                new_value = typer.prompt("Enter new value", default=str(current_value))
+
+                # Try to preserve type
+                if isinstance(current_value, (int, float)):
+                    try:
+                        save_dict[key] = float(new_value)
+                    except ValueError:
+                        save_dict[key] = new_value
+                else:
+                    save_dict[key] = new_value
+
+                typer.secho(f"✓ Updated '{key}'", fg=typer.colors.GREEN)
+                modified = True
+
+            elif choice == 'd':
+                # Delete metadata
+                typer.echo("")
+                # Filter out main data arrays
+                deletable_keys = [k for k in save_dict.keys() if k not in ['center', 'data']]
+
+                if not deletable_keys:
+                    typer.secho("No deletable metadata found", fg=typer.colors.YELLOW)
+                    continue
+
+                typer.echo("Deletable keys:")
+                for i, key in enumerate(deletable_keys, 1):
+                    typer.echo(f"  [{i}] {key}")
+                typer.echo("")
+
+                key_choice = typer.prompt("Enter key number or name to delete")
+
+                try:
+                    idx = int(key_choice) - 1
+                    if 0 <= idx < len(deletable_keys):
+                        key = deletable_keys[idx]
+                    else:
+                        typer.secho("Invalid number", fg=typer.colors.RED)
+                        continue
+                except ValueError:
+                    key = key_choice
+
+                if key not in save_dict:
+                    typer.secho(f"Key '{key}' not found", fg=typer.colors.RED)
+                    continue
+
+                if key in ['center', 'data']:
+                    typer.secho(f"Cannot delete main data array '{key}'", fg=typer.colors.RED)
+                    continue
+
+                confirm = typer.confirm(f"Delete '{key}'?")
+                if confirm:
+                    del save_dict[key]
+                    typer.secho(f"✓ Deleted '{key}'", fg=typer.colors.GREEN)
+                    modified = True
+
+            elif choice == 's':
+                # Save and exit
+                if not modified:
+                    typer.echo("No changes made.")
+                    return
+
+                typer.echo("")
+                confirm = typer.confirm("Save changes?")
+                if confirm:
+                    # Create backup
+                    backup_path = full_path + ".backup"
+                    import shutil
+                    shutil.copy2(full_path, backup_path)
+                    typer.echo(f"  Created backup: {backup_path}")
+
+                    # Save with new metadata
+                    np.savez(full_path, **save_dict)
+                    typer.secho(f"\n✓ Saved changes to {os.path.basename(full_path)}",
+                               fg=typer.colors.GREEN, bold=True)
+                    typer.echo("")
+                    return
+                else:
+                    typer.echo("Save cancelled.")
+
+            elif choice == 'q':
+                # Quit without saving
+                if modified:
+                    confirm = typer.confirm("You have unsaved changes. Quit anyway?")
+                    if not confirm:
+                        continue
+                typer.echo("Exited without saving.")
+                return
+
+            else:
+                typer.secho("Invalid option. Please choose a, e, d, s, or q.", fg=typer.colors.RED)
+
+    except Exception as e:
+        typer.secho(f"\n✗ Error: {e}", fg=typer.colors.RED)
+        import traceback
+        traceback.print_exc()
+        raise typer.Exit(1)
