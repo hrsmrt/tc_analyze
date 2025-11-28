@@ -1,8 +1,14 @@
 # 中心座標の設定と管理ガイド
 
-**最終更新**: 2025-11-28
+**最終更新**: 2025-11-29
 
 本ドキュメントでは、TC中心座標の計算、設定、読み込み、メタデータ管理について説明します。
+
+**v2.3.0の新機能（2025-11-29）**:
+- メソッド別スクリプトの分離（weighted.py / smoothed.py）
+- center_configsの拡張（メソッド別ファイル名管理）
+- AnalysisConfigの自動読み込み機能
+- メタデータへのcreated_at追加
 
 ---
 
@@ -16,6 +22,13 @@
 6. [中心座標の読み込み](#中心座標の読み込み)
 7. [メタデータの確認と編集](#メタデータの確認と編集)
 8. [トラブルシューティング](#トラブルシューティング)
+9. [v2.3.0の更新（2025-11-29）](#v230の更新2025-11-29)
+   - [メソッド別スクリプトの分離](#メソッド別スクリプトの分離)
+   - [center_configsの拡張](#center_configsの拡張)
+   - [AnalysisConfigの自動読み込み](#analysisconfigの自動読み込み)
+   - [メタデータの強化: created_at](#メタデータの強化-created_at)
+   - [複数パラメータの管理](#複数パラメータの管理)
+   - [旧スクリプトとの互換性](#旧スクリプトとの互換性)
 
 ---
 
@@ -497,6 +510,172 @@ cp data/center/ss_slp/center.npz.backup data/center/ss_slp/center.npz
 
 ---
 
+## v2.3.0の更新（2025-11-29）
+
+### メソッド別スクリプトの分離
+
+中心計算のメソッド（weighted_centroid / smoothed_minimum）ごとに専用スクリプトを用意しました。
+
+#### 新しいファイル構成
+
+**SS SLP中心計算:**
+```
+analysis/center/ss_slp/calc/
+├── weighted.py          # weighted_centroid法専用
+├── smoothed.py          # smoothed_minimum法専用
+└── ss_slp_center_calc.py  # 統合スクリプト（互換性維持）
+```
+
+**MS PRES中心計算:**
+```
+analysis/center/ms_pres/calc/
+├── weighted.py          # weighted_centroid法専用
+├── smoothed.py          # smoothed_minimum法専用
+└── ms_pres_center_calc.py  # 統合スクリプト（互換性維持）
+```
+
+#### 使用例
+
+```bash
+# SS SLP中心 - weighted_centroid法
+python analysis/center/ss_slp/calc/weighted.py --r-refine 150e3
+
+# SS SLP中心 - smoothed_minimum法
+python analysis/center/ss_slp/calc/smoothed.py --r-smooth 500e3 --refine
+
+# MS PRES中心 - weighted_centroid法
+python analysis/center/ms_pres/calc/weighted.py --z-first 0 --z-last 20
+
+# MS PRES中心 - smoothed_minimum法
+python analysis/center/ms_pres/calc/smoothed.py --z-first 0 --z-last 20 --r-smooth 600e3
+```
+
+### center_configsの拡張
+
+setting.jsonの`center_configs`に、メソッド別のファイル名を指定できるようになりました：
+
+```json
+{
+  "center_configs": {
+    "ss_slp": "center.npz",
+    "ss_slp_weighted": "weighted_center.npz",
+    "ss_slp_smoothed": "smoothed_center.npz",
+    "ms_pres": "center.npz",
+    "ms_pres_weighted": "weighted_center.npz",
+    "ms_pres_smoothed": "smoothed_center.npz"
+  }
+}
+```
+
+**キーの命名規則:**
+- `{type}`: デフォルトファイル（例: `ss_slp`）
+- `{type}_weighted`: weighted_centroid法の出力（例: `ss_slp_weighted`）
+- `{type}_smoothed`: smoothed_minimum法の出力（例: `ss_slp_smoothed`）
+
+### AnalysisConfigの自動読み込み
+
+`AnalysisConfig`が`center_configs`から適切なファイル名を自動的に読み取るようになりました。
+
+**読み込み優先順位:**
+1. `{type}_weighted` → `weighted_center.npz`
+2. `{type}` → `center.npz`
+3. `{type}_smoothed` → `smoothed_center.npz`
+4. フォールバック: `center.npz` > `center.npy` > `x.txt/y.txt`
+
+**例:**
+```python
+from utils.config import AnalysisConfig
+
+# デフォルトでcenter/ss_slpから読み込み
+config = AnalysisConfig()
+
+# 自動的に以下の順で探索:
+# 1. data/center/ss_slp/weighted_center.npz
+# 2. data/center/ss_slp/center.npz
+# 3. data/center/ss_slp/smoothed_center.npz
+# 4. data/center/ss_slp/center.npy
+# 5. data/center/ss_slp/x.txt, y.txt
+
+# 最初に見つかったファイルを自動的に読み込む
+x_center = config.center_x  # shape: (nt,)
+y_center = config.center_y  # shape: (nt,)
+```
+
+### メタデータの強化: created_at
+
+全ての中心計算スクリプトに**作成時刻**を記録するようになりました。
+
+**形式:**
+- ISO 8601形式（UTC）: `"2025-11-29T12:34:56.789123Z"`
+- `datetime.datetime.utcnow().isoformat() + "Z"`
+
+**メタデータ例:**
+```python
+{
+    "center": array([[x1, y1], [x2, y2], ...]),
+    "method": "weighted_centroid",
+    "created_at": "2025-11-29T12:34:56.789123Z",  # ← 追加
+    "r_refine": 100000.0,
+    "max_iterations": 100,
+    "actual_iterations": array([3, 4, 3, ...]),
+    ...
+}
+```
+
+**利点:**
+1. **再現性**: ファイルをコピー/移動しても作成時刻が保持される
+2. **トレーサビリティ**: いつ、どのパラメータで実行したかの完全な記録
+3. **CLIツール対応**: `tc-analyze data info`で作成時刻を確認可能
+4. **科学的ベストプラクティス**: 研究データには作成時刻を含めるのが標準
+
+**確認方法:**
+```bash
+tc-analyze data info data/center/ss_slp/weighted_center.npz --config run/setting.json
+
+# 出力例:
+# File: data/center/ss_slp/weighted_center.npz
+# Format: NPZ (NumPy compressed archive)
+# Created: 2025-11-29T12:34:56.789123Z
+# Method: weighted_centroid
+# ...
+```
+
+### 複数パラメータの管理
+
+異なるパラメータで計算した中心座標を同時に管理できます：
+
+```bash
+# パラメータ1: r_refine=100km
+python analysis/center/ss_slp/calc/weighted.py --r-refine 100e3
+# → data/center/ss_slp/weighted_center.npz
+
+# パラメータ2: r_refine=150km（別ファイルに保存）
+python analysis/center/ss_slp/calc/weighted.py --r-refine 150e3
+# setting.jsonを変更してファイル名を変える
+# "ss_slp_weighted": "weighted_center_r150km.npz"
+
+# パラメータ3: smoothed_minimum法
+python analysis/center/ss_slp/calc/smoothed.py --r-smooth 500e3
+# → data/center/ss_slp/smoothed_center.npz
+```
+
+### 旧スクリプトとの互換性
+
+旧来の統合スクリプトも引き続き使用可能です：
+
+```bash
+# 旧来の方法（まだ動作します）
+python analysis/center/ss_slp/calc/ss_slp_center_calc.py --method weighted_centroid
+python analysis/center/ss_slp/calc/ss_slp_center_calc.py --method smoothed_minimum
+```
+
+ただし、新しいメソッド別スクリプトの使用を推奨します：
+- パラメータが明確
+- 各メソッドに特化したオプション
+- ファイル名の自動管理
+
+---
+
 ## 参考情報
 
 ### 関連ドキュメント
@@ -507,12 +686,22 @@ cp data/center/ss_slp/center.npz.backup data/center/ss_slp/center.npz
 
 ### 関連スクリプト
 
-- `analysis/center/ss_slp/calc/ss_slp_center_calc.py` - SS SLP中心計算
-- `analysis/center/ms_pres/calc/ms_pres_center_calc.py` - MS PRES中心計算
-- `utils/center.py` - 中心座標読み込みユーティリティ
+**SS SLP中心計算:**
+- `analysis/center/ss_slp/calc/weighted.py` - weighted_centroid法（推奨）
+- `analysis/center/ss_slp/calc/smoothed.py` - smoothed_minimum法（推奨）
+- `analysis/center/ss_slp/calc/ss_slp_center_calc.py` - 統合スクリプト（互換性維持）
+
+**MS PRES中心計算:**
+- `analysis/center/ms_pres/calc/weighted.py` - weighted_centroid法（推奨）
+- `analysis/center/ms_pres/calc/smoothed.py` - smoothed_minimum法（推奨）
+- `analysis/center/ms_pres/calc/ms_pres_center_calc.py` - 統合スクリプト（互換性維持）
+
+**ユーティリティ:**
+- `utils/config.py` - AnalysisConfig（中心座標自動読み込み）
+- `utils/center.py` - 中心検出アルゴリズム
 - `tc_analyze/commands/center.py` - 中心座標CLIコマンド
 - `tc_analyze/commands/data.py` - データ管理CLIコマンド
 
 ---
 
-**最終更新**: 2025-11-28
+**最終更新**: 2025-11-29
