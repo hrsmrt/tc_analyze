@@ -1,9 +1,11 @@
 """Utility functions for finding tropical cyclone centers from pressure fields.
 
 This module provides functions to locate low pressure centers using
-weighted centroid method with iterative refinement.
+weighted centroid method with iterative refinement, and to load center
+coordinates from files.
 """
 
+import os
 import numpy as np
 
 
@@ -126,3 +128,81 @@ def create_coordinate_meshgrid(config):
     y = np.arange(config.dy * 0.5, config.y_width, config.dy)
     X, Y = np.meshgrid(x, y)
     return X, Y
+
+
+def load_center_coordinates(config, center_type):
+    """Load TC center coordinates from file.
+
+    Loads center coordinates based on config.center_configs settings.
+    The filename is determined by the center_configs dictionary in setting.json.
+
+    Args:
+        config: AnalysisConfig instance
+        center_type: Type of center coordinates ("ss_slp" or "ms_pres")
+
+    Returns:
+        Tuple of (center_x, center_y, metadata):
+            - center_x: numpy array
+                - For ss_slp: shape (nt,)
+                - For ms_pres: shape (nt, nz)
+            - center_y: numpy array (same shape as center_x)
+            - metadata: dict containing additional information from the npz file
+
+    Raises:
+        FileNotFoundError: If the center file is not found
+        ValueError: If center_type is not supported
+
+    Examples:
+        >>> config = AnalysisConfig()
+        >>> # Load ss_slp center (2D)
+        >>> cx, cy, meta = load_center_coordinates(config, "ss_slp")
+        >>> # cx.shape = (nt,), cy.shape = (nt,)
+        >>>
+        >>> # Load ms_pres center (3D)
+        >>> cx, cy, meta = load_center_coordinates(config, "ms_pres")
+        >>> # cx.shape = (nt, nz), cy.shape = (nt, nz)
+    """
+    if center_type not in config.center_configs:
+        raise ValueError(
+            f"Unsupported center_type: {center_type}. "
+            f"Must be one of {list(config.center_configs.keys())}"
+        )
+
+    # Get filename from config
+    filename = config.center_configs[center_type]
+
+    # Construct full path
+    center_dir = os.path.join(config.data_dir, f"center/{center_type}")
+    center_path = os.path.join(center_dir, filename)
+
+    # Check if file exists
+    if not os.path.exists(center_path):
+        raise FileNotFoundError(
+            f"Center file not found: {center_path}\n"
+            f"Please run the corresponding center calculation script first:\n"
+            f"  - For ss_slp: python analysis/center/calc/ss_slp_center_calc.py\n"
+            f"  - For ms_pres: python analysis/center/calc/ms_pres_center_calc.py"
+        )
+
+    # Load data
+    data = np.load(center_path)
+
+    # Extract center coordinates
+    center = data["center"]  # shape: (nt, 2) or (nt, nz, 2)
+
+    if center_type == "ss_slp":
+        # 2D center: shape (nt, 2)
+        center_x = center[:, 0]  # shape: (nt,)
+        center_y = center[:, 1]  # shape: (nt,)
+    elif center_type == "ms_pres":
+        # 3D center: shape (nt, nz, 2)
+        center_x = center[:, :, 0]  # shape: (nt, nz)
+        center_y = center[:, :, 1]  # shape: (nt, nz)
+    else:
+        # This should not happen due to the check at the beginning
+        raise ValueError(f"Unsupported center_type: {center_type}")
+
+    # Extract metadata (all keys except 'center')
+    metadata = {key: data[key] for key in data.files if key != "center"}
+
+    return center_x, center_y, metadata

@@ -281,6 +281,22 @@ class AnalysisConfig:
         """図出力の基底ディレクトリ"""
         return self._data.get("fig_dir", "./fig")
 
+    @property
+    def center_configs(self) -> dict:
+        """
+        中心座標ファイル名の設定
+
+        Returns:
+            dict: 中心座標のタイプごとのファイル名
+                  例: {"ss_slp": "center_rrefine100km.npz",
+                       "ms_pres": "center_rsearch200km_rrefine100km.npz"}
+        """
+        default_configs = {
+            "ss_slp": "center.npz",
+            "ms_pres": "center.npz"
+        }
+        return self._data.get("center_configs", default_configs)
+
     # === 計算された設定値 ===
 
     @property

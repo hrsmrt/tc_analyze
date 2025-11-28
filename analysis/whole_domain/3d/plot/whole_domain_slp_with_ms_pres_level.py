@@ -1,7 +1,15 @@
-"""Plot pressure at two z-levels with filled contour (lower) and line contour (upper), overlay 5 ms_pres centers."""
-# python $WORK/tc_analyze/analysis/whole_domain/3d/plot/whole_domain_pressure_two_levels_with_centers.py z1 z2 z_center1 z_center2 z_center3 z_center4 z_center5 $style [sigma]
-# 例: python $WORK/tc_analyze/analysis/whole_domain/3d/plot/whole_domain_pressure_two_levels_with_centers.py 0 36 0 9 17 23 29 $style
-# 例（smooth化）: python $WORK/tc_analyze/analysis/whole_domain/3d/plot/whole_domain_pressure_two_levels_with_centers.py 0 36 0 9 17 23 29 $style 2.0
+"""Plot ss_slp with ms_pres at specified z-level, overlay both centers.
+
+Visualizes sea-level pressure (ss_slp) with filled contour and overlays
+ms_pres at a specified z-level with line contour. Displays both centers.
+
+Usage:
+    python $WORK/tc_analyze/analysis/whole_domain/3d/plot/whole_domain_slp_with_ms_pres_level.py z_ms_pres $style [sigma]
+
+Example:
+    python $WORK/tc_analyze/analysis/whole_domain/3d/plot/whole_domain_slp_with_ms_pres_level.py 17 $style
+    python $WORK/tc_analyze/analysis/whole_domain/3d/plot/whole_domain_slp_with_ms_pres_level.py 23 $style 2.0
+"""
 import os
 import sys
 
@@ -19,14 +27,11 @@ from utils.grid import GridHandler
 from utils.plotting import parse_style_argument
 
 # 引数の解析
-Z1 = int(sys.argv[1])  # 1つ目のZ面（下層、塗りつぶし用）
-Z2 = int(sys.argv[2])  # 2つ目のZ面（上層、線contour用）
-Z_CENTERS = [int(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5]),
-             int(sys.argv[6]), int(sys.argv[7])]  # 中心をプロットする5つのZ面
+Z_MS_PRES = int(sys.argv[1])  # ms_presのZ面
 
 # Smooth化パラメータの解析（最後の引数がfloatならsigma値）
 SIGMA = 0.0  # デフォルトはsmooth化なし
-if len(sys.argv) >= 9:
+if len(sys.argv) >= 3:
     try:
         SIGMA = float(sys.argv[-1])
         # sigma値を指定した場合、最後の引数を除外してスタイルを解析
@@ -43,16 +48,15 @@ config = AnalysisConfig()
 grid = GridHandler(config)
 
 # 出力ディレクトリ（smooth化の有無で分ける）
-z_center_str = "_".join([f"z{z}" for z in Z_CENTERS])
 if SIGMA > 0:
     OUTPUT_DIR = config.get_fig_path(
-        "3d", "whole_domain_pressure_two_levels_with_centers",
-        f"z{Z1}_z{Z2}_centers_{z_center_str}_smooth{SIGMA:.1f}"
+        "3d", "whole_domain_slp_with_ms_pres_level",
+        f"z{Z_MS_PRES}_smooth{SIGMA:.1f}"
     )
 else:
     OUTPUT_DIR = config.get_fig_path(
-        "3d", "whole_domain_pressure_two_levels_with_centers",
-        f"z{Z1}_z{Z2}_centers_{z_center_str}"
+        "3d", "whole_domain_slp_with_ms_pres_level",
+        f"z{Z_MS_PRES}"
     )
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -62,40 +66,49 @@ x_axis = np.arange(0.5 * config.dx, config.nx * config.dx, config.dx)
 y_axis = np.arange(0.5 * config.dy, config.ny * config.dy, config.dy)
 X, Y = np.meshgrid(x_axis, y_axis)
 
-# データ読み込み（ms_pres固定）
-data_memmap = np.memmap(
+# データ読み込み
+# ss_slp: 2D (nt, ny, nx)
+ss_slp_memmap = np.memmap(
+    f"{config.input_folder}ss_slp.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.ny, config.nx),
+)
+
+# ms_pres: 3D (nt, nz, ny, nx)
+ms_pres_memmap = np.memmap(
     f"{config.input_folder}ms_pres.grd",
     dtype=">f4",
     mode="r",
     shape=(config.nt, config.nz, config.ny, config.nx),
 )
 
-# 中心座標の読み込み（ms_pres 3D: shape (nt, nz)）
-center_x_3d, center_y_3d, ms_pres_meta = load_center_coordinates(config, "ms_pres")
+# 中心座標の読み込み
+# ss_slp center: 2D (nt, 2)
+ss_slp_center_x, ss_slp_center_y, ss_slp_meta = load_center_coordinates(config, "ss_slp")
 
-# 中心プロット用のカラーとマーカー設定
-CENTER_COLORS = ['red', 'orange', 'yellow', 'green', 'cyan']
-CENTER_MARKERS = ['x', '+', '*', 'o', 's']
+# ms_pres center: 3D (nt, nz, 2)
+ms_pres_center_x, ms_pres_center_y, ms_pres_meta = load_center_coordinates(config, "ms_pres")
 
 
 def process_t(t):
-    # 2つのZ面のpressureデータを読み込み
-    data1 = data_memmap[t, Z1, :, :].copy()
-    data2 = data_memmap[t, Z2, :, :].copy()
+    # データの読み込み
+    ss_slp_data = ss_slp_memmap[t, :, :].copy()
+    ms_pres_data = ms_pres_memmap[t, Z_MS_PRES, :, :].copy()
 
     # Smooth化を適用
     if SIGMA > 0:
-        data1 = gaussian_filter(data1, sigma=SIGMA)
-        data2 = gaussian_filter(data2, sigma=SIGMA)
+        ss_slp_data = gaussian_filter(ss_slp_data, sigma=SIGMA)
+        ms_pres_data = gaussian_filter(ms_pres_data, sigma=SIGMA)
 
     plt.style.use(mpl_style_sheet)
     fig, ax = plt.subplots(figsize=(7.5, 5.5))
 
-    # 下層（Z1）: 塗りつぶしcontour
-    levels1 = np.arange(900, 105000, 200)  # 圧力レベル [Pa]
+    # ss_slp: 塗りつぶしcontour
+    levels_slp = np.arange(990, 1012, 1)  # 海面気圧レベル [hPa]
     cf = ax.contourf(
-        X, Y, data1,
-        levels=levels1,
+        X, Y, ss_slp_data * 1e-2,  # Pa -> hPa
+        levels=levels_slp,
         cmap='rainbow',
         extend='both',
         alpha=0.7
@@ -104,35 +117,43 @@ def process_t(t):
     # カラーバー
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.1)
-    fig.colorbar(cf, cax=cax, label=f'Pressure [Pa] @ z={vgrid[Z1] * 1e-3:.1f}km')
+    fig.colorbar(cf, cax=cax, label='SS SLP [hPa]')
 
-    # 上層（Z2）: 線のcontour（levelsは自動）
-    cs2 = ax.contour(
-        X, Y, data2,
+    # ms_pres: 線のcontour（levelsは自動）
+    cs_ms = ax.contour(
+        X, Y, ms_pres_data * 1e-2,  # Pa -> hPa
         colors='black',
         linewidths=1.5,
         linestyles='solid',
         alpha=0.9
     )
 
-    # 5層の中心位置をプロット
-    for i, z_center in enumerate(Z_CENTERS):
-        c_x = center_x_3d[t, z_center]
-        c_y = center_y_3d[t, z_center]
-        ax.plot(
-            c_x, c_y,
-            marker=CENTER_MARKERS[i],
-            color=CENTER_COLORS[i],
-            markersize=10,
-            markeredgewidth=2,
-            label=f'Center z={vgrid[z_center] * 1e-3:.1f}km'
-        )
+    # ss_slp中心をプロット
+    ax.plot(
+        ss_slp_center_x[t], ss_slp_center_y[t],
+        marker='x',
+        color='red',
+        markersize=12,
+        markeredgewidth=3,
+        label='SS SLP Center'
+    )
+
+    # ms_pres中心をプロット（指定されたz面）
+    ax.plot(
+        ms_pres_center_x[t, Z_MS_PRES], ms_pres_center_y[t, Z_MS_PRES],
+        marker='o',
+        color='blue',
+        markersize=10,
+        markeredgewidth=2,
+        markerfacecolor='none',
+        label=f'MS PRES Center z={vgrid[Z_MS_PRES] * 1e-3:.1f}km'
+    )
 
     # タイトル
     title = (
         f"Pressure | t={config.time_list[t]:3d}h | "
-        f"Filled: z={vgrid[Z1] * 1e-3:.1f}km | "
-        f"Contour: z={vgrid[Z2] * 1e-3:.1f}km"
+        f"Filled: SS SLP | "
+        f"Contour: MS PRES z={vgrid[Z_MS_PRES] * 1e-3:.1f}km"
     )
     if SIGMA > 0:
         title += f" | σ={SIGMA:.1f}"
@@ -145,7 +166,7 @@ def process_t(t):
     ax.set_aspect("equal", "box")
 
     # 凡例を追加
-    ax.legend(loc='upper right', fontsize=8, ncol=2)
+    ax.legend(loc='upper right', fontsize=9)
 
     fig.savefig(
         os.path.join(OUTPUT_DIR, f"t{str(t).zfill(3)}.png"),
