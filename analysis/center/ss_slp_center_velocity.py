@@ -43,22 +43,24 @@ for i in range(len(x_c_v)):
     if x_c_v[i] < -config.x_width / (2 * config.dt_output):
         x_c_v[i] = config.x_width / config.dt_output + x_c_v[i]
 
-os.makedirs("data/center", exist_ok=True)
-os.makedirs("fig/center", exist_ok=True)
+data_dir = config.get_center_path("ss_slp", data_type="data")
+fig_dir = config.get_center_path("ss_slp", data_type="fig")
+os.makedirs(data_dir, exist_ok=True)
+os.makedirs(fig_dir, exist_ok=True)
 
-np.save("data/center/ss_slp_center_u.npy", x_c_v)
-np.save("data/center/ss_slp_center_v.npy", y_c_v)
+np.save(os.path.join(data_dir, "ss_slp_center_u.npy"), x_c_v)
+np.save(os.path.join(data_dir, "ss_slp_center_v.npy"), y_c_v)
 
 plt.style.use(mpl_style_sheet)
 fig, ax = plt.subplots(figsize=(5, 4))
 ax.plot(config.time_list, x_c_v)
 ax.set_xlabel("時間 [hour]")
 ax.set_ylabel("中心移動速度u [m/s]")
-fig.savefig("fig/center/ss_slp_center_u.png")
+fig.savefig(os.path.join(fig_dir, "ss_slp_center_u.png"))
 
 plt.style.use(mpl_style_sheet)
 fig, ax = plt.subplots(figsize=(5, 4))
 ax.plot(config.time_list, y_c_v)
 ax.set_xlabel("時間 [hour]")
 ax.set_ylabel("中心移動速度v [m/s]")
-fig.savefig("fig/center/ss_slp_center_v.png")
+fig.savefig(os.path.join(fig_dir, "ss_slp_center_v.png"))

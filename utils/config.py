@@ -400,7 +400,45 @@ class AnalysisConfig:
         center_dir = os.path.join(self.data_dir, self._center_path)
         coord_idx = 0 if coord == "x" else 1
 
-        # 最新形式: center.npz を最優先で読み込む
+        # Determine which center type we're loading from path
+        # e.g., "center/ss_slp" -> try ss_slp_weighted, ss_slp, ss_slp_smoothed
+        #       "center/ms_pres" -> try ms_pres_weighted, ms_pres, ms_pres_smoothed
+        path_parts = self._center_path.split('/')
+        if len(path_parts) >= 2 and path_parts[0] == "center":
+            center_type_key = path_parts[1]  # "ss_slp" or "ms_pres"
+            possible_keys = [
+                f"{center_type_key}_weighted",
+                center_type_key,
+                f"{center_type_key}_smoothed"
+            ]
+        else:
+            possible_keys = []
+
+        # Try to load from center_configs first
+        for key in possible_keys:
+            filename = self.center_configs.get(key)
+            if filename:
+                file_path = os.path.join(center_dir, filename)
+                if os.path.exists(file_path):
+                    if filename.endswith('.npz'):
+                        data = np.load(file_path)
+                        center = data['center']
+                        if self._center_type == "2d":
+                            # shape: (nt, 2) -> (nt,)
+                            return center[:, coord_idx]
+                        elif self._center_type == "3d":
+                            # shape: (nt, nz, 2) -> (nt, nz)
+                            return center[:, :, coord_idx]
+                    elif filename.endswith('.npy'):
+                        center = np.load(file_path)
+                        if self._center_type == "2d":
+                            # shape: (nt, 2) -> (nt,)
+                            return center[:, coord_idx]
+                        elif self._center_type == "3d":
+                            # shape: (nt, nz, 2) -> (nt, nz)
+                            return center[:, :, coord_idx]
+
+        # Fallback: 最新形式 center.npz
         npz_path = os.path.join(center_dir, "center.npz")
         if os.path.exists(npz_path):
             data = np.load(npz_path)
@@ -412,7 +450,7 @@ class AnalysisConfig:
                 # shape: (nt, nz, 2) -> (nt, nz)
                 return center[:, :, coord_idx]
 
-        # 新形式: center.npy を次に読み込む
+        # Fallback: 新形式 center.npy
         npy_path = os.path.join(center_dir, "center.npy")
         if os.path.exists(npy_path):
             center = np.load(npy_path)
