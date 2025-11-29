@@ -117,10 +117,10 @@ def main():
 
     # Process each z-level
     for z_idx, z in enumerate(range(z_first, z_last + 1)):
-        print(f"\nProcessing z-level {z} (height: {grid.vgrid[z]:.1f} m)")
+        print(f"\nProcessing z-level {z}/{z_last} (height: {grid.vgrid[z]:.1f} m) - {n_time} time steps with {config.n_jobs} parallel jobs")
 
         # Parallel processing over time steps for this z-level
-        results = Parallel(n_jobs=config.n_jobs)(
+        results = Parallel(n_jobs=config.n_jobs, verbose=10)(
             delayed(process_t)(
                 t, z, data_memmap, X, Y, config, ss_slp_center,
                 r_search, r_refine

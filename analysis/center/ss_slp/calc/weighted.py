@@ -67,7 +67,8 @@ def main():
     )
 
     # Parallel processing over all time steps
-    results = Parallel(n_jobs=config.n_jobs)(
+    print(f"Processing {config.nt} time steps with {config.n_jobs} parallel jobs...")
+    results = Parallel(n_jobs=config.n_jobs, verbose=10)(
         delayed(process_t)(t, data_memmap, X, Y, config, r_refine)
         for t in range(config.nt)
     )
