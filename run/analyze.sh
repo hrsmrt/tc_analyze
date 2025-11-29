@@ -26,7 +26,9 @@
 #   3d_wind            - 3次元空間解析 風成分 (中心位置依存、center後に実行)
 #   2d                 - 2次元空間解析 (analysis/whole_domain/2d/)
 #   z_profile          - 鉛直プロファイル (analysis/vertical/profile/)
-#   center             - TC中心位置計算 (analysis/center/)
+#   center             - TC中心位置計算・可視化 (center_calc + center_plot)
+#   center_calc        - TC中心位置計算のみ (analysis/center/*/calc/)
+#   center_plot        - TC中心位置可視化・派生解析 (analysis/center/*/plot/)
 #   vortex_region      - 渦領域解析 (3d, 2d, z_profile)
 #   azim               - 方位平均基本解析 (analysis/azimuthal/basic/)
 #   azim_eliassen      - Eliassen方程式 (analysis/azimuthal/eliassen/)
@@ -135,7 +137,9 @@ TC Analysis Pipeline Script
   3d_wind            - 3次元空間解析 風成分 (中心位置依存、center後に実行)
   2d                 - 2次元空間解析 (analysis/whole_domain/2d/)
   z_profile          - 鉛直プロファイル (analysis/vertical/profile/)
-  center             - TC中心位置計算 (analysis/center/)
+  center             - TC中心位置計算・可視化 (center_calc + center_plot)
+  center_calc        - TC中心位置計算のみ (analysis/center/*/calc/)
+  center_plot        - TC中心位置可視化・派生解析 (analysis/center/*/plot/)
   vortex_region      - 渦領域解析 (3d, 2d, z_profile)
   azim               - 方位平均基本解析 (analysis/azimuthal/basic/)
   azim_eliassen      - Eliassen方程式 (analysis/azimuthal/eliassen/)
@@ -168,7 +172,9 @@ list_categories() {
     echo "  2d_basic           - 2次元空間解析 基本 (中心位置非依存)"
     echo "  2d_wind            - 2次元空間解析 風成分 (中心位置依存、center後に実行)"
     echo "  z_profile          - 鉛直プロファイル (analysis/vertical/profile/)"
-    echo "  center             - TC中心位置計算 (analysis/center/)"
+    echo "  center             - TC中心位置計算・可視化 (center_calc + center_plot)"
+    echo "  center_calc        - TC中心位置計算のみ (analysis/center/*/calc/)"
+    echo "  center_plot        - TC中心位置可視化・派生解析 (analysis/center/*/plot/)"
     echo "  vortex_region      - 渦領域解析 (3d, 2d, z_profile)"
     echo "  azim               - 方位平均基本解析 (analysis/azimuthal/basic/)"
     echo "  azim_eliassen      - Eliassen方程式 (analysis/azimuthal/eliassen/)"
@@ -332,8 +338,8 @@ fi
 # カテゴリ別実行関数
 # ============================================================================
 
-run_center() {
-    log_section "Center Analysis"
+run_center_calc() {
+    log_section "Center Calculation"
     # SS SLP center calculation (weighted_centroid method by default)
     run_cmd "python ${TC_ANALYZE}/analysis/center/ss_slp/calc/weighted.py"
     # Alternatively, use smoothed_minimum method:
@@ -344,7 +350,10 @@ run_center() {
     # MS pressure center calculation (optional, uncomment if needed)
     run_cmd "python ${TC_ANALYZE}/analysis/center/ms_pres/calc/weighted.py"
     run_cmd "python ${TC_ANALYZE}/analysis/center/ms_pres/calc/smoothed.py"
+}
 
+run_center_plot() {
+    log_section "Center Visualization and Derived Analysis"
     # MS pressure center plots
     run_cmd "python ${TC_ANALYZE}/analysis/center/ms_pres/plot/weighted_center_vertical_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/center/ms_pres/plot/smoothed_center_vertical_plot.py ${STYLE}"
@@ -356,12 +365,19 @@ run_center() {
     run_cmd "python ${TC_ANALYZE}/analysis/center/ss_slp/plot/weighted_center_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/center/ss_slp/plot/smoothed_center_plot.py ${STYLE}"
 
+    # Center-based derived analysis
     run_cmd "python ${TC_ANALYZE}/analysis/center/ss_slp_center_velocity.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/center/mass_all.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/center/mass_under20km.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/center/mass.py ${STYLE}"
     run_cmd "sh ${TC_ANALYZE}/analysis/whole_domain/3d/whole_domain_with_center_plot.sh"
     run_cmd "sh ${TC_ANALYZE}/analysis/whole_domain/2d/whole_domain_with_center_plot.sh"
+}
+
+run_center() {
+    # Backward compatibility: run both calc and plot
+    run_center_calc
+    run_center_plot
 }
 
 run_2d_basic() {
@@ -375,7 +391,7 @@ run_2d_basic() {
 
 run_2d_wind() {
     log_section "2D Analysis - Wind Components (中心位置依存)"
-    # ⚠️ 注意: これらは台風中心位置に依存するため、run_center の後に実行する必要があります
+    # ⚠️ 注意: これらは台風中心位置に依存するため、run_center_calc の後に実行する必要があります
     run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/2d/calc/ss_wind10m_radial_tangential_calc.py"
     run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/2d/plot/ss_wind10m_tangential_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/2d/plot/ss_wind10m_radial_plot.py ${STYLE}"
@@ -383,7 +399,7 @@ run_2d_wind() {
 
 run_2d() {
     # 互換性のため: run_2d は run_2d_basic と run_2d_wind を両方実行
-    # ⚠️ 注意: run_2d_wind は中心位置に依存するため、run_center の後に実行してください
+    # ⚠️ 注意: run_2d_wind は中心位置に依存するため、run_center_calc の後に実行してください
     run_2d_basic
     run_2d_wind
 }
@@ -406,7 +422,7 @@ run_3d_basic() {
 
 run_3d_wind() {
     log_section "3D Analysis - Wind Components (中心位置依存)"
-    # ⚠️ 注意: これらは台風中心位置に依存するため、run_center の後に実行する必要があります
+    # ⚠️ 注意: これらは台風中心位置に依存するため、run_center_calc の後に実行する必要があります
     # オンデマンド計算に移行: ms_wind は plot ファイルで直接計算
     run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/3d/plot/ms_wind_tangential_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/vortex_region/3d/plot/ms_wind_radial_plot.py ${STYLE}"
@@ -421,7 +437,7 @@ run_3d_wind() {
 
 run_3d() {
     # 互換性のため: run_3d は run_3d_basic と run_3d_wind を両方実行
-    # ⚠️ 注意: run_3d_wind は中心位置に依存するため、run_center の後に実行してください
+    # ⚠️ 注意: run_3d_wind は中心位置に依存するため、run_center_calc の後に実行してください
     run_3d_basic
     run_3d_wind
 }
@@ -606,7 +622,7 @@ for category in "${CATEGORIES[@]}"; do
             run_3d_basic
             ;;
         3d_wind)
-            # ⚠️ 注意: 中心位置に依存するため、run_center の後に実行してください
+            # ⚠️ 注意: 中心位置に依存するため、run_center_calc の後に実行してください
             run_3d_wind
             ;;
         2d)
@@ -616,7 +632,7 @@ for category in "${CATEGORIES[@]}"; do
             run_2d_basic
             ;;
         2d_wind)
-            # ⚠️ 注意: 中心位置に依存するため、run_center の後に実行してください
+            # ⚠️ 注意: 中心位置に依存するため、run_center_calc の後に実行してください
             run_2d_wind
             ;;
         z_profile)
@@ -624,6 +640,12 @@ for category in "${CATEGORIES[@]}"; do
             ;;
         center)
             run_center
+            ;;
+        center_calc)
+            run_center_calc
+            ;;
+        center_plot)
+            run_center_plot
             ;;
         azim)
             run_azim
