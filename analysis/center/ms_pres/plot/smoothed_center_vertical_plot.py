@@ -30,25 +30,63 @@ center_dir = config.get_center_path("ms_pres", data_type="data")
 filename = config.center_configs.get("ms_pres_smoothed", "smoothed_center.npz")
 filepath = os.path.join(center_dir, filename)
 
-if not os.path.exists(filepath):
-    raise FileNotFoundError(
-        f"Smoothed center file not found: {filepath}\n"
-        "Please run: python analysis/center/ms_pres/calc/smoothed.py"
-    )
+# Try to load combined file first, fallback to per-z-level files
+if os.path.exists(filepath):
+    print(f"Loading combined file: {filepath}")
+    data = np.load(filepath)
+    center = data['center']  # shape: (nt, nz, 2)
+    nt, nz_data, _ = center.shape
 
-# Load data
-data = np.load(filepath)
-center = data['center']  # shape: (nt, nz, 2)
-nt, nz_data, _ = center.shape
+    # Load metadata
+    method = data.get('method', 'smoothed_minimum')
+    r_smooth = data.get('r_smooth', None)
+    refine_after_smooth = data.get('refine_after_smooth', False)
+    r_refine = data.get('r_refine', None)
+    z_first = data.get('z_first', 0)
+    z_last = data.get('z_last', config.nz - 1)
+    created_at = data.get('created_at', 'Unknown')
+else:
+    # Load from per-z-level files
+    print(f"Combined file not found: {filepath}")
+    print(f"Loading from individual z-level files...")
 
-# Load metadata
-method = data.get('method', 'smoothed_minimum')
-r_smooth = data.get('r_smooth', None)
-refine_after_smooth = data.get('refine_after_smooth', False)
-r_refine = data.get('r_refine', None)
-z_first = data.get('z_first', 0)
-z_last = data.get('z_last', config.nz - 1)
-created_at = data.get('created_at', 'Unknown')
+    # Find all smoothed_center_z*.npz files
+    import glob
+    z_files = sorted(glob.glob(os.path.join(center_dir, "smoothed_center_z*.npz")))
+
+    if len(z_files) == 0:
+        raise FileNotFoundError(
+            f"No center files found in {center_dir}\n"
+            f"Please run: python analysis/center/ms_pres/calc/smoothed.py"
+        )
+
+    print(f"Found {len(z_files)} z-level files")
+
+    # Load first file to get dimensions
+    first_data = np.load(z_files[0])
+    nt = first_data['center'].shape[0]
+    nz_data = len(z_files)
+
+    # Allocate array
+    center = np.zeros((nt, nz_data, 2))
+
+    # Load each z-level file
+    z_levels = []
+    for z_idx, z_file in enumerate(z_files):
+        z_data = np.load(z_file)
+        center[:, z_idx, :] = z_data['center']
+        z_levels.append(z_data['z_level'])
+
+    # Get metadata from first file
+    method = first_data.get('method', 'smoothed_minimum')
+    r_smooth = first_data.get('r_smooth', None)
+    refine_after_smooth = first_data.get('refine_after_smooth', False)
+    r_refine = first_data.get('r_refine', None)
+    z_first = min(z_levels)
+    z_last = max(z_levels)
+    created_at = first_data.get('created_at', 'Unknown')
+
+    print(f"Loaded center data from z={z_first} to z={z_last}")
 
 # Get vertical grid for the z-range used in calculation
 vgrid = grid.vgrid[z_first:z_last+1]  # in meters
