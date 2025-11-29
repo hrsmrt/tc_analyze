@@ -24,7 +24,7 @@ from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 
 R_REFINE_DEFAULT = 100e3  # Default refinement radius for weighted centroid iteration
-R_SEARCH_DEFAULT = 200e3  # Default initial search radius from ss_slp center
+R_SEARCH_DEFAULT = 100e3  # Default initial search radius from ss_slp center
 
 
 def parse_args():

@@ -28,7 +28,7 @@ from utils.grid import GridHandler
 
 R_REFINE_DEFAULT = 100e3  # Default refinement radius (if --refine is enabled)
 R_SMOOTH_DEFAULT = 500e3  # Default smoothing radius for smoothed_minimum method
-R_SEARCH_DEFAULT = 1000e3  # Default local search region radius (for z=0, around ss_slp center)
+R_SEARCH_DEFAULT = 100e3  # Default local search region radius (for z=0, around ss_slp center)
 
 
 def parse_args():
