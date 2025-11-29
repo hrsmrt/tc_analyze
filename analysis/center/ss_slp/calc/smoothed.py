@@ -167,7 +167,6 @@ def process_t(t, data_memmap, X, Y, config, r_smooth, refine, r_refine):
         r_refine=r_refine
     )
 
-    print(f"t={t}: x_c={x_c:.1f} m, y_c={y_c:.1f} m, iterations={num_iter}")
     return x_c, y_c, num_iter
 
 

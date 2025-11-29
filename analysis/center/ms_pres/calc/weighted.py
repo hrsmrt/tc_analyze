@@ -217,12 +217,11 @@ def process_t(t, z, data_memmap, X, Y, config, ss_slp_center, r_search, r_refine
     # Create mask for search region (within r_search from ss_slp center)
     mask = R <= r_search
 
-    # Find pressure minimum within the masked region
-    masked_data = data.copy()
-    masked_data[~mask] = np.inf  # Set values outside mask to infinity
-
-    # Find initial position (pressure minimum in masked region)
-    min_idx = np.unravel_index(np.argmin(masked_data), data.shape)
+    # Find pressure minimum within the masked region (optimized - no copy)
+    min_idx = np.unravel_index(
+        np.argmin(np.where(mask, data, np.inf)),
+        data.shape
+    )
     x_init = X[min_idx]
     y_init = Y[min_idx]
 

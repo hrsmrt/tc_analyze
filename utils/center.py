@@ -86,11 +86,48 @@ def _iteration_step(X, Y, data, x_c, y_c, r_refine, data_max, config):
     Returns:
         Tuple of updated (x_center, y_center) in meters
     """
-    # Calculate distances with periodic boundary condition in x
-    dx = X - x_c
-    dx = np.where(dx > config.x_width * 0.5, dx - config.x_width, dx)
-    dx = np.where(dx < -config.x_width * 0.5, dx + config.x_width, dx)
-    dy = Y - y_c
+    # OPTIMIZATION: Work only within a bounding box around the current center
+    # to avoid full-grid operations
+
+    # Calculate bounding box (with margin for periodic boundary in x)
+    # Use 1.5× r_refine as safety margin
+    margin = r_refine * 1.5
+
+    # Y-direction (no periodic boundary)
+    y_min = max(0, y_c - margin)
+    y_max = min(config.y_width, y_c + margin)
+    iy_min = int(y_min / config.dy)
+    iy_max = min(config.ny, int(np.ceil(y_max / config.dy)))
+
+    # X-direction (handle periodic boundary)
+    x_min = x_c - margin
+    x_max = x_c + margin
+
+    # Check if we need to handle periodic boundary
+    need_periodic = (x_min < 0) or (x_max > config.x_width)
+
+    if not need_periodic:
+        # Simple case: no periodic boundary crossing
+        ix_min = int(x_min / config.dx)
+        ix_max = min(config.nx, int(np.ceil(x_max / config.dx)))
+
+        # Extract local region
+        X_local = X[iy_min:iy_max, ix_min:ix_max]
+        Y_local = Y[iy_min:iy_max, ix_min:ix_max]
+        data_local = data[iy_min:iy_max, ix_min:ix_max]
+
+        # Calculate distances (no periodic boundary needed in this region)
+        dx = X_local - x_c
+        dy = Y_local - y_c
+
+    else:
+        # Complex case: use full grid but with periodic distance calculation
+        # This is rare, so use original full-grid method
+        dx = X - x_c
+        dx = np.where(dx > config.x_width * 0.5, dx - config.x_width, dx)
+        dx = np.where(dx < -config.x_width * 0.5, dx + config.x_width, dx)
+        dy = Y - y_c
+        data_local = data
 
     # Distance squared for mask (avoid sqrt for performance)
     dist_sq = dx * dx + dy * dy
@@ -98,7 +135,7 @@ def _iteration_step(X, Y, data, x_c, y_c, r_refine, data_max, config):
 
     # Calculate weights (higher weight for lower pressure)
     # w = data_max - data within search radius, 0 outside
-    w = np.where(mask, data_max - data, 0.0)
+    w = np.where(mask, data_max - data_local, 0.0)
     w_sum = w.sum()
 
     # Handle edge cases (no valid points or numerical issues)
