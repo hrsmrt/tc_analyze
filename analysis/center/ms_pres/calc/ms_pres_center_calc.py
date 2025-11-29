@@ -152,6 +152,10 @@ def main():
     center_all = np.zeros((n_time, n_z, 2))
     iterations_all = np.zeros((n_time, n_z), dtype=int)
 
+    # Output directory
+    OUTPUT_DIR = config.get_center_path("ms_pres")
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
     # Process each z-level
     for z_idx, z in enumerate(range(z_first, z_last + 1)):
         print(f"\nProcessing z-level {z}/{z_last} (height: {grid.vgrid[z]:.1f} m) - {n_time} time steps with {config.n_jobs} parallel jobs")
@@ -166,20 +170,57 @@ def main():
         )
 
         # Collect results for this z-level
+        center_z = np.zeros((n_time, 2))
+        iterations_z = np.zeros(n_time, dtype=int)
         for t_idx, (x_c, y_c, num_iter) in enumerate(results):
+            center_z[t_idx, 0] = x_c
+            center_z[t_idx, 1] = y_c
+            iterations_z[t_idx] = num_iter
+            # Also store in full array
             center_all[t_idx, z_idx, 0] = x_c
             center_all[t_idx, z_idx, 1] = y_c
             iterations_all[t_idx, z_idx] = num_iter
 
-    # Save results as .npz file with metadata: shape (nt, nz, 2)
-    OUTPUT_DIR = config.get_center_path("ms_pres")
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+        # Save per-z-level file immediately
+        method_prefix = "weighted" if method == "weighted_centroid" else "smoothed"
+        z_filename = f"{method_prefix}_center_z{z:03d}.npz"
+        z_metadata = {
+            "center": center_z,  # shape: (nt, 2)
+            "method": method,
+            "created_at": datetime.datetime.utcnow().isoformat() + "Z",
+            "actual_iterations": iterations_z,
+            "z_level": z,
+            "height": grid.vgrid[z],
+        }
+        if method == "weighted_centroid":
+            z_metadata.update({
+                "r_refine": r_refine,
+                "r_search": r_search,
+                "max_iterations": 100,
+                "convergence_threshold_x": config.dx * 1e-2,
+                "convergence_threshold_y": config.dy * 1e-2,
+            })
+        elif method == "smoothed_minimum":
+            z_metadata.update({
+                "r_smooth": r_smooth,
+                "refine_after_smooth": refine_after_smooth,
+            })
+            if refine_after_smooth:
+                z_metadata.update({
+                    "r_refine": r_refine,
+                    "max_iterations": 100,
+                    "convergence_threshold_x": config.dx * 1e-2,
+                    "convergence_threshold_y": config.dy * 1e-2,
+                })
+        np.savez(os.path.join(OUTPUT_DIR, z_filename), **z_metadata)
+        if method == "weighted_centroid" or (method == "smoothed_minimum" and refine_after_smooth):
+            print(f"  → Saved: {z_filename} (mean_iter={np.mean(iterations_z):.1f})")
+        else:
+            print(f"  → Saved: {z_filename}")
 
-    # Get filename from config (default: "center.npz")
+    # Save combined results as .npz file with metadata: shape (nt, nz, 2)
     filename = config.center_configs.get("ms_pres", "center.npz")
-
-    # Prepare metadata
-    metadata = {
+    combined_metadata = {
         "center": center_all,
         "method": method,
         "created_at": datetime.datetime.utcnow().isoformat() + "Z",
@@ -187,9 +228,8 @@ def main():
         "z_first": z_first,
         "z_last": z_last,
     }
-
     if method == "weighted_centroid":
-        metadata.update({
+        combined_metadata.update({
             "r_refine": r_refine,
             "r_search": r_search,
             "max_iterations": 100,
@@ -197,22 +237,22 @@ def main():
             "convergence_threshold_y": config.dy * 1e-2,
         })
     elif method == "smoothed_minimum":
-        metadata.update({
+        combined_metadata.update({
             "r_smooth": r_smooth,
             "refine_after_smooth": refine_after_smooth,
         })
         if refine_after_smooth:
-            metadata.update({
+            combined_metadata.update({
                 "r_refine": r_refine,
                 "max_iterations": 100,
                 "convergence_threshold_x": config.dx * 1e-2,
                 "convergence_threshold_y": config.dy * 1e-2,
             })
-
-    np.savez(os.path.join(OUTPUT_DIR, filename), **metadata)
+    np.savez(os.path.join(OUTPUT_DIR, filename), **combined_metadata)
 
     print(f"\nCompleted processing z-levels {z_first} to {z_last}")
-    print(f"Saved center coordinates: {OUTPUT_DIR}/{filename} (shape: {center_all.shape})")
+    print(f"Saved combined file: {OUTPUT_DIR}/{filename} (shape: {center_all.shape})")
+    print(f"Saved {n_z} individual z-level files: {method_prefix}_center_z???.npz")
     print(f"  Method: {method}")
     if method == "weighted_centroid":
         print(f"  r_search={r_search:.0f} m ({r_search * 1e-3:.1f} km)")

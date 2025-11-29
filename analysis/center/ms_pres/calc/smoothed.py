@@ -122,6 +122,10 @@ def main():
     center_all = np.zeros((n_time, n_z, 2))
     iterations_all = np.zeros((n_time, n_z), dtype=int)
 
+    # Output directory
+    OUTPUT_DIR = config.get_center_path("ms_pres")
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
     # Process each z-level
     for z_idx, z in enumerate(range(z_first, z_last + 1)):
         print(f"\nProcessing z-level {z}/{z_last} (height: {grid.vgrid[z]:.1f} m) - {n_time} time steps with {config.n_jobs} parallel jobs")
@@ -136,20 +140,45 @@ def main():
         )
 
         # Collect results for this z-level
+        center_z = np.zeros((n_time, 2))
+        iterations_z = np.zeros(n_time, dtype=int)
         for t_idx, (x_c, y_c, num_iter) in enumerate(results):
+            center_z[t_idx, 0] = x_c
+            center_z[t_idx, 1] = y_c
+            iterations_z[t_idx] = num_iter
+            # Also store in full array
             center_all[t_idx, z_idx, 0] = x_c
             center_all[t_idx, z_idx, 1] = y_c
             iterations_all[t_idx, z_idx] = num_iter
 
-    # Save results as .npz file with metadata: shape (nt, nz, 2)
-    OUTPUT_DIR = config.get_center_path("ms_pres")
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+        # Save per-z-level file immediately
+        z_filename = f"smoothed_center_z{z:03d}.npz"
+        z_metadata = {
+            "center": center_z,  # shape: (nt, 2)
+            "method": "smoothed_minimum",
+            "created_at": datetime.datetime.utcnow().isoformat() + "Z",
+            "actual_iterations": iterations_z,
+            "z_level": z,
+            "height": grid.vgrid[z],
+            "r_smooth": r_smooth,
+            "refine_after_smooth": refine,
+        }
+        if refine:
+            z_metadata.update({
+                "r_refine": r_refine,
+                "max_iterations": 100,
+                "convergence_threshold_x": config.dx * 1e-2,
+                "convergence_threshold_y": config.dy * 1e-2,
+            })
+        np.savez(os.path.join(OUTPUT_DIR, z_filename), **z_metadata)
+        if refine:
+            print(f"  → Saved: {z_filename} (mean_iter={np.mean(iterations_z):.1f})")
+        else:
+            print(f"  → Saved: {z_filename}")
 
-    # Get filename from config, default: "smoothed_center.npz"
+    # Save combined results as .npz file with metadata: shape (nt, nz, 2)
     filename = config.center_configs.get("ms_pres_smoothed", "smoothed_center.npz")
-
-    # Prepare metadata
-    metadata = {
+    combined_metadata = {
         "center": center_all,
         "method": "smoothed_minimum",
         "created_at": datetime.datetime.utcnow().isoformat() + "Z",
@@ -159,19 +188,18 @@ def main():
         "r_smooth": r_smooth,
         "refine_after_smooth": refine,
     }
-
     if refine:
-        metadata.update({
+        combined_metadata.update({
             "r_refine": r_refine,
             "max_iterations": 100,
             "convergence_threshold_x": config.dx * 1e-2,
             "convergence_threshold_y": config.dy * 1e-2,
         })
-
-    np.savez(os.path.join(OUTPUT_DIR, filename), **metadata)
+    np.savez(os.path.join(OUTPUT_DIR, filename), **combined_metadata)
 
     print(f"\nCompleted processing z-levels {z_first} to {z_last}")
-    print(f"Saved center coordinates: {OUTPUT_DIR}/{filename} (shape: {center_all.shape})")
+    print(f"Saved combined file: {OUTPUT_DIR}/{filename} (shape: {center_all.shape})")
+    print(f"Saved {n_z} individual z-level files: smoothed_center_z???.npz")
     print(f"  Method: smoothed_minimum")
     print(f"  r_smooth={r_smooth:.0f} m ({r_smooth * 1e-3:.1f} km)")
     if refine:
