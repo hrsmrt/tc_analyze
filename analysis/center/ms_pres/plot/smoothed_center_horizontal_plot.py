@@ -98,7 +98,7 @@ if len(vgrid) != nz_data:
 # Convert to km
 vgrid_km = vgrid * 1e-3
 
-output_dir = config.get_center_path("ms_pres", data_type="fig")
+output_dir = os.path.join(config.get_center_path("ms_pres", data_type="fig"), "smoothed", "horizontal")
 os.makedirs(output_dir, exist_ok=True)
 
 
