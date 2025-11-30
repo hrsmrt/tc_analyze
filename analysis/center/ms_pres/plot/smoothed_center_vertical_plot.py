@@ -1,7 +1,7 @@
 """Plot vertical profile of tropical cyclone center (smoothed_minimum method).
 
 Plots the vertical distribution of TC center position at each time step.
-Shows how center location varies with height.
+Shows how center location varies with height relative to SS SLP center.
 Reads from smoothed_center.npz (or configured filename in center_configs).
 
 Usage:
@@ -18,6 +18,7 @@ from joblib import Parallel, delayed
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 from utils.plotting import parse_style_argument
+from utils.center import load_center_coordinates
 
 # スタイルシートの解析
 mpl_style_sheet = parse_style_argument()
@@ -97,37 +98,62 @@ if len(vgrid) != nz_data:
 # Convert to km
 vgrid_km = vgrid * 1e-3
 
+# Load SS SLP center for relative coordinate calculation
+ss_slp_center_x, ss_slp_center_y, _ = load_center_coordinates(config, "ss_slp")
+print(f"Loaded SS SLP center: shape {ss_slp_center_x.shape}")
+
 output_dir = os.path.join(config.get_center_path("ms_pres", data_type="fig"), "smoothed", "vertical")
 os.makedirs(output_dir, exist_ok=True)
 
 
 def process_t(t):
-    """Plot vertical profile for a single time step."""
-    x_profile = center[t, :, 0] * 1e-3  # Convert to km
-    y_profile = center[t, :, 1] * 1e-3  # Convert to km
+    """Plot vertical profile for a single time step (relative to SS SLP center)."""
+    # Get MS PRES center coordinates
+    x_abs = center[t, :, 0]  # meters
+    y_abs = center[t, :, 1]  # meters
+
+    # Get SS SLP center for this time step
+    ss_x = ss_slp_center_x[t]  # meters
+    ss_y = ss_slp_center_y[t]  # meters
+
+    # Calculate relative coordinates (MS PRES center - SS SLP center)
+    dx = x_abs - ss_x
+    dy = y_abs - ss_y
+
+    # Apply periodic boundary condition in x-direction
+    dx = np.where(dx > config.x_width * 0.5, dx - config.x_width, dx)
+    dx = np.where(dx < -config.x_width * 0.5, dx + config.x_width, dx)
+
+    # Convert to km
+    x_profile = dx * 1e-3
+    y_profile = dy * 1e-3
 
     plt.style.use(mpl_style_sheet)
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
 
-    # Left panel: x coordinate vs height
+    # Left panel: x displacement vs height
     ax1.plot(x_profile, vgrid_km, 'o-', linewidth=2, markersize=4)
-    ax1.set_xlabel("X coordinate [km]")
+    ax1.set_xlabel("X displacement from SS SLP center [km]")
     ax1.set_ylabel("Height [km]")
+    ax1.set_xlim([-300, 300])  # Fixed range ±300km
     ax1.set_ylim([0, 20])
+    ax1.axvline(x=0, color='gray', linestyle='--', linewidth=1, alpha=0.5)
     ax1.grid(True, alpha=0.3)
-    ax1.set_title("Center X vs Height")
+    ax1.set_title("Center X Displacement vs Height")
 
-    # Right panel: y coordinate vs height
+    # Right panel: y displacement vs height
     ax2.plot(y_profile, vgrid_km, 'o-', linewidth=2, markersize=4)
-    ax2.set_xlabel("Y coordinate [km]")
+    ax2.set_xlabel("Y displacement from SS SLP center [km]")
     ax2.set_ylabel("Height [km]")
+    ax2.set_xlim([-300, 300])  # Fixed range ±300km
     ax2.set_ylim([0, 20])
+    ax2.axvline(x=0, color='gray', linestyle='--', linewidth=1, alpha=0.5)
     ax2.grid(True, alpha=0.3)
-    ax2.set_title("Center Y vs Height")
+    ax2.set_title("Center Y Displacement vs Height")
 
     # Main title with time and method info
     time_hour = config.time_list[t] if t < len(config.time_list) else t * config.dt / 3600
-    title = f"TC Center Vertical Profile (smoothed_minimum)\nt = {time_hour:.0f} hour"
+    title = f"TC Center Vertical Profile (smoothed_minimum, relative to SS SLP)\nt = {time_hour:.0f} hour"
     if r_smooth is not None:
         title += f" | r_smooth={r_smooth*1e-3:.0f}km"
     if refine_after_smooth and r_refine is not None:
