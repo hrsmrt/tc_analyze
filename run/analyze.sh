@@ -358,7 +358,9 @@ run_center_plot() {
     run_cmd "python ${TC_ANALYZE}/analysis/center/ms_pres/plot/weighted_center_vertical_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/center/ms_pres/plot/smoothed_center_vertical_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/center/ms_pres/plot/weighted_center_horizontal_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/center/ms_pres/plot/weighted_center_horizontal_plot_20km.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/center/ms_pres/plot/smoothed_center_horizontal_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/center/ms_pres/plot/smoothed_center_horizontal_plot_20km.py ${STYLE}"
 
     # SS SLP center plots
     run_cmd "python ${TC_ANALYZE}/analysis/center/ss_slp/plot/ss_slp_center_plot.py ${STYLE}"
