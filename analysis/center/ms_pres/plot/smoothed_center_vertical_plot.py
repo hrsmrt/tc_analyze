@@ -128,10 +128,14 @@ def process_t(t):
     x_profile = dx * 1e-3
     y_profile = dy * 1e-3
 
-    plt.style.use(mpl_style_sheet)
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
+    # Calculate horizontal distance and azimuth angle
+    r_profile = np.sqrt(dx**2 + dy**2) * 1e-3  # km
+    theta_profile = np.degrees(np.arctan2(dy, dx))  # degrees
 
-    # Left panel: x displacement vs height
+    plt.style.use(mpl_style_sheet)
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(12, 8))
+
+    # Top-left panel: x displacement vs height
     ax1.plot(x_profile, vgrid_km, 'o-', linewidth=2, markersize=4)
     ax1.set_xlabel("X displacement from SS SLP center [km]")
     ax1.set_ylabel("Height [km]")
@@ -139,9 +143,9 @@ def process_t(t):
     ax1.set_ylim([0, 20])
     ax1.axvline(x=0, color='gray', linestyle='--', linewidth=1, alpha=0.5)
     ax1.grid(True, alpha=0.3)
-    ax1.set_title("Center X Displacement vs Height")
+    ax1.set_title("X Displacement vs Height")
 
-    # Right panel: y displacement vs height
+    # Top-right panel: y displacement vs height
     ax2.plot(y_profile, vgrid_km, 'o-', linewidth=2, markersize=4)
     ax2.set_xlabel("Y displacement from SS SLP center [km]")
     ax2.set_ylabel("Height [km]")
@@ -149,7 +153,26 @@ def process_t(t):
     ax2.set_ylim([0, 20])
     ax2.axvline(x=0, color='gray', linestyle='--', linewidth=1, alpha=0.5)
     ax2.grid(True, alpha=0.3)
-    ax2.set_title("Center Y Displacement vs Height")
+    ax2.set_title("Y Displacement vs Height")
+
+    # Bottom-left panel: horizontal distance vs height
+    ax3.plot(r_profile, vgrid_km, 'o-', linewidth=2, markersize=4, color='C2')
+    ax3.set_xlabel("Horizontal distance from SS SLP center [km]")
+    ax3.set_ylabel("Height [km]")
+    ax3.set_xlim([0, 300])  # 0 to 300km
+    ax3.set_ylim([0, 20])
+    ax3.grid(True, alpha=0.3)
+    ax3.set_title("Horizontal Distance vs Height")
+
+    # Bottom-right panel: azimuth angle vs height
+    ax4.plot(theta_profile, vgrid_km, 'o-', linewidth=2, markersize=4, color='C3')
+    ax4.set_xlabel("Azimuth angle [degrees]")
+    ax4.set_ylabel("Height [km]")
+    ax4.set_xlim([-180, 180])
+    ax4.set_ylim([0, 20])
+    ax4.axvline(x=0, color='gray', linestyle='--', linewidth=1, alpha=0.5)
+    ax4.grid(True, alpha=0.3)
+    ax4.set_title("Azimuth Angle vs Height")
 
     # Main title with time and method info
     time_hour = config.time_list[t] if t < len(config.time_list) else t * config.dt / 3600
@@ -158,7 +181,7 @@ def process_t(t):
         title += f" | r_smooth={r_smooth*1e-3:.0f}km"
     if refine_after_smooth and r_refine is not None:
         title += f", r_refine={r_refine*1e-3:.0f}km"
-    fig.suptitle(title, fontsize=10)
+    fig.suptitle(title, fontsize=11)
 
     plt.tight_layout()
     output_path = os.path.join(output_dir, f"vertical_profile_smoothed_t{str(t).zfill(3)}.png")
