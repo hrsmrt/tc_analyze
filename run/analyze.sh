@@ -481,7 +481,6 @@ run_azim() {
     run_cmd "python ${TC_ANALYZE}/analysis/azimuthal/basic/calc/azim_theta_e_calc.py"
     run_cmd "python ${TC_ANALYZE}/analysis/azimuthal/basic/plot/azim_theta_e_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/azimuthal/basic/plot/azim_plot_momentum_theta_e.py ${STYLE}"
-    run_cmd "sh ${TC_ANALYZE}/analysis/azimuthal/basic/azim_pert_3d_calc.sh"
     run_cmd "sh ${TC_ANALYZE}/analysis/azimuthal/basic/azim_pert_3d_plot.sh"
     run_cmd "python ${TC_ANALYZE}/analysis/azimuthal/basic/calc/azim_wind_relative_calc.py"
     run_cmd "python ${TC_ANALYZE}/analysis/azimuthal/basic/plot/azim_wind_relative_radial_plot.py ${STYLE}"

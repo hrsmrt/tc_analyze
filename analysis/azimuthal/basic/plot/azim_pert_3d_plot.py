@@ -1,5 +1,5 @@
 # python $WORK/tc_analyze/analysis/azimuthal/basic/plot/azim_pert_3d_plot.py varname $style
-# 方位角平均データをプロット
+# 方位角平均データから環境場平均（r>1000km）を引いてプロット
 import os
 import sys
 
@@ -10,12 +10,14 @@ import numpy as np
 from joblib import Parallel, delayed
 
 from utils.config import AnalysisConfig
+from utils.grid import GridHandler
 from utils.plotting import parse_style_argument
 
 varname = sys.argv[1]
 
 mpl_style_sheet = parse_style_argument()
 config = AnalysisConfig()
+grid = GridHandler(config)
 
 time_list = config.time_list
 
@@ -27,14 +29,48 @@ xgrid = np.arange(nr) * config.dx * 1e-3
 
 X, Y = np.meshgrid(xgrid, vgrid * 1e-3)
 
+# Output directory
 folder = config.get_tc_centric_path("azimuthal", f"basic/pert/{varname}", data_type="fig")
-
 os.makedirs(folder, exist_ok=True)
+
+# Load 3D data for calculating environmental mean (r > r_max)
+data_all = np.memmap(
+    f"{config.input_folder}{varname}.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+
+# Center coordinates
+center_x_list = config.center_x
+center_y_list = config.center_y
+
+# Pre-calculate grid
+X_grid, Y_grid = grid.X, grid.Y
 
 
 def process_t(t):
-    # データの読み込み
-    data = np.load(os.path.join(config.get_tc_centric_path('azimuthal', f'basic/pert/{varname}'), f"t{str(t).zfill(3)}.npy"))
+    # Load azimuthal mean data from basic/3d
+    azim_mean = np.load(
+        os.path.join(
+            config.get_tc_centric_path('azimuthal', f'basic/3d/{varname}'),
+            f"t{str(t).zfill(3)}.npy"
+        )
+    )
+
+    # Calculate environmental mean (r > r_max)
+    cx = center_x_list[t]
+    cy = center_y_list[t]
+
+    R = np.sqrt((X_grid - cx) ** 2 + (Y_grid - cy) ** 2)
+    mask_outside = R > r_max
+
+    data_3d = data_all[t]
+    masked_data = np.where(mask_outside, data_3d, np.nan)
+    mean_outside = np.nanmean(masked_data, axis=(1, 2))  # (nz,)
+
+    # Calculate perturbation: azim_mean - environmental_mean
+    data = azim_mean - mean_outside[:, np.newaxis]
 
     # プロット
     plt.style.use(mpl_style_sheet)

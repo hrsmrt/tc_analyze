@@ -25,4 +25,5 @@ utils/optimize_matplotlib.py
 utils/plotting.py
 utils/streamfunction.py
 utils/thermodynamics.py
+utils/vorticity.py
 utils/wind.py
