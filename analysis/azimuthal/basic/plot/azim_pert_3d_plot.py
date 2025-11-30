@@ -50,10 +50,10 @@ X_grid, Y_grid = grid.X, grid.Y
 
 
 def process_t(t):
-    # Load azimuthal mean data from basic/3d
+    # Load azimuthal mean data from basic/{varname}
     azim_mean = np.load(
         os.path.join(
-            config.get_tc_centric_path('azimuthal', f'basic/3d/{varname}'),
+            config.get_tc_centric_path('azimuthal', f'basic/{varname}'),
             f"t{str(t).zfill(3)}.npy"
         )
     )
