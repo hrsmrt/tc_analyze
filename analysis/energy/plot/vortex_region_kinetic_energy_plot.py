@@ -89,7 +89,10 @@ def process_t(t):
         data = grid.extract_vortex_region(v_squared[z], center_x, center_y, EXTENT)
         plt.style.use(mpl_style_sheet)
         fig, ax = plt.subplots(figsize=(5, 4))
-        c = ax.contourf(X_cut * 1e-3, Y_cut * 1e-3, data, cmap="rainbow", extend="both")
+        # データ範囲に基づいてlevelsを自動設定
+        vmin, vmax = np.nanmin(data), np.nanmax(data)
+        levels = np.linspace(vmin, vmax, 15)
+        c = ax.contourf(X_cut * 1e-3, Y_cut * 1e-3, data, levels=levels, cmap="rainbow", extend="both")
         fig.colorbar(c, ax=ax)
         ax.set_title(f"Kinetic Energy (v²) t={config.time_list[t]:3d}h, z={int(vgrid[z] * 1e-2) * 1e-1}km")
         ax.set_xlabel("x [km]")
