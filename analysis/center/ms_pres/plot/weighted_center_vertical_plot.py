@@ -177,9 +177,10 @@ def process_t(t):
     title = f"TC Center Vertical Profile (weighted_centroid, relative to SS SLP)\nt = {time_hour:.0f} hour"
     if r_search is not None and r_refine is not None:
         title += f" | r_search={r_search*1e-3:.0f}km, r_refine={r_refine*1e-3:.0f}km"
-    fig.suptitle(title, fontsize=11)
 
     fig.tight_layout(rect=[0, 0, 1, 0.96])  # Leave space for suptitle
+    fig.suptitle(title, fontsize=11)
+
     output_path = os.path.join(output_dir, f"vertical_profile_weighted_t{str(t).zfill(3)}.png")
     fig.savefig(output_path, dpi=100)
     plt.close()

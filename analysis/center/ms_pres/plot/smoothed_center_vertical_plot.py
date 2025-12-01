@@ -181,9 +181,10 @@ def process_t(t):
         title += f" | r_smooth={r_smooth*1e-3:.0f}km"
     if refine_after_smooth and r_refine is not None:
         title += f", r_refine={r_refine*1e-3:.0f}km"
-    fig.suptitle(title, fontsize=11)
 
     fig.tight_layout(rect=[0, 0, 1, 0.96])  # Leave space for suptitle
+    fig.suptitle(title, fontsize=11)
+
     output_path = os.path.join(output_dir, f"vertical_profile_smoothed_t{str(t).zfill(3)}.png")
     fig.savefig(output_path, dpi=100)
     plt.close()
