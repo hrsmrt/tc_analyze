@@ -28,15 +28,16 @@ G_ME = 3.986004356e14  # m³/s². 地心重力定数　# 天文(理科年表2022
 
 g = 9.80665  # m/s². 標準重力加速度, Holton and Hakim(2014)p19
 
-# 比熱（物理記号）
-Cp = 1004  # J/(kg·K). 乾燥空気の定圧比熱
-
 # 気体定数（物理記号）
 DryAir_weight = (0.78 * N2_weight + 0.21 * O2_weight + 9.3e-3 * Ar_weight
                  + 3.9e-4 * CO2_weight + 1.8e-5 * Ne_weight
                  + 5.2e-6 * He_weight)
 Rd = R / DryAir_weight * 1e3  # 乾燥空気の気体定数 [J/(kg·K)]
 Rv = R / H2O_weight * 1e3  # 水蒸気の気体定数 [J/(kg·K)]
+
+# 比熱（物理記号）
+Cp = 1004  # J/(kg·K). 乾燥空気の定圧比熱
+Cv = Cp - Rd  # J/(kg·K). 乾燥空気の定積比熱 (Mayer's relation)
 
 # 潜熱（物理記号）
 Lv = 2.5e6  # 水の蒸発潜熱 [J/kg]
