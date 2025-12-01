@@ -1,4 +1,9 @@
-"""Plot 3D divergence field over whole domain."""
+"""
+Plot 3D divergence field over whole domain.
+
+✅ ストレージ節約版: オンデマンド計算を使用
+データを保存せず、必要時に計算することで数GB〜数百GBのストレージを節約
+"""
 # python $WORK/tc_analyze/analysis/whole_domain/3d/plot/divergence_whole_domain_plot.py $style
 
 import os
@@ -31,6 +36,54 @@ for z in z_list:
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
+# ✅ オンデマンド計算: メモリマップを開く
+data_all_u = np.memmap(
+    os.path.join(config.input_folder, "ms_u.grd"),
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_all_v = np.memmap(
+    os.path.join(config.input_folder, "ms_v.grd"),
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+
+
+def calculate_divergence(data_u, data_v, dx, dy):
+    """
+    Calculate divergence of horizontal wind field.
+
+    Parameters
+    ----------
+    data_u : np.ndarray
+        U-component of wind (nz, ny, nx)
+    data_v : np.ndarray
+        V-component of wind (nz, ny, nx)
+    dx : float
+        Grid spacing in x-direction
+    dy : float
+        Grid spacing in y-direction
+
+    Returns
+    -------
+    div : np.ndarray
+        Divergence field (nz, ny, nx)
+    """
+    # ベクトル化版: 全Z方向を一度に処理
+    du_dx = (np.roll(data_u, -1, axis=2) - np.roll(data_u, 1, axis=2)) / (2 * dx)
+    dv_dy = (np.roll(data_v, -1, axis=1) - np.roll(data_v, 1, axis=1)) / (2 * dy)
+
+    # 境界条件の処理（北極と南極）
+    nx = data_u.shape[2]
+    dv_dy[:, 0, : nx // 2] = (data_v[:, 1, : nx // 2] - data_v[:, -1, nx // 2:]) / (2 * dy)
+    dv_dy[:, 0, nx // 2:] = (data_v[:, 1, nx // 2:] - data_v[:, -1, : nx // 2]) / (2 * dy)
+    dv_dy[:, -1, : nx // 2] = (data_v[:, 0, : nx // 2] - data_v[:, -2, nx // 2:]) / (2 * dy)
+    dv_dy[:, -1, nx // 2:] = (data_v[:, 0, nx // 2:] - data_v[:, -2, : nx // 2]) / (2 * dy)
+
+    return du_dx + dv_dy
+
 
 def process_t(t):
     """
@@ -41,22 +94,13 @@ def process_t(t):
     t : int
         Time step index
     """
-    # データの読み込み (npz/npy fallback)
-    data_path_npz = os.path.join(config.get_domain_path("whole_domain", "3d/divergence"), f"div_t{str(t).zfill(3)}.npz")
-    data_path_npy = os.path.join(config.get_domain_path("whole_domain", "3d/divergence"), f"div_t{str(t).zfill(3)}.npy")
+    # ✅ オンデマンド計算: 必要時にその場で計算（保存データ不要）
+    data_u = data_all_u[t]  # shape: (nz, ny, nx)
+    data_v = data_all_v[t]  # shape: (nz, ny, nx)
 
-    if os.path.exists(data_path_npz):
-        with np.load(data_path_npz) as npz_data:
-            data_z = npz_data['data']
-    elif os.path.exists(data_path_npy):
-        data_z = np.memmap(
-            data_path_npy,
-            dtype=np.float32,
-            mode="r",
-            shape=(config.nz, config.ny, config.nx),
-        )
-    else:
-        raise FileNotFoundError(f"Data file not found: {data_path_npz} or {data_path_npy}")
+    # 発散を計算
+    data_z = calculate_divergence(data_u, data_v, config.dx, config.dy)
+
     X_km, Y_km = grid.get_meshgrid_km()
     for z in z_list:
         data = data_z[z]

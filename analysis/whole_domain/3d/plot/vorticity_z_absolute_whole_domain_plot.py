@@ -1,4 +1,9 @@
-"""Plot 3D absolute vorticity field over whole domain."""
+"""
+Plot 3D absolute vorticity field over whole domain.
+
+✅ ストレージ節約版: オンデマンド計算を使用
+データを保存せず、必要時に計算することで数GB〜数百GBのストレージを節約
+"""
 # python $WORK/tc_analyze/analysis/whole_domain/3d/plot/vorticity_z_absolute_whole_domain_plot.py $style
 import os
 
@@ -12,6 +17,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 from utils.plotting import parse_style_argument
+from utils.vorticity import calculate_vorticity_z
 
 # スタイルシートの解析
 mpl_style_sheet = parse_style_argument()
@@ -30,6 +36,20 @@ for z in z_list:
 
 vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
+# ✅ オンデマンド計算: メモリマップを開く
+data_all_u = np.memmap(
+    os.path.join(config.input_folder, "ms_u.grd"),
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_all_v = np.memmap(
+    os.path.join(config.input_folder, "ms_v.grd"),
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+
 
 def process_t(t):
     """
@@ -40,22 +60,13 @@ def process_t(t):
     t : int
         Time step index
     """
-    # データの読み込み (npz/npy fallback)
-    data_path_npz = os.path.join(config.get_domain_path("whole_domain", "3d/vorticity_z"), f"vor_t{str(t).zfill(3)}.npz")
-    data_path_npy = os.path.join(config.get_domain_path("whole_domain", "3d/vorticity_z"), f"vor_t{str(t).zfill(3)}.npy")
+    # ✅ オンデマンド計算: 必要時にその場で計算（保存データ不要）
+    data_u = data_all_u[t]  # shape: (nz, ny, nx)
+    data_v = data_all_v[t]  # shape: (nz, ny, nx)
 
-    if os.path.exists(data_path_npz):
-        with np.load(data_path_npz) as npz_data:
-            data_z = npz_data['data']
-    elif os.path.exists(data_path_npy):
-        data_z = np.memmap(
-            data_path_npy,
-            dtype=np.float32,
-            mode="r",
-            shape=(config.nz, config.ny, config.nx),
-        )
-    else:
-        raise FileNotFoundError(f"Data file not found: {data_path_npz} or {data_path_npy}")
+    # 渦度を計算 (utils/vorticity.py の共通関数を使用)
+    data_z = calculate_vorticity_z(data_u, data_v, config.dx, config.dy)
+
     X_km, Y_km = grid.get_meshgrid_km()
     for z in z_list:
         data = data_z[z]
