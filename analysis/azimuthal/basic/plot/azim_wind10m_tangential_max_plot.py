@@ -18,12 +18,30 @@ folder = config.get_tc_centric_path("azimuthal", "basic/wind10m_tangential", dat
 
 os.makedirs(folder, exist_ok=True)
 
-wind10m_tangential_max = np.load(
-    os.path.join(config.get_tc_centric_path("azimuthal", "basic/wind10m_tangential"), "wind10m_tangential_max.npy")
-)
-wind10m_tangential_rmw = np.load(
-    os.path.join(config.get_tc_centric_path("azimuthal", "basic/wind10m_tangential"), "wind10m_tangential_rmw.npy")
-)
+# Load wind10m_tangential_max data (.npz/.npy fallback)
+folder_path = config.get_tc_centric_path("azimuthal", "basic/wind10m_tangential")
+npz_path_max = os.path.join(folder_path, "wind10m_tangential_max.npz")
+npy_path_max = os.path.join(folder_path, "wind10m_tangential_max.npy")
+
+if os.path.exists(npz_path_max):
+    npz_data = np.load(npz_path_max)
+    wind10m_tangential_max = npz_data['data']
+elif os.path.exists(npy_path_max):
+    wind10m_tangential_max = np.load(npy_path_max)
+else:
+    raise FileNotFoundError(f"Neither {npz_path_max} nor {npy_path_max} found")
+
+# Load wind10m_tangential_rmw data (.npz/.npy fallback)
+npz_path_rmw = os.path.join(folder_path, "wind10m_tangential_rmw.npz")
+npy_path_rmw = os.path.join(folder_path, "wind10m_tangential_rmw.npy")
+
+if os.path.exists(npz_path_rmw):
+    npz_data = np.load(npz_path_rmw)
+    wind10m_tangential_rmw = npz_data['data']
+elif os.path.exists(npy_path_rmw):
+    wind10m_tangential_rmw = np.load(npy_path_rmw)
+else:
+    raise FileNotFoundError(f"Neither {npz_path_rmw} nor {npy_path_rmw} found")
 
 plt.style.use(mpl_style_sheet)
 fig, ax = plt.subplots(figsize=(5, 4))
