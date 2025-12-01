@@ -34,7 +34,7 @@ EXTENT = 500e3
 center_x_list = config.center_x
 center_y_list = config.center_y
 
-OUTPUT_DIR = config.get_tc_centric_path("energy", "vortex_region/internal_energy_from_pres", data_type="fig")
+OUTPUT_DIR = config.get_tc_centric_path("energy", "internal_energy_from_pres/vortex_region", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)

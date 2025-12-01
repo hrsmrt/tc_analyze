@@ -24,7 +24,7 @@ config = AnalysisConfig()
 mpl_style_sheet = parse_style_argument()
 
 # 出力ディレクトリ
-output_dir = config.get_domain_path("energy", "vertical_profile/potential_energy", data_type="fig")
+output_dir = config.get_domain_path("energy", "potential_energy/vertical_profile", data_type="fig")
 os.makedirs(output_dir, exist_ok=True)
 
 # 鉛直グリッドの読み込み
