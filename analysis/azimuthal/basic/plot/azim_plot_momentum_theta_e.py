@@ -22,8 +22,18 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 
 def process_t(t):
-    # 運動量データの読み込み
-    momentum_data = np.load(os.path.join(config.get_tc_centric_path("azimuthal", "basic/momentum"), f"t{str(t).zfill(3)}.npy"))
+    # 運動量データの読み込み（.npz優先、.npyフォールバック）
+    momentum_path = config.get_tc_centric_path("azimuthal", "basic/momentum")
+    momentum_npz = os.path.join(momentum_path, f"t{str(t).zfill(3)}.npz")
+    momentum_npy = os.path.join(momentum_path, f"t{str(t).zfill(3)}.npy")
+
+    if os.path.exists(momentum_npz):
+        npz_data = np.load(momentum_npz)
+        momentum_data = npz_data['data']
+    elif os.path.exists(momentum_npy):
+        momentum_data = np.load(momentum_npy)
+    else:
+        raise FileNotFoundError(f"Neither {momentum_npz} nor {momentum_npy} found")
 
     # グリッド設定：データから実際のビン数を取得
     nr = momentum_data.shape[1]
@@ -47,8 +57,18 @@ def process_t(t):
     )
     fig.colorbar(contour_filled, ax=ax)
 
-    # 相当温位データの読み込みと等値線プロット
-    theta_e_data = np.load(os.path.join(config.get_tc_centric_path("azimuthal", "basic/theta_e"), f"t{str(t).zfill(3)}.npy"))
+    # 相当温位データの読み込みと等値線プロット（.npz優先、.npyフォールバック）
+    theta_e_path = config.get_tc_centric_path("azimuthal", "basic/theta_e")
+    theta_e_npz = os.path.join(theta_e_path, f"t{str(t).zfill(3)}.npz")
+    theta_e_npy = os.path.join(theta_e_path, f"t{str(t).zfill(3)}.npy")
+
+    if os.path.exists(theta_e_npz):
+        npz_data = np.load(theta_e_npz)
+        theta_e_data = npz_data['data']
+    elif os.path.exists(theta_e_npy):
+        theta_e_data = np.load(theta_e_npy)
+    else:
+        raise FileNotFoundError(f"Neither {theta_e_npz} nor {theta_e_npy} found")
 
     # theta_eのデータサイズが異なる場合は、theta_e用のグリッドを生成
     if theta_e_data.shape[1] != nr:

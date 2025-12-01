@@ -23,7 +23,7 @@ data = np.load(os.path.join(config.get_domain_path("whole_domain", "2d/ss_wind10
 
 # プロット
 plt.style.use(mpl_style_sheet)
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(4, 3))
 ax.plot(config.time_list[1:], data[1:])
 ax.set_xlabel("時間 [hour]")
 ax.set_ylabel("最大10m風速 [m/s]")
