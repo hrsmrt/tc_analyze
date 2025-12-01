@@ -1,5 +1,6 @@
 # python $WORK/tc_analyze/analysis/azimuthal/momentum/u/calc/azim_du_dr_calc.py
 import os
+from datetime import datetime
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -20,9 +21,26 @@ os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    data = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/wind_relative_radial'), f"t{str(t).zfill(3)}.npy"))
+    # データの読み込み（.npz優先、.npyフォールバック）
+    data_path = config.get_tc_centric_path('azimuthal', 'basic/wind_relative_radial')
+    npz_path = os.path.join(data_path, f"t{str(t).zfill(3)}.npz")
+    npy_path = os.path.join(data_path, f"t{str(t).zfill(3)}.npy")
+    if os.path.exists(npz_path):
+        npz_data = np.load(npz_path)
+        data = npz_data['data']
+    elif os.path.exists(npy_path):
+        data = np.load(npy_path)
+    else:
+        raise FileNotFoundError(f"Neither {npz_path} nor {npy_path} found")
+
     du_dr = (data[:, 1:] - data[:, :-1]) / config.dx
-    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), du_dr)
+    np.savez(
+        os.path.join(output_folder, f"t{str(t).zfill(3)}.npz"),
+        data=du_dr,
+        varname="du_dr",
+        method="radial_derivative",
+        created_at=datetime.now().isoformat()
+    )
 
 
 Parallel(n_jobs=config.n_jobs)(
