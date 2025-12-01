@@ -37,6 +37,7 @@
 #   azim_q8            - 8方位分割解析 (analysis/azimuthal/q8/)
 #   sums               - 積算値計算 (analysis/diagnostics/sums/)
 #   symmetrisity       - 対称性解析 (analysis/diagnostics/symmetrisity/)
+#   min_max            - 最大値・最小値診断 (analysis/diagnostics/min_max/)
 #   z_profile_q4       - 4象限鉛直プロファイル (analysis/vertical/q4/)
 #   all                - 全てのカテゴリ (デフォルト)
 #
@@ -148,6 +149,7 @@ TC Analysis Pipeline Script
   azim_q8            - 8方位分割解析 (analysis/azimuthal/q8/)
   sums               - 積算値計算 (analysis/diagnostics/sums/)
   symmetrisity       - 対称性解析 (analysis/diagnostics/symmetrisity/)
+  min_max            - 最大値・最小値診断 (analysis/diagnostics/min_max/)
   z_profile_q4       - 4象限鉛直プロファイル (analysis/vertical/q4/)
   all                - 全てのカテゴリ (デフォルト)
 
@@ -183,6 +185,7 @@ list_categories() {
     echo "  azim_q8            - 8方位分割解析 (analysis/azimuthal/q8/)"
     echo "  sums               - 積算値計算 (analysis/diagnostics/sums/)"
     echo "  symmetrisity       - 対称性解析 (analysis/diagnostics/symmetrisity/)"
+    echo "  min_max            - 最大値・最小値診断 (analysis/diagnostics/min_max/)"
     echo "  z_profile_q4       - 4象限鉛直プロファイル (analysis/vertical/q4/)"
     echo "  all                - 全てのカテゴリ"
 }
@@ -387,8 +390,6 @@ run_2d_basic() {
     run_cmd "sh ${TC_ANALYZE}/analysis/whole_domain/2d/whole_domain.sh"
     run_cmd "sh ${TC_ANALYZE}/analysis/whole_domain/2d/y_ave.sh"
     run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/2d/plot/ss_wind10m_abs_whole_domain.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/2d/calc/ss_wind10m_max_calc.py"
-    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/2d/plot/ss_wind10m_max_plot.py ${STYLE}"
 }
 
 run_2d_wind() {
@@ -411,9 +412,8 @@ run_3d_basic() {
     run_cmd "sh ${TC_ANALYZE}/analysis/whole_domain/3d/whole_domain.sh"
     run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/streamplot_whole_domain.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/whole_domain_wind_uv_abs_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/calc/vorticity_z_calc.py"
+    # オンデマンド計算に移行: vorticity_z と divergence は plot ファイルで直接計算
     run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/vorticity_z_absolute_whole_domain_plot.py ${STYLE}"
-    run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/calc/divergence_calc.py"
     run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/divergence_whole_domain_plot.py ${STYLE}"
     # オンデマンド計算に移行: theta_e は plot ファイルで直接計算
     run_cmd "python ${TC_ANALYZE}/analysis/whole_domain/3d/plot/theta_e_plot_whole_region.py ${STYLE}"
@@ -590,6 +590,14 @@ run_z_profile_q4() {
     run_cmd "python ${TC_ANALYZE}/analysis/vertical/q4/plot/vorticity_z_plot.py ${STYLE}"
 }
 
+run_min_max() {
+    log_section "Min/Max Diagnostics"
+    run_cmd "python ${TC_ANALYZE}/analysis/diagnostics/min_max/calc/ss_wind10m_max_calc.py"
+    run_cmd "python ${TC_ANALYZE}/analysis/diagnostics/min_max/plot/ss_wind10m_max_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/diagnostics/min_max/calc/ss_slp_min_calc.py"
+    run_cmd "python ${TC_ANALYZE}/analysis/diagnostics/min_max/plot/ss_slp_min_plot.py ${STYLE}"
+}
+
 run_vortex_region() {
     log_section "Vortex Region Analysis"
     run_cmd "sh ${TC_ANALYZE}/analysis/vortex_region/3d/vortex_region.sh"
@@ -669,6 +677,9 @@ for category in "${CATEGORIES[@]}"; do
         symmetrisity)
             run_symmetrisity
             ;;
+        min_max)
+            run_min_max
+            ;;
         z_profile_q4)
             run_z_profile_q4
             ;;
@@ -693,6 +704,7 @@ for category in "${CATEGORIES[@]}"; do
             run_azim_q8
             run_sums
             run_symmetrisity
+            run_min_max
             run_z_profile_q4
             ;;
         *)
