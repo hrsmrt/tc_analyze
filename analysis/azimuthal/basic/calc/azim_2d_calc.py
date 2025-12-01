@@ -1,6 +1,7 @@
 # python $WORK/tc_analyze/analysis/azimuthal/basic/calc/azim_2d_calc.py varname
 import os
 import sys
+from datetime import datetime
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -63,7 +64,15 @@ def process_t(t):
     with np.errstate(divide="ignore", invalid="ignore"):
         azim_mean = np.where(count_r > 0, data_r / count_r, np.nan)
     # print(f"azim mean data t: {t}, max: {azim_mean.max()}, min: {azim_mean.min()}")
-    np.save(os.path.join(folder, f"t{str(t).zfill(3)}.npy"), azim_mean)
+    np.savez(
+        os.path.join(folder, f"t{str(t).zfill(3)}.npz"),
+        data=azim_mean,
+        varname=varname,
+        r_max=r_max,
+        dx=config.dx,
+        method="azimuthal_mean",
+        created_at=datetime.now().isoformat()
+    )
 
 
 Parallel(n_jobs=config.n_jobs)(

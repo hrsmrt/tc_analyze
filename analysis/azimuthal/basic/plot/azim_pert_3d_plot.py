@@ -50,13 +50,18 @@ X_grid, Y_grid = grid.X, grid.Y
 
 
 def process_t(t):
-    # Load azimuthal mean data from basic/{varname}
-    azim_mean = np.load(
-        os.path.join(
-            config.get_tc_centric_path('azimuthal', f'basic/{varname}'),
-            f"t{str(t).zfill(3)}.npy"
-        )
-    )
+    # Load azimuthal mean data from basic/{varname} (.npz優先、.npyフォールバック)
+    data_path = config.get_tc_centric_path('azimuthal', f'basic/{varname}')
+    npz_path = os.path.join(data_path, f"t{str(t).zfill(3)}.npz")
+    npy_path = os.path.join(data_path, f"t{str(t).zfill(3)}.npy")
+
+    if os.path.exists(npz_path):
+        npz_data = np.load(npz_path)
+        azim_mean = npz_data['data']
+    elif os.path.exists(npy_path):
+        azim_mean = np.load(npy_path)  # 旧形式フォールバック
+    else:
+        raise FileNotFoundError(f"Neither {npz_path} nor {npy_path} found")
 
     # Calculate environmental mean (r > r_max)
     cx = center_x_list[t]
