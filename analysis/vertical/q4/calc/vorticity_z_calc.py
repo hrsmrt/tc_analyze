@@ -1,5 +1,6 @@
 # python $WORK/tc_analyze/analysis/vertical/q4/calc/vorticity_z_calc.py
 
+import datetime
 import os
 
 import numpy as np
@@ -67,7 +68,14 @@ results = Parallel(n_jobs=config.n_jobs)(
 # 結果を集約
 z_profile_q = np.array(results, dtype=np.float32)
 
-# --- 保存 ---
+# --- 保存 (npz format with metadata) ---
 os.makedirs(output_dir, exist_ok=True)
-np.save(os.path.join(output_dir, "z_zeta_quadrants.npy"), z_profile_q)
-print(f"✅ Saved quadrant profiles for zeta to {output_dir}/z_zeta_quadrants.npy")
+np.savez(
+    os.path.join(output_dir, "z_zeta_quadrants.npz"),
+    data=z_profile_q,
+    R_max=R_max,
+    method="quadrant_average",
+    quadrants="0:NE, 1:SE, 2:SW, 3:NW",
+    created_at=datetime.datetime.now().isoformat()
+)
+print(f"✅ Saved quadrant profiles for zeta to {output_dir}/z_zeta_quadrants.npz")

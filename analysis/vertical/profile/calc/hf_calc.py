@@ -2,6 +2,7 @@
 # python $WORK/tc_analyze/analysis/vertical/profile/calc/hf_calc.py
 # hf: moist static energy, Nolan+2007 (3)式
 
+import datetime
 import os
 
 import numpy as np
@@ -61,5 +62,17 @@ hf_all = Parallel(n_jobs=config.n_jobs)(
 )
 
 hf_all = np.array(hf_all)
-np.save(os.path.join(output_dir, "hf.npy"), hf_all)
-print(f"✅ Saved hf data to {output_dir}/hf.npy")
+
+# Save to npz format with metadata
+np.savez(
+    os.path.join(output_dir, "hf.npz"),
+    data=hf_all,
+    cp=cp,
+    L=L,
+    Lv=Lv,
+    g=g,
+    method="domain_average",
+    formula="cp*T + g*z + L*qv + Lv*qg",
+    created_at=datetime.datetime.now().isoformat()
+)
+print(f"✅ Saved hf data to {output_dir}/hf.npz")

@@ -24,8 +24,19 @@ mpl_style_sheet = parse_style_argument()
 output_dir = config.get_domain_path("vertical", f"profile/{varname}", data_type="fig")
 os.makedirs(output_dir, exist_ok=True)
 
-# データの読み込み
-data_all = np.load(os.path.join(config.get_domain_path('vertical', 'profile'), f"z_{varname}.npy"))
+# データの読み込み (.npz/.npy fallback)
+data_path = config.get_domain_path('vertical', 'profile')
+npz_path = os.path.join(data_path, f"z_{varname}.npz")
+npy_path = os.path.join(data_path, f"z_{varname}.npy")
+
+if os.path.exists(npz_path):
+    npz_data = np.load(npz_path)
+    data_all = npz_data['data']
+elif os.path.exists(npy_path):
+    data_all = np.load(npy_path)
+else:
+    raise FileNotFoundError(f"Neither {npz_path} nor {npy_path} found")
+
 vgrid = np.loadtxt(config.vgrid_filepath)
 
 

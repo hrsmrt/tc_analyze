@@ -1,6 +1,7 @@
 """Calculate vertical profile for specified variable."""
 # python $WORK/tc_analyze/analysis/vertical/profile/calc/z_profile_calc.py
 
+import datetime
 import os
 import sys
 
@@ -26,6 +27,12 @@ data_memmap = np.memmap(
 
 z_profile_all = data_memmap.mean(axis=(2, 3))
 
-# 保存
-np.save(os.path.join(output_dir, f"z_{varname}.npy"), z_profile_all)
-print(f"✅ Saved z_profile data for {varname} to {output_dir}/z_{varname}.npy")
+# 保存 (npz format with metadata)
+np.savez(
+    os.path.join(output_dir, f"z_{varname}.npz"),
+    data=z_profile_all,
+    varname=varname,
+    method="domain_average",
+    created_at=datetime.datetime.now().isoformat()
+)
+print(f"✅ Saved z_profile data for {varname} to {output_dir}/z_{varname}.npz")

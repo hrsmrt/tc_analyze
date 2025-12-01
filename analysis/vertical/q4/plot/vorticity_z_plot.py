@@ -29,7 +29,18 @@ os.makedirs(output_dir, exist_ok=True)
 for q in range(4):
     os.makedirs(os.path.join(output_dir, f"q{q}"), exist_ok=True)
 
-data_all = np.load(os.path.join(config.get_tc_centric_path("vertical", "q4/zeta"), "z_zeta_quadrants.npy"))
+# データの読み込み (.npz/.npy fallback)
+data_path = config.get_tc_centric_path("vertical", "q4/zeta")
+npz_path = os.path.join(data_path, "z_zeta_quadrants.npz")
+npy_path = os.path.join(data_path, "z_zeta_quadrants.npy")
+
+if os.path.exists(npz_path):
+    npz_data = np.load(npz_path)
+    data_all = npz_data['data']
+elif os.path.exists(npy_path):
+    data_all = np.load(npy_path)
+else:
+    raise FileNotFoundError(f"Neither {npz_path} nor {npy_path} found")
 
 for q in range(4):
     plt.style.use(mpl_style_sheet)

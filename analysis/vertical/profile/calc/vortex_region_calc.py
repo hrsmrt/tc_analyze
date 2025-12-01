@@ -1,6 +1,7 @@
 """Calculate vertical profile over vortex region for specified variable."""
 # python $WORK/tc_analyze/analysis/vertical/profile/calc/vortex_region_calc.py varname
 
+import datetime
 import os
 import sys
 
@@ -63,6 +64,13 @@ results = Parallel(n_jobs=config.n_jobs, verbose=5)(
 # === 結果をまとめる ===
 z_profile_all = np.stack(results, axis=0)
 
-# === 保存 ===
-np.save(os.path.join(output_dir, f"z_{varname}.npy"), z_profile_all)
-print(f"✅ Saved z_profile data for {varname} to {output_dir}/z_{varname}.npy")
+# === 保存 (npz format with metadata) ===
+np.savez(
+    os.path.join(output_dir, f"z_{varname}.npz"),
+    data=z_profile_all,
+    varname=varname,
+    R_max=R_max,
+    method="vortex_region_average",
+    created_at=datetime.datetime.now().isoformat()
+)
+print(f"✅ Saved z_profile data for {varname} to {output_dir}/z_{varname}.npz")
