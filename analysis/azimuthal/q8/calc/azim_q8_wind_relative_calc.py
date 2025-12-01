@@ -1,5 +1,6 @@
 # python $WORK/tc_analyze/analysis/azimuthal/q8/calc/azim_q8_wind_relative_calc.py
 import os
+from datetime import datetime
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -90,12 +91,23 @@ def process_t(t):
             np.nan,
         )
 
-    np.save(
-        os.path.join(output_folder1, f"t{str(t).zfill(3)}.npy"), azim_mean_radial.astype(np.float32)
+    np.savez(
+        os.path.join(output_folder1, f"t{str(t).zfill(3)}.npz"),
+        data=azim_mean_radial.astype(np.float32),
+        varname="wind_relative_radial",
+        method="q8_azimuthal_mean",
+        r_max=r_max,
+        dx=config.dx,
+        created_at=datetime.now().isoformat()
     )
-    np.save(
-        os.path.join(output_folder2, f"t{str(t).zfill(3)}.npy"),
-        azim_mean_tangential.astype(np.float32),
+    np.savez(
+        os.path.join(output_folder2, f"t{str(t).zfill(3)}.npz"),
+        data=azim_mean_tangential.astype(np.float32),
+        varname="wind_relative_tangential",
+        method="q8_azimuthal_mean",
+        r_max=r_max,
+        dx=config.dx,
+        created_at=datetime.now().isoformat()
     )
 
     print(
