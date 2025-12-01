@@ -14,6 +14,7 @@ python $WORK/tc_analyze/azim_mean/azim_wind_relative_calc.py
 """
 
 import os
+from datetime import datetime
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -64,12 +65,24 @@ def process_t(t):
     print(
         f"azim mean data t: {t}, radial max: {azim_mean_radial.max():.2f}, min: {azim_mean_radial.min():.2f}"
     )
-    np.save(os.path.join(output_folder1, f"t{str(t).zfill(3)}.npy"), azim_mean_radial)
+    np.savez(
+        os.path.join(output_folder1, f"t{str(t).zfill(3)}.npz"),
+        data=azim_mean_radial,
+        varname="wind_relative_radial",
+        method="azimuthal_mean",
+        created_at=datetime.now().isoformat()
+    )
 
     print(
         f"azim mean data t: {t}, tangential max: {azim_mean_tangential.max():.2f}, min: {azim_mean_tangential.min():.2f}"
     )
-    np.save(os.path.join(output_folder2, f"t{str(t).zfill(3)}.npy"), azim_mean_tangential)
+    np.savez(
+        os.path.join(output_folder2, f"t{str(t).zfill(3)}.npz"),
+        data=azim_mean_tangential,
+        varname="wind_relative_tangential",
+        method="azimuthal_mean",
+        created_at=datetime.now().isoformat()
+    )
 
 
 Parallel(n_jobs=config.n_jobs)(
