@@ -37,7 +37,15 @@ vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
 
 def process_t(t):
-    data_t = np.load(os.path.join(config.get_domain_path("whole_domain", "3d/vorticity_z"), f"vor_t{str(t).zfill(3)}.npy"))
+    # npz/npy fallback
+    data_dir = config.get_domain_path("whole_domain", "3d/vorticity_z")
+    npz_path = os.path.join(data_dir, f"vor_t{str(t).zfill(3)}.npz")
+    npy_path = os.path.join(data_dir, f"vor_t{str(t).zfill(3)}.npy")
+    if os.path.exists(npz_path):
+        with np.load(npz_path) as npz_file:
+            data_t = npz_file["data"]
+    else:
+        data_t = np.load(npy_path)
     center_x = center_x_list[t]
     center_y = center_y_list[t]
     for z in z_list:

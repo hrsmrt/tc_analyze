@@ -1,5 +1,6 @@
 """Calculate radial and tangential components of 10m wind."""
 # python $WORK/tc_analyze/analysis/vortex_region/2d/calc/ss_wind10m_radial_tangential_calc.py
+import datetime
 import os
 
 import numpy as np
@@ -56,8 +57,18 @@ def process_t(t):
     v_radial = data_u * np.cos(theta) + data_v * np.sin(theta)
     v_tangential = -data_u * np.sin(theta) + data_v * np.cos(theta)
 
-    np.save(os.path.join(folder1, f"t{str(t).zfill(3)}.npy"), v_radial)
-    np.save(os.path.join(folder2, f"t{str(t).zfill(3)}.npy"), v_tangential)
+    np.savez(
+        os.path.join(folder1, f"t{str(t).zfill(3)}.npz"),
+        data=v_radial,
+        created_at=str(datetime.datetime.now()),
+        description="Radial component of 10m wind",
+    )
+    np.savez(
+        os.path.join(folder2, f"t{str(t).zfill(3)}.npz"),
+        data=v_tangential,
+        created_at=str(datetime.datetime.now()),
+        description="Tangential component of 10m wind",
+    )
     # print(f"t: {t} done")
 
 

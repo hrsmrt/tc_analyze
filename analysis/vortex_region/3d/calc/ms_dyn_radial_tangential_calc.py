@@ -5,6 +5,7 @@ ms_dyn_radial_tangential の計算
 """
 
 # python $WORK/tc_analyze/analysis/vortex_region/3d/calc/ms_dyn_radial_tangential_calc.py
+import datetime
 import os
 
 import numpy as np
@@ -66,8 +67,18 @@ def process_t(t):
     v_radial = data_u * np.cos(theta) + data_v * np.sin(theta)
     v_tangential = -data_u * np.sin(theta) + data_v * np.cos(theta)
 
-    np.save(os.path.join(FOLDER1, f"t{str(t).zfill(3)}.npy"), v_radial)
-    np.save(os.path.join(FOLDER2, f"t{str(t).zfill(3)}.npy"), v_tangential)
+    np.savez(
+        os.path.join(FOLDER1, f"t{str(t).zfill(3)}.npz"),
+        data=v_radial,
+        created_at=str(datetime.datetime.now()),
+        description="Radial component of ms_dyn",
+    )
+    np.savez(
+        os.path.join(FOLDER2, f"t{str(t).zfill(3)}.npz"),
+        data=v_tangential,
+        created_at=str(datetime.datetime.now()),
+        description="Tangential component of ms_dyn",
+    )
 
     # print(f"t: {t} done")
 

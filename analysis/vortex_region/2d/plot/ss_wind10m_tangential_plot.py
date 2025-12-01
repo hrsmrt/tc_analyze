@@ -40,7 +40,14 @@ X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)
 def process_t(t):
     center_x = center_x_list[t]
     center_y = center_y_list[t]
-    data = np.load(os.path.join(FOLDER_INPUT, f"t{str(t).zfill(3)}.npy"))
+    # npz/npy fallback
+    npz_path = os.path.join(FOLDER_INPUT, f"t{str(t).zfill(3)}.npz")
+    npy_path = os.path.join(FOLDER_INPUT, f"t{str(t).zfill(3)}.npy")
+    if os.path.exists(npz_path):
+        with np.load(npz_path) as npz_file:
+            data = npz_file["data"]
+    else:
+        data = np.load(npy_path)
     data_cut = grid.extract_vortex_region(data, center_x, center_y, EXTENT)
 
     plt.style.use(mpl_style_sheet)
