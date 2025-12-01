@@ -24,7 +24,9 @@ from joblib import Parallel, delayed
 from utils.basic import Cv, g
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
-from utils.plotting import parse_style_argument, set_vortex_region_ticks_empty
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+from utils.plotting import parse_style_argument
 
 # スタイルシートの解析
 mpl_style_sheet = parse_style_argument()
@@ -115,21 +117,39 @@ def process_t(t):
         # 全エネルギー密度 ρ * E_total = ρ * e + ρ * KE + ρ * PE [J/m³]
         E_total_density = e_density[z] + KE_density[z] + PE_density
 
-        data = grid.extract_vortex_region(E_total_density, center_x, center_y, EXTENT)
+        data_cut = grid.extract_vortex_region(E_total_density, center_x, center_y, EXTENT)
+        # === 中心から半径 R 以内のみプロット ===
+        R_plot_max = 500e3  # 500 km
+        cx = X_cut.mean()  # グリッドの中心を近似
+        cy = Y_cut.mean()
+
+        # 半径距離
+        R = np.sqrt((X_cut - cx) ** 2 + (Y_cut - cy) ** 2)
+
+        # 半径 R 内だけプロットするマスク
+        mask = R <= R_plot_max
+        data_masked = np.where(mask, data_cut, np.nan)  # 外側は NaN に
         plt.style.use(mpl_style_sheet)
-        fig, ax = plt.subplots(figsize=(5, 4))
-        # データ範囲に基づいてlevelsを自動設定
-        vmin, vmax = np.nanmin(data), np.nanmax(data)
-        levels = np.linspace(vmin, vmax, 15)
-        c = ax.contourf(X_cut * 1e-3, Y_cut * 1e-3, data, levels=levels, cmap="rainbow", extend="both")
-        fig.colorbar(c, ax=ax)
-        ax.set_title(f"Total Energy Density t={config.time_list[t]:3d}h, z={int(vgrid[z] * 1e-2) * 1e-1}km")
-        ax.set_xlabel("x [km]")
-        ax.set_ylabel("y [km]")
-        ax.grid(False)
+        fig, ax = plt.subplots(figsize=(3, 2.5))
+        c = ax.contourf(X_cut, Y_cut, data_masked, cmap="rainbow", extend="both")
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes(
+            "right", size="5%", pad=0.1
+        )  # size: colorbar幅, pad: 図との距離
+        fig.colorbar(c, cax=cax)
+        extent_x = int(np.ceil(EXTENT / config.dx))
+        extent_y = int(np.ceil(EXTENT / config.dy))
+        ax.set_xticks(
+            [0, extent_x * config.dx, 2 * extent_x * config.dx],
+            ["", "", ""],
+        )
+        ax.set_yticks(
+            [0, extent_y * config.dy, 2 * extent_y * config.dy],
+            ["", "", ""],
+        )
+        ax.set_title(f"t={t:3d}h, z={vgrid[z] * 1e-3:.1f}km")
         ax.set_aspect("equal", "box")
-        set_vortex_region_ticks_empty(ax, EXTENT)
-        fig.savefig(os.path.join(OUTPUT_DIR, f"z{str(z).zfill(2)}/t{str(t).zfill(3)}.png"))
+        fig.savefig(os.path.join(OUTPUT_DIR, f"z{str(z).zfill(2)}/t{str(config.time_list[t]).zfill(3)}.png"))
         plt.close()
 
 
