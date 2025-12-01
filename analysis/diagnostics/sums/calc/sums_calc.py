@@ -1,4 +1,5 @@
 # python $WORK/tc_analyze/analysis/diagnostics/sums/calc/sums_calc.py varname
+import datetime
 import os
 import sys
 
@@ -51,4 +52,13 @@ sum_results = Parallel(n_jobs=config.n_jobs)(
     delayed(process_t)(t) for t in range(config.t_first, config.t_last + 1)
 )
 
-np.save(os.path.join(config.get_tc_centric_path('diagnostics', 'sums'), f"{varname}.npy"), sum_results)
+# Save to npz format with metadata
+np.savez(
+    os.path.join(config.get_tc_centric_path('diagnostics', 'sums'), f"{varname}.npz"),
+    data=sum_results,
+    varname=varname,
+    extent=extent,
+    z_max=z_max,
+    method="TC-centered_sum",
+    created_at=datetime.datetime.now().isoformat()
+)

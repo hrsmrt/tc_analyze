@@ -18,8 +18,18 @@ mpl_style_sheet = parse_style_argument()
 folder = config.get_tc_centric_path("diagnostics", "sums", data_type="fig")
 os.makedirs(folder, exist_ok=True)
 
-# データの読み込み
-data = np.load(os.path.join(config.get_tc_centric_path("diagnostics", "sums"), f"{varname}.npy"))
+# データの読み込み (.npz/.npy fallback)
+data_path = config.get_tc_centric_path("diagnostics", "sums")
+npz_path = os.path.join(data_path, f"{varname}.npz")
+npy_path = os.path.join(data_path, f"{varname}.npy")
+
+if os.path.exists(npz_path):
+    npz_data = np.load(npz_path)
+    data = npz_data['data']
+elif os.path.exists(npy_path):
+    data = np.load(npy_path)
+else:
+    raise FileNotFoundError(f"Neither {npz_path} nor {npy_path} found")
 
 # プロット
 plt.style.use(mpl_style_sheet)
