@@ -30,7 +30,7 @@ mpl_style_sheet = parse_style_argument()
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-OUTPUT_DIR = config.get_domain_path("energy", "internal_energy_from_pres/whole_domain", data_type="fig")
+OUTPUT_DIR = config.get_domain_path("energy", "internal_energy_from_pres", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
