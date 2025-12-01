@@ -2,6 +2,7 @@
 # output: xi = 2v/r + f
 
 import os
+from datetime import datetime
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -28,9 +29,26 @@ theta_ref = 300.0  # 基準温位 K
 
 
 def process_t(t):
-    v = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/wind_relative_tangential'), f"t{str(t).zfill(3)}.npy"))
+    # Load v data (.npz優先、.npyフォールバック)
+    v_path = config.get_tc_centric_path('azimuthal', 'basic/wind_relative_tangential')
+    v_npz = os.path.join(v_path, f"t{str(t).zfill(3)}.npz")
+    v_npy = os.path.join(v_path, f"t{str(t).zfill(3)}.npy")
+    if os.path.exists(v_npz):
+        v_data = np.load(v_npz)
+        v = v_data['data']
+    elif os.path.exists(v_npy):
+        v = np.load(v_npy)
+    else:
+        raise FileNotFoundError(f"Neither {v_npz} nor {v_npy} found")
+
     xi = 2 * v / R + f
-    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), xi)
+    np.savez(
+        os.path.join(output_folder, f"t{str(t).zfill(3)}.npz"),
+        data=xi,
+        varname="xi",
+        method="eliassen_absolute_vorticity",
+        created_at=datetime.now().isoformat()
+    )
     # print(f"t={t} done")
 
 

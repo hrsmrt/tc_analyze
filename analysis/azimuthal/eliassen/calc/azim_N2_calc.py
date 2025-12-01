@@ -3,6 +3,7 @@
 # output: N^2 = dB/dz
 
 import os
+from datetime import datetime
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -32,14 +33,30 @@ theta_ref = 300.0  # 基準温位 K
 
 
 def process_t(t):
-    b = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'eliassen/buoyancy'), f"t{str(t).zfill(3)}.npy"))
+    # Load buoyancy data (.npz優先、.npyフォールバック)
+    b_path = config.get_tc_centric_path('azimuthal', 'eliassen/buoyancy')
+    b_npz = os.path.join(b_path, f"t{str(t).zfill(3)}.npz")
+    b_npy = os.path.join(b_path, f"t{str(t).zfill(3)}.npy")
+    if os.path.exists(b_npz):
+        b_data = np.load(b_npz)
+        b = b_data['data']
+    elif os.path.exists(b_npy):
+        b = np.load(b_npy)
+    else:
+        raise FileNotFoundError(f"Neither {b_npz} nor {b_npy} found")
 
     # ベクトル化版（従来のforループより10-100倍高速）
     # 従来版: for z in range(config.nz - 1): db_dz[z, :] = (b[z + 1, :] - b[z, :]) / (vgrid[z + 1] - vgrid[z])
     db_dz = (b[1:, :] - b[:-1, :]) / (vgrid[1:, np.newaxis] - vgrid[:-1, np.newaxis])
     db_dz = db_dz.astype(np.float32)
 
-    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), db_dz)
+    np.savez(
+        os.path.join(output_folder, f"t{str(t).zfill(3)}.npz"),
+        data=db_dz,
+        varname="N2",
+        method="eliassen_brunt_vaisala_frequency_squared",
+        created_at=datetime.now().isoformat()
+    )
     # print(f"t={t} done")
 
 

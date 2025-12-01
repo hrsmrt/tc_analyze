@@ -2,6 +2,7 @@
 # gamma = (v^2/r + fv)/g
 
 import os
+from datetime import datetime
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -26,9 +27,26 @@ os.makedirs(output_folder, exist_ok=True)
 
 
 def process_t(t):
-    v = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/wind_relative_tangential'), f"t{str(t).zfill(3)}.npy"))
+    # Load v data (.npz優先、.npyフォールバック)
+    v_path = config.get_tc_centric_path('azimuthal', 'basic/wind_relative_tangential')
+    v_npz = os.path.join(v_path, f"t{str(t).zfill(3)}.npz")
+    v_npy = os.path.join(v_path, f"t{str(t).zfill(3)}.npy")
+    if os.path.exists(v_npz):
+        v_data = np.load(v_npz)
+        v = v_data['data']
+    elif os.path.exists(v_npy):
+        v = np.load(v_npy)
+    else:
+        raise FileNotFoundError(f"Neither {v_npz} nor {v_npy} found")
+
     gamma = (v[:, :] ** 2 / R[:] + f * v[:, :]) / g
-    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), gamma)
+    np.savez(
+        os.path.join(output_folder, f"t{str(t).zfill(3)}.npz"),
+        data=gamma,
+        varname="gamma",
+        method="eliassen_centrifugal_parameter",
+        created_at=datetime.now().isoformat()
+    )
     # print(f"t={t} done")
 
 

@@ -3,6 +3,7 @@
 # output: 浮力 b = g ln(θ/θ_ref)
 
 import os
+from datetime import datetime
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -29,9 +30,26 @@ theta_ref = 300.0  # 基準温位 K
 
 
 def process_t(t):
-    theta = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'basic/theta'), f"t{str(t).zfill(3)}.npy"))
+    # Load theta data (.npz優先、.npyフォールバック)
+    theta_path = config.get_tc_centric_path('azimuthal', 'basic/theta')
+    theta_npz = os.path.join(theta_path, f"t{str(t).zfill(3)}.npz")
+    theta_npy = os.path.join(theta_path, f"t{str(t).zfill(3)}.npy")
+    if os.path.exists(theta_npz):
+        theta_data = np.load(theta_npz)
+        theta = theta_data['data']
+    elif os.path.exists(theta_npy):
+        theta = np.load(theta_npy)
+    else:
+        raise FileNotFoundError(f"Neither {theta_npz} nor {theta_npy} found")
+
     b = g * np.log(theta / theta_ref)
-    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), b)
+    np.savez(
+        os.path.join(output_folder, f"t{str(t).zfill(3)}.npz"),
+        data=b,
+        varname="buoyancy",
+        method="eliassen_buoyancy",
+        created_at=datetime.now().isoformat()
+    )
     # print(f"t={t} done")
 
 

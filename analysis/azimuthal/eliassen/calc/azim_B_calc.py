@@ -3,6 +3,7 @@
 # output: B = db/dr
 
 import os
+from datetime import datetime
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -29,9 +30,26 @@ theta_ref = 300.0  # 基準温位 K
 
 
 def process_t(t):
-    b = np.load(os.path.join(config.get_tc_centric_path('azimuthal', 'eliassen/buoyancy'), f"t{str(t).zfill(3)}.npy"))
+    # Load buoyancy data (.npz優先、.npyフォールバック)
+    b_path = config.get_tc_centric_path('azimuthal', 'eliassen/buoyancy')
+    b_npz = os.path.join(b_path, f"t{str(t).zfill(3)}.npz")
+    b_npy = os.path.join(b_path, f"t{str(t).zfill(3)}.npy")
+    if os.path.exists(b_npz):
+        b_data = np.load(b_npz)
+        b = b_data['data']
+    elif os.path.exists(b_npy):
+        b = np.load(b_npy)
+    else:
+        raise FileNotFoundError(f"Neither {b_npz} nor {b_npy} found")
+
     db_dr = (b[:, 1:] - b[:, :-1]) / config.dx
-    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), db_dr)
+    np.savez(
+        os.path.join(output_folder, f"t{str(t).zfill(3)}.npz"),
+        data=db_dr,
+        varname="B",
+        method="eliassen_buoyancy_radial_gradient",
+        created_at=datetime.now().isoformat()
+    )
     # print(f"t={t} done")
 
 
