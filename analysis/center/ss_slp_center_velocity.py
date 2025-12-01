@@ -1,5 +1,6 @@
 """Calculate and plot tropical cyclone center velocity."""
 # python $WORK/tc_analyze/analysis/center/ss_slp_center_velocity.py $style
+import datetime
 import os
 
 import matplotlib.pyplot as plt
@@ -48,8 +49,16 @@ fig_dir = config.get_center_path("ss_slp", data_type="fig")
 os.makedirs(data_dir, exist_ok=True)
 os.makedirs(fig_dir, exist_ok=True)
 
-np.save(os.path.join(data_dir, "ss_slp_center_u.npy"), x_c_v)
-np.save(os.path.join(data_dir, "ss_slp_center_v.npy"), y_c_v)
+# Save to npz format with metadata
+np.savez(
+    os.path.join(data_dir, "ss_slp_center_velocity.npz"),
+    u=x_c_v,
+    v=y_c_v,
+    dt_output=config.dt_output,
+    x_width=config.x_width,
+    y_width=config.y_width,
+    created_at=datetime.datetime.now().isoformat()
+)
 
 plt.style.use(mpl_style_sheet)
 fig, ax = plt.subplots(figsize=(5, 4))
