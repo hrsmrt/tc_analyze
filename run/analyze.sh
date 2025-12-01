@@ -39,6 +39,7 @@
 #   symmetrisity       - 対称性解析 (analysis/diagnostics/symmetrisity/)
 #   min_max            - 最大値・最小値診断 (analysis/diagnostics/min_max/)
 #   z_profile_q4       - 4象限鉛直プロファイル (analysis/vertical/q4/)
+#   energy             - エネルギー解析 (analysis/energy/)
 #   all                - 全てのカテゴリ (デフォルト)
 #
 # 例:
@@ -151,6 +152,7 @@ TC Analysis Pipeline Script
   symmetrisity       - 対称性解析 (analysis/diagnostics/symmetrisity/)
   min_max            - 最大値・最小値診断 (analysis/diagnostics/min_max/)
   z_profile_q4       - 4象限鉛直プロファイル (analysis/vertical/q4/)
+  energy             - エネルギー解析 (analysis/energy/)
   all                - 全てのカテゴリ (デフォルト)
 
 例:
@@ -187,6 +189,7 @@ list_categories() {
     echo "  symmetrisity       - 対称性解析 (analysis/diagnostics/symmetrisity/)"
     echo "  min_max            - 最大値・最小値診断 (analysis/diagnostics/min_max/)"
     echo "  z_profile_q4       - 4象限鉛直プロファイル (analysis/vertical/q4/)"
+    echo "  energy             - エネルギー解析 (analysis/energy/)"
     echo "  all                - 全てのカテゴリ"
 }
 
@@ -615,6 +618,38 @@ run_vortex_region() {
     run_cmd "sh ${TC_ANALYZE}/analysis/vertical/profile/vortex_region_plot.sh"
 }
 
+run_energy() {
+    log_section "Energy Analysis"
+    # Whole domain - internal energy
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_internal_energy_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_internal_energy_from_pres_plot.py ${STYLE}"
+    # Whole domain - kinetic energy
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_kinetic_energy_plot.py ${STYLE}"
+    # Whole domain - total energy
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_total_energy_plot.py ${STYLE}"
+    # Whole domain - internal energy density
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_internal_energy_density_plot.py ${STYLE}"
+    # Whole domain - kinetic energy density
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_kinetic_energy_density_plot.py ${STYLE}"
+    # Whole domain - total energy density
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_total_energy_density_plot.py ${STYLE}"
+    # Vortex region - internal energy
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vortex_region_internal_energy_plot.py ${STYLE}"
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vortex_region_internal_energy_from_pres_plot.py ${STYLE}"
+    # Vortex region - kinetic energy
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vortex_region_kinetic_energy_plot.py ${STYLE}"
+    # Vortex region - total energy
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vortex_region_total_energy_plot.py ${STYLE}"
+    # Vortex region - internal energy density
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vortex_region_internal_energy_density_plot.py ${STYLE}"
+    # Vortex region - kinetic energy density
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vortex_region_kinetic_energy_density_plot.py ${STYLE}"
+    # Vortex region - total energy density
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vortex_region_total_energy_density_plot.py ${STYLE}"
+    # Vertical profile - potential energy
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vertical_profile_potential_energy_plot.py ${STYLE}"
+}
+
 # ============================================================================
 # カテゴリの実行
 # ============================================================================
@@ -686,6 +721,9 @@ for category in "${CATEGORIES[@]}"; do
         vortex_region)
             run_vortex_region
             ;;
+        energy)
+            run_energy
+            ;;
         all)
             # 中心位置非依存の解析
             run_3d_basic
@@ -706,6 +744,7 @@ for category in "${CATEGORIES[@]}"; do
             run_symmetrisity
             run_min_max
             run_z_profile_q4
+            run_energy
             ;;
         *)
             log_error "不明なカテゴリ: ${category}"
