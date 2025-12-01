@@ -1,5 +1,5 @@
 """Plot time series of maximum 10m wind speed."""
-# python $WORK/tc_analyze/analysis/whole_domain/2d/plot/ss_wind10m_max_plot.py $style
+# python $WORK/tc_analyze/analysis/diagnostics/min_max/plot/ss_wind10m_max_plot.py $style
 import os
 
 import matplotlib
@@ -14,18 +14,21 @@ mpl_style_sheet = parse_style_argument()
 
 # 設定の初期化
 config = AnalysisConfig()
-output_folder = config.get_domain_path("whole_domain", "2d/ss_wind10m_max", data_type="fig")
+output_folder = config.get_domain_path("diagnostics", "min_max", data_type="fig")
 os.makedirs(output_folder, exist_ok=True)
 
-ss_u10m = np.fromfile(f"{config.input_folder}ss_u10m.grd", dtype=">f4").reshape(
-    config.nt, config.ny, config.nx
-)
-ss_v10m = np.fromfile(f"{config.input_folder}ss_v10m.grd", dtype=">f4").reshape(
-    config.nt, config.ny, config.nx
-)
+# データの読み込み (.npz/.npy fallback)
+data_path = config.get_domain_path("diagnostics", "min_max")
+npz_path = os.path.join(data_path, "ss_wind10m_max.npz")
+npy_path = os.path.join(data_path, "ss_wind10m_max.npy")
 
-data_abs = np.sqrt(ss_v10m**2 + ss_u10m**2)
-data_abs_max = data_abs.max(axis=(1, 2))
+if os.path.exists(npz_path):
+    npz_data = np.load(npz_path)
+    data_abs_max = npz_data['data']
+elif os.path.exists(npy_path):
+    data_abs_max = np.load(npy_path)
+else:
+    raise FileNotFoundError(f"Neither {npz_path} nor {npy_path} found")
 
 # プロット
 plt.style.use(mpl_style_sheet)

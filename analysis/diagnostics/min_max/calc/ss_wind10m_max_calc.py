@@ -1,5 +1,5 @@
 """Calculate maximum 10m wind speed at each time step."""
-# python $WORK/tc_analyze/analysis/whole_domain/2d/plot/ss_wind10m_max_calc.py
+# python $WORK/tc_analyze/analysis/diagnostics/min_max/calc/ss_wind10m_max_calc.py
 import datetime
 import os
 
@@ -9,7 +9,7 @@ from utils.config import AnalysisConfig
 
 # 設定の初期化
 config = AnalysisConfig()
-output_folder = config.get_domain_path("whole_domain", "2d/ss_wind10m_max")
+output_folder = config.get_domain_path("diagnostics", "min_max")
 os.makedirs(output_folder, exist_ok=True)
 
 ss_u10m = np.fromfile(f"{config.input_folder}ss_u10m.grd", dtype=">f4").reshape(
