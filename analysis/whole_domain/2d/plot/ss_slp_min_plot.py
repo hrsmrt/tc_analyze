@@ -18,8 +18,17 @@ config = AnalysisConfig()
 folder = config.get_domain_path("whole_domain", "2d/ss_slp_min", data_type="fig")
 os.makedirs(folder, exist_ok=True)
 
-# データの読み込み
-data = np.load(os.path.join(config.get_domain_path("whole_domain", "2d"), "ss_slp_min.npy"))
+# データの読み込み (npz/npy fallback)
+data_path_npz = os.path.join(config.get_domain_path("whole_domain", "2d/ss_slp_min"), "ss_slp_min.npz")
+data_path_npy = os.path.join(config.get_domain_path("whole_domain", "2d/ss_slp_min"), "ss_slp_min.npy")
+
+if os.path.exists(data_path_npz):
+    with np.load(data_path_npz) as npz_data:
+        data = npz_data['data']
+elif os.path.exists(data_path_npy):
+    data = np.load(data_path_npy)
+else:
+    raise FileNotFoundError(f"Data file not found: {data_path_npz} or {data_path_npy}")
 
 # プロット
 plt.style.use(mpl_style_sheet)

@@ -41,12 +41,22 @@ def process_t(t):
     t : int
         Time step index
     """
-    data_z = np.memmap(
-        os.path.join(config.get_domain_path("whole_domain", "3d/divergence"), f"div_t{str(t).zfill(3)}.npy"),
-        dtype=np.float32,
-        mode="r",
-        shape=(config.nz, config.ny, config.nx),
-    )
+    # データの読み込み (npz/npy fallback)
+    data_path_npz = os.path.join(config.get_domain_path("whole_domain", "3d/divergence"), f"div_t{str(t).zfill(3)}.npz")
+    data_path_npy = os.path.join(config.get_domain_path("whole_domain", "3d/divergence"), f"div_t{str(t).zfill(3)}.npy")
+
+    if os.path.exists(data_path_npz):
+        with np.load(data_path_npz) as npz_data:
+            data_z = npz_data['data']
+    elif os.path.exists(data_path_npy):
+        data_z = np.memmap(
+            data_path_npy,
+            dtype=np.float32,
+            mode="r",
+            shape=(config.nz, config.ny, config.nx),
+        )
+    else:
+        raise FileNotFoundError(f"Data file not found: {data_path_npz} or {data_path_npy}")
     X_km, Y_km = grid.get_meshgrid_km()
     for z in z_list:
         data = data_z[z]

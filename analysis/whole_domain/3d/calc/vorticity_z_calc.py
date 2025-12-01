@@ -5,6 +5,7 @@ vorticity_z の計算
 """
 
 # python $WORK/tc_analyze/analysis/whole_domain/3d/calc/vorticity_z_calc.py
+import datetime
 import os
 
 import numpy as np
@@ -43,8 +44,14 @@ def process_t(t):
     # ✅ 共通関数を使用: utils/vorticity.py
     vor = calculate_vorticity_z(data_u, data_v, config.dx, config.dy)
 
-    np.save(os.path.join(FOLDER, f"vor_t{str(t).zfill(3)}.npy"), vor)
-    # print(f"t: {t} vorticity calc done")
+    np.savez(
+        os.path.join(FOLDER, f"vor_t{str(t).zfill(3)}.npz"),
+        data=vor,
+        timestamp=datetime.datetime.now().isoformat(),
+        description=f"Vorticity Z component at t={t}",
+        time_step=t,
+    )
+    # print(f"t: {t} vorticity calc done, saved to vor_t{str(t).zfill(3)}.npz")
 
 
 Parallel(n_jobs=config.n_jobs)(

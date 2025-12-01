@@ -37,8 +37,17 @@ vgrid = np.loadtxt(f"{config.vgrid_filepath}")
 
 def process_t(t):
     # ✅ オンデマンド計算: 渦度から流線関数を計算（保存データ不要）
-    # 渦度データを読み込み
-    vorticity_z = np.load(os.path.join(config.get_domain_path('whole_domain', '3d/vorticity_z'), f"vor_t{str(t).zfill(3)}.npy"))
+    # 渦度データを読み込み (npz/npy fallback)
+    data_path_npz = os.path.join(config.get_domain_path('whole_domain', '3d/vorticity_z'), f"vor_t{str(t).zfill(3)}.npz")
+    data_path_npy = os.path.join(config.get_domain_path('whole_domain', '3d/vorticity_z'), f"vor_t{str(t).zfill(3)}.npy")
+
+    if os.path.exists(data_path_npz):
+        with np.load(data_path_npz) as npz_data:
+            vorticity_z = npz_data['data']
+    elif os.path.exists(data_path_npy):
+        vorticity_z = np.load(data_path_npy)
+    else:
+        raise FileNotFoundError(f"Data file not found: {data_path_npz} or {data_path_npy}")
 
     # 流線関数を計算
     data_t = calculate_streamfunction(vorticity_z, config.dx, config.dy)

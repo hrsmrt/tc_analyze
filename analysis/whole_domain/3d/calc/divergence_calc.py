@@ -5,6 +5,7 @@ divergence の計算
 """
 
 # python $WORK/tc_analyze/analysis/whole_domain/3d/calc/divergence_calc.py
+import datetime
 import os
 
 import numpy as np
@@ -72,8 +73,14 @@ def process_t(t):
 
     div = du_dx + dv_dy
 
-    np.save(os.path.join(FOLDER, f"div_t{str(t).zfill(3)}.npy"), div)
-    # print(f"t: {t} divergence calc done")
+    np.savez(
+        os.path.join(FOLDER, f"div_t{str(t).zfill(3)}.npz"),
+        data=div,
+        timestamp=datetime.datetime.now().isoformat(),
+        description=f"Divergence field at t={t}",
+        time_step=t,
+    )
+    # print(f"t: {t} divergence calc done, saved to div_t{str(t).zfill(3)}.npz")
 
 
 Parallel(n_jobs=config.n_jobs)(
