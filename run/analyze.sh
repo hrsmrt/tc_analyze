@@ -620,6 +620,10 @@ run_vortex_region() {
 
 run_energy() {
     log_section "Energy Analysis"
+
+    # ========================================
+    # Energy (per unit mass [J/kg])
+    # ========================================
     # Whole domain - internal energy
     run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_internal_energy_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_internal_energy_from_pres_plot.py ${STYLE}"
@@ -627,12 +631,7 @@ run_energy() {
     run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_kinetic_energy_plot.py ${STYLE}"
     # Whole domain - total energy
     run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_total_energy_plot.py ${STYLE}"
-    # Whole domain - internal energy density
-    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_internal_energy_density_plot.py ${STYLE}"
-    # Whole domain - kinetic energy density
-    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_kinetic_energy_density_plot.py ${STYLE}"
-    # Whole domain - total energy density
-    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_total_energy_density_plot.py ${STYLE}"
+
     # Vortex region - internal energy
     run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vortex_region_internal_energy_plot.py ${STYLE}"
     run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vortex_region_internal_energy_from_pres_plot.py ${STYLE}"
@@ -640,14 +639,26 @@ run_energy() {
     run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vortex_region_kinetic_energy_plot.py ${STYLE}"
     # Vortex region - total energy
     run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vortex_region_total_energy_plot.py ${STYLE}"
+
+    # Vertical profile - potential energy
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vertical_profile_potential_energy_plot.py ${STYLE}"
+
+    # ========================================
+    # Energy Density (per unit volume [J/m³])
+    # ========================================
+    # Whole domain - internal energy density
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_internal_energy_density_plot.py ${STYLE}"
+    # Whole domain - kinetic energy density
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_kinetic_energy_density_plot.py ${STYLE}"
+    # Whole domain - total energy density
+    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/whole_domain_total_energy_density_plot.py ${STYLE}"
+
     # Vortex region - internal energy density
     run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vortex_region_internal_energy_density_plot.py ${STYLE}"
     # Vortex region - kinetic energy density
     run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vortex_region_kinetic_energy_density_plot.py ${STYLE}"
     # Vortex region - total energy density
     run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vortex_region_total_energy_density_plot.py ${STYLE}"
-    # Vertical profile - potential energy
-    run_cmd "python ${TC_ANALYZE}/analysis/energy/plot/vertical_profile_potential_energy_plot.py ${STYLE}"
 }
 
 # ============================================================================
