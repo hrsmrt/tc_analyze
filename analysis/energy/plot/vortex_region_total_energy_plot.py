@@ -1,15 +1,17 @@
 """
-Plot internal energy density (ρ * e = ρ * Cv * T) over vortex region.
+Plot total energy (internal + kinetic + potential) over vortex region.
 
 ✅ ストレージ節約版: オンデマンド計算を使用
 データを保存せず、必要時に計算することで数GB〜数百GBのストレージを節約
 
 Physics:
-- Internal energy per unit mass: e = Cv * T [J/kg]
-- Internal energy per unit volume: ρ * e = ρ * Cv * T [J/m³]
-- Energy density (volumetric energy density) in [J/m³]
+- Total energy per unit mass: E_total = e + KE + PE
+  - Internal energy: e = Cv * T [J/kg]
+  - Kinetic energy: KE = (1/2) * v^2 = (1/2) * (u^2 + v^2 + w^2) [J/kg]
+  - Potential energy: PE = g * z [J/kg]
+- All components have units [J/kg] = [m^2/s^2]
 """
-# python $WORK/tc_analyze/analysis/vortex_region/3d/plot/internal_energy_density_plot.py $style
+# python $WORK/tc_analyze/analysis/energy/plot/vortex_region_total_energy_plot.py $style
 import os
 
 import matplotlib
@@ -18,7 +20,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from joblib import Parallel, delayed
 
-from utils.basic import Cv
+from utils.basic import Cv, g
 from utils.config import AnalysisConfig
 from utils.grid import GridHandler
 from utils.plotting import parse_style_argument, set_vortex_region_ticks_empty
@@ -35,7 +37,7 @@ EXTENT = 500e3
 center_x_list = config.center_x
 center_y_list = config.center_y
 
-OUTPUT_DIR = config.get_tc_centric_path("vortex_region", "3d/internal_energy_density", data_type="fig")
+OUTPUT_DIR = config.get_tc_centric_path("energy", "vortex_region/total_energy", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 X_cut, Y_cut = grid.get_vortex_region_meshgrid(EXTENT)
@@ -53,8 +55,20 @@ data_tem = np.memmap(
     mode="r",
     shape=(config.nt, config.nz, config.ny, config.nx),
 )
-data_rho = np.memmap(
-    f"{config.input_folder}ms_rho.grd",
+data_u = np.memmap(
+    f"{config.input_folder}ms_u.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_v = np.memmap(
+    f"{config.input_folder}ms_v.grd",
+    dtype=">f4",
+    mode="r",
+    shape=(config.nt, config.nz, config.ny, config.nx),
+)
+data_w = np.memmap(
+    f"{config.input_folder}ms_w.grd",
     dtype=">f4",
     mode="r",
     shape=(config.nt, config.nz, config.ny, config.nx),
@@ -63,7 +77,7 @@ data_rho = np.memmap(
 
 def process_t(t):
     """
-    Process a single time step to create internal energy density plots.
+    Process a single time step to create total energy plots.
 
     Parameters
     ----------
@@ -72,20 +86,34 @@ def process_t(t):
     """
     # ✅ オンデマンド計算: 必要時にその場で計算（保存データ不要）
     T = data_tem[t]  # Temperature [K], shape: (nz, ny, nx)
-    rho = data_rho[t]  # Density [kg/m³], shape: (nz, ny, nx)
+    u = data_u[t]  # Zonal wind [m/s], shape: (nz, ny, nx)
+    v = data_v[t]  # Meridional wind [m/s], shape: (nz, ny, nx)
+    w = data_w[t]  # Vertical wind [m/s], shape: (nz, ny, nx)
 
-    # 内部エネルギー密度を計算 ρ * e = ρ * Cv * T [J/m³]
-    e_density = rho * Cv * T
+    # 各エネルギー成分を計算
+    # 内部エネルギー e = Cv * T [J/kg]
+    e = Cv * T
+
+    # 運動エネルギー KE = (1/2) * v^2 [J/kg]
+    v_squared = u**2 + v**2 + w**2
+    KE = 0.5 * v_squared
 
     center_x = center_x_list[t]
     center_y = center_y_list[t]
     for z in z_list:
-        data = grid.extract_vortex_region(e_density[z], center_x, center_y, EXTENT)
+        # 重力ポテンシャルエネルギー PE = g * z [J/kg]
+        # z は各レベルで一定
+        PE = g * vgrid[z]
+
+        # 全エネルギー E_total = e + KE + PE [J/kg]
+        E_total = e[z] + KE[z] + PE
+
+        data = grid.extract_vortex_region(E_total, center_x, center_y, EXTENT)
         plt.style.use(mpl_style_sheet)
         fig, ax = plt.subplots(figsize=(5, 4))
         c = ax.contourf(X_cut * 1e-3, Y_cut * 1e-3, data, cmap="rainbow", extend="both")
         fig.colorbar(c, ax=ax)
-        ax.set_title(f"Internal Energy Density t={config.time_list[t]:3d}h, z={int(vgrid[z] * 1e-2) * 1e-1}km")
+        ax.set_title(f"Total Energy t={config.time_list[t]:3d}h, z={int(vgrid[z] * 1e-2) * 1e-1}km")
         ax.set_xlabel("x [km]")
         ax.set_ylabel("y [km]")
         ax.grid(False)

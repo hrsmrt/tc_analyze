@@ -9,7 +9,7 @@ Physics:
 - This script plots v^2 = u^2 + v^2 + w^2 (twice the kinetic energy)
 - Total kinetic energy: KE_total = (1/2) * ρ * v^2
 """
-# python $WORK/tc_analyze/analysis/whole_domain/3d/plot/kinetic_energy_plot.py $style
+# python $WORK/tc_analyze/analysis/energy/plot/whole_domain_kinetic_energy_plot.py $style
 import os
 
 import matplotlib
@@ -30,7 +30,7 @@ mpl_style_sheet = parse_style_argument()
 config = AnalysisConfig()
 grid = GridHandler(config)
 
-OUTPUT_DIR = config.get_domain_path("whole_domain", "3d/kinetic_energy", data_type="fig")
+OUTPUT_DIR = config.get_domain_path("energy", "whole_domain/kinetic_energy", data_type="fig")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 z_list = [0, 9, 17, 23, 29, 36, 42, 48, 54, 60]
