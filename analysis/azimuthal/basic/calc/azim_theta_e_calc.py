@@ -11,6 +11,7 @@ python $WORK/tc_analyze/azim_mean/azim_theta_e_calc.py
 """
 
 import os
+from datetime import datetime
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -54,7 +55,13 @@ def process_t(t):
     theta_e = calculate_azimuthal_mean_theta_e(
         data_tem, data_pres, data_qv, t, center_x_list, center_y_list, grid
     )
-    np.save(os.path.join(OUTPUT_FOLDER, f"t{str(t).zfill(3)}.npy"), theta_e)
+    np.savez(
+        os.path.join(OUTPUT_FOLDER, f"t{str(t).zfill(3)}.npz"),
+        data=theta_e,
+        varname="theta_e",
+        method="equivalent_potential_temperature",
+        created_at=datetime.now().isoformat()
+    )
     print(f"t={t} done")
 
 

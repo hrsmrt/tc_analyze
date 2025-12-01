@@ -14,6 +14,7 @@ python $WORK/tc_analyze/azim_mean/azim_stream_calc.py
 """
 
 import os
+from datetime import datetime
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -94,7 +95,13 @@ def process_t(t):
     integrand_r = 0.5 * (rho[:, 1:] * w[:, 1:] * R[1:] + rho[:, :-1] * w[:, :-1] * R[:-1]) * dr
     phi[:, 1:] = phi[:, :1] + np.cumsum(integrand_r, axis=1)
 
-    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), phi)
+    np.savez(
+        os.path.join(output_folder, f"t{str(t).zfill(3)}.npz"),
+        data=phi,
+        varname="stream_function",
+        method="meridional_streamfunction",
+        created_at=datetime.now().isoformat()
+    )
     # print(f"t={t} done")
 
 

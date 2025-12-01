@@ -11,6 +11,7 @@ python $WORK/tc_analyze/azim_mean/azim_theta_calc.py
 """
 
 import os
+from datetime import datetime
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -48,7 +49,13 @@ def process_t(t):
     theta = calculate_azimuthal_mean_theta(
         data_tem, data_pres, t, center_x_list, center_y_list, grid
     )
-    np.save(os.path.join(output_folder, f"t{str(t).zfill(3)}.npy"), theta)
+    np.savez(
+        os.path.join(output_folder, f"t{str(t).zfill(3)}.npz"),
+        data=theta,
+        varname="theta",
+        method="potential_temperature",
+        created_at=datetime.now().isoformat()
+    )
     print(f"t={t} done")
 
 
