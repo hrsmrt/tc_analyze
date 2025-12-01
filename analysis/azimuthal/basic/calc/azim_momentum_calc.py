@@ -11,6 +11,7 @@ python $WORK/tc_analyze/azim_mean/azim_momentum_calc.py
 """
 
 import os
+from datetime import datetime
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -51,7 +52,13 @@ def process_t(t):
     )
     # 接線風から角運動量を計算
     momentum = calculate_azimuthal_mean_momentum(azim_tangential, config)
-    np.save(os.path.join(OUTPUT_FOLDER, f"t{str(t).zfill(3)}.npy"), momentum)
+    np.savez(
+        os.path.join(OUTPUT_FOLDER, f"t{str(t).zfill(3)}.npz"),
+        data=momentum,
+        varname="momentum",
+        method="angular_momentum",
+        created_at=datetime.now().isoformat()
+    )
     print(f"t={t} done")
 
 
