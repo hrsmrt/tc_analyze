@@ -98,9 +98,9 @@ if len(vgrid) != nz_data:
 # Convert to km
 vgrid_km = vgrid * 1e-3
 
-# Load SS SLP center for relative coordinate calculation
-ss_slp_center_x, ss_slp_center_y, _ = load_center_coordinates(config, "ss_slp")
-print(f"Loaded SS SLP center: shape {ss_slp_center_x.shape}")
+# Load SS SLP center for relative coordinate calculation (use smoothed version to match MS PRES smoothed)
+ss_slp_center_x, ss_slp_center_y, _ = load_center_coordinates(config, "ss_slp_smoothed")
+print(f"Loaded SS SLP smoothed center: shape {ss_slp_center_x.shape}")
 
 output_dir = os.path.join(config.get_center_path("ms_pres", data_type="fig"), "smoothed", "vertical")
 os.makedirs(output_dir, exist_ok=True)
@@ -183,7 +183,7 @@ def process_t(t):
         title += f", r_refine={r_refine*1e-3:.0f}km"
     fig.suptitle(title, fontsize=11)
 
-    plt.tight_layout()
+    fig.tight_layout(rect=[0, 0, 1, 0.96])  # Leave space for suptitle
     output_path = os.path.join(output_dir, f"vertical_profile_smoothed_t{str(t).zfill(3)}.png")
     fig.savefig(output_path, dpi=100)
     plt.close()

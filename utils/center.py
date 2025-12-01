@@ -243,7 +243,11 @@ def load_center_coordinates(config, center_type):
 
     Args:
         config: AnalysisConfig instance
-        center_type: Type of center coordinates ("ss_slp" or "ms_pres")
+        center_type: Type of center coordinates. Must be a key in config.center_configs.
+                    Examples: "ss_slp", "ss_slp_weighted", "ss_slp_smoothed",
+                             "ms_pres", "ms_pres_weighted", "ms_pres_smoothed"
+                    Directory is determined from prefix (ss_slp or ms_pres),
+                    filename is loaded from setting.json center_configs
 
     Returns:
         Tuple of (center_x, center_y, metadata):
@@ -274,11 +278,22 @@ def load_center_coordinates(config, center_type):
             f"Must be one of {list(config.center_configs.keys())}"
         )
 
+    # Extract base type (ss_slp or ms_pres) from center_type for directory path
+    if center_type.startswith("ss_slp"):
+        base_type = "ss_slp"
+    elif center_type.startswith("ms_pres"):
+        base_type = "ms_pres"
+    else:
+        raise ValueError(
+            f"Unsupported center_type: {center_type}. "
+            f"Must start with 'ss_slp' or 'ms_pres'"
+        )
+
     # Get filename from config
     filename = config.center_configs[center_type]
 
-    # Construct full path
-    center_dir = os.path.join(config.data_dir, f"center/{center_type}")
+    # Construct full path using base_type for directory
+    center_dir = os.path.join(config.data_dir, f"center/{base_type}")
     center_path = os.path.join(center_dir, filename)
 
     # Try to find the file with fallback to different extension
@@ -325,17 +340,17 @@ def load_center_coordinates(config, center_type):
     else:
         raise ValueError(f"Unsupported file format: {file_ext}. Must be .npz or .npy")
 
-    # Extract center coordinates based on center_type
-    if center_type == "ss_slp":
+    # Extract center coordinates based on base_type
+    if base_type == "ss_slp":
         # 2D center: shape (nt, 2)
         center_x = center[:, 0]  # shape: (nt,)
         center_y = center[:, 1]  # shape: (nt,)
-    elif center_type == "ms_pres":
+    elif base_type == "ms_pres":
         # 3D center: shape (nt, nz, 2)
         center_x = center[:, :, 0]  # shape: (nt, nz)
         center_y = center[:, :, 1]  # shape: (nt, nz)
     else:
         # This should not happen due to the check at the beginning
-        raise ValueError(f"Unsupported center_type: {center_type}")
+        raise ValueError(f"Unsupported base_type: {base_type}")
 
     return center_x, center_y, metadata
