@@ -330,12 +330,12 @@ def main():
 
     # アニメーション処理（最初に実行）
     if 'playing' in st.session_state and st.session_state.playing:
-        if 'time_steps' in st.session_state and 'time_step' in st.session_state:
+        if 'time_steps' in st.session_state and '_time_step' in st.session_state:
             time_steps = st.session_state.time_steps
-            current_idx = time_steps.index(st.session_state.time_step)
+            current_idx = time_steps.index(st.session_state._time_step)
             if current_idx < len(time_steps) - 1:
                 time.sleep(st.session_state.get('play_speed', 0.5))
-                st.session_state.time_step = time_steps[current_idx + 1]
+                st.session_state._time_step = time_steps[current_idx + 1]
                 st.rerun()
             else:
                 # 最後のフレームに達したら停止
@@ -422,41 +422,45 @@ def main():
             # z層の数値を抽出してスライダー用のインデックスに変換
             z_indices = [int(z[1:]) for z in z_levels]  # 'z00' -> 0
 
-            # Session state初期化
-            if 'z_index' not in st.session_state:
-                st.session_state.z_index = z_indices[0]
+            # Session state初期化（内部管理用の変数名を使用）
+            if '_z_index' not in st.session_state:
+                st.session_state._z_index = z_indices[0]
 
             # Z level control header
             st.header("🔢 Z Level Control")
 
+            # ボタンで値が変更された場合の処理
+            current_z_idx = z_indices.index(st.session_state._z_index) if st.session_state._z_index in z_indices else 0
+
             # Z level前後ボタン
             col1, col2, col3 = st.columns([1, 2, 1])
-
-            current_z_idx = z_indices.index(st.session_state.z_index) if st.session_state.z_index in z_indices else 0
 
             with col1:
                 if st.button("⬇️ Down", key="z_down", use_container_width=True):
                     if current_z_idx > 0:
-                        st.session_state.z_index = z_indices[current_z_idx - 1]
+                        st.session_state._z_index = z_indices[current_z_idx - 1]
                         st.rerun()
 
             with col3:
                 if st.button("Up ⬆️", key="z_up", use_container_width=True):
                     if current_z_idx < len(z_indices) - 1:
-                        st.session_state.z_index = z_indices[current_z_idx + 1]
+                        st.session_state._z_index = z_indices[current_z_idx + 1]
                         st.rerun()
 
-            # Z levelスライダー（session_stateと自動バインド）
+            # Z levelスライダー
             z_index = st.select_slider(
                 "Z Level Index",
                 options=z_indices,
-                value=st.session_state.z_index,
-                key="z_index",  # session_stateと同じ名前にすることで自動バインド
+                value=st.session_state._z_index,
+                key="z_index_slider",
                 help="Select vertical level"
             )
 
+            # スライダーの値を内部状態に同期
+            st.session_state._z_index = z_index
+
             # 選択されたインデックスに対応するz層名
-            z_level = f"z{st.session_state.z_index:02d}"
+            z_level = f"z{st.session_state._z_index:02d}"
         else:
             st.warning("No z levels available")
             return
@@ -475,37 +479,41 @@ def main():
 
         st.header("⏱️ Time Control")
 
-        # Session state初期化
-        if 'time_step' not in st.session_state:
-            st.session_state.time_step = time_steps[0]
+        # Session state初期化（内部管理用の変数名を使用）
+        if '_time_step' not in st.session_state:
+            st.session_state._time_step = time_steps[0]
         if 'playing' not in st.session_state:
             st.session_state.playing = False
 
-        # 時間ステップスライダー（session_stateと自動バインド）
-        time_step = st.select_slider(
-            "Time Step",
-            options=time_steps,
-            value=st.session_state.time_step if st.session_state.time_step in time_steps else time_steps[0],
-            key="time_step",  # session_stateと同じ名前にすることで自動バインド
-            help="Select time step"
-        )
+        # ボタンで値が変更された場合の処理
+        current_idx = time_steps.index(st.session_state._time_step) if st.session_state._time_step in time_steps else 0
 
         # 前後ボタン
         col1, col2 = st.columns(2)
 
-        current_idx = time_steps.index(st.session_state.time_step)
-
         with col1:
             if st.button("⬅️ Prev", key="time_prev", use_container_width=True):
                 if current_idx > 0:
-                    st.session_state.time_step = time_steps[current_idx - 1]
+                    st.session_state._time_step = time_steps[current_idx - 1]
                     st.rerun()
 
         with col2:
             if st.button("Next ➡️", key="time_next", use_container_width=True):
                 if current_idx < len(time_steps) - 1:
-                    st.session_state.time_step = time_steps[current_idx + 1]
+                    st.session_state._time_step = time_steps[current_idx + 1]
                     st.rerun()
+
+        # 時間ステップスライダー
+        time_step = st.select_slider(
+            "Time Step",
+            options=time_steps,
+            value=st.session_state._time_step,
+            key="time_step_slider",
+            help="Select time step"
+        )
+
+        # スライダーの値を内部状態に同期
+        st.session_state._time_step = time_step
 
         # アニメーション
         st.markdown("---")
@@ -540,16 +548,16 @@ def main():
         **Domain:** {domain}
         **Category:** {category}
         **Z Level:** {z_level}
-        **Time Step:** {st.session_state.time_step}
+        **Time Step:** {st.session_state._time_step}
         **Available Steps:** {len(time_steps)}
         """)
 
     # メインエリア: 画像表示
-    img = load_image(str(FIG_DIR), domain, category, z_level, st.session_state.time_step)
+    img = load_image(str(FIG_DIR), domain, category, z_level, st.session_state._time_step)
 
     if img is not None:
         # 画像情報
-        st.subheader(f"{domain} / {category} / {z_level} / t={st.session_state.time_step:03d}")
+        st.subheader(f"{domain} / {category} / {z_level} / t={st.session_state._time_step:03d}")
 
         # 画像表示（幅を調整可能に）
         col1, col2, col3 = st.columns([1, 3, 1])
@@ -561,9 +569,9 @@ def main():
         with st.expander("🔍 Image Details"):
             st.write(f"**Size:** {img.size[0]} x {img.size[1]} pixels")
             st.write(f"**Mode:** {img.mode}")
-            st.write(f"**Path:** `fig/{domain}/{category}/{z_level}/t{st.session_state.time_step:03d}.png`")
+            st.write(f"**Path:** `fig/{domain}/{category}/{z_level}/t{st.session_state._time_step:03d}.png`")
     else:
-        st.error(f"Image not found: {domain}/{category}/{z_level}/t{st.session_state.time_step:03d}.png")
+        st.error(f"Image not found: {domain}/{category}/{z_level}/t{st.session_state._time_step:03d}.png")
 
     # フッター
     st.markdown("---")
