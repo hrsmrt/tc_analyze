@@ -115,24 +115,67 @@ def scan_available_plots() -> Dict[str, Dict[str, List[str]]]:
     """
     Scan fig directory and find all available plots.
 
-    Supports two directory structures:
-    1. fig/{domain}/{category}/{z_level}/t*.png
-    2. fig/{domain}/{category}/{subcategory}/{z_level}/t*.png
+    Recursively searches for z-level directories (z00, z01, etc.)
+    under each category, supporting arbitrary nesting depth.
 
     Returns
     -------
     dict
         Nested dictionary: {domain: {category_path: [z_levels]}}
-        category_path can be "category" or "category/subcategory"
+        category_path preserves the full path from category to z-level parent
     """
     plots = {}
     debug_info = []
+
+    def find_z_levels(base_path, relative_path="", depth=0, max_depth=5):
+        """
+        Recursively find directories containing z-level folders.
+
+        Parameters
+        ----------
+        base_path : Path
+            Current directory to search
+        relative_path : str
+            Relative path from category root
+        depth : int
+            Current recursion depth
+        max_depth : int
+            Maximum recursion depth to prevent infinite loops
+
+        Returns
+        -------
+        dict
+            {relative_path: [z_levels]}
+        """
+        if depth > max_depth:
+            return {}
+
+        results = {}
+        z_dirs = []
+
+        # Check if this directory contains z-level folders
+        for item in base_path.iterdir():
+            if item.is_dir() and item.name.startswith('z'):
+                z_dirs.append(item.name)
+
+        if z_dirs:
+            # Found z-level directories at this level
+            results[relative_path] = sorted(z_dirs)
+        else:
+            # Recurse into subdirectories
+            subdirs = [d for d in base_path.iterdir() if d.is_dir()]
+            for subdir in subdirs:
+                new_relative = f"{relative_path}/{subdir.name}" if relative_path else subdir.name
+                sub_results = find_z_levels(subdir, new_relative, depth + 1, max_depth)
+                results.update(sub_results)
+
+        return results
 
     if not FIG_DIR.exists():
         st.warning(f"⚠️ FIG_DIR does not exist: {FIG_DIR}")
         return plots
 
-    # domain と tc-centric をスキャン
+    # Scan domain directories
     for domain_dir in FIG_DIR.iterdir():
         if not domain_dir.is_dir():
             continue
@@ -141,7 +184,7 @@ def scan_available_plots() -> Dict[str, Dict[str, List[str]]]:
         plots[domain_name] = {}
         debug_info.append(f"📁 Domain: {domain_name}")
 
-        # 各カテゴリをスキャン
+        # Scan each category
         for category_dir in domain_dir.iterdir():
             if not category_dir.is_dir():
                 continue
@@ -149,35 +192,23 @@ def scan_available_plots() -> Dict[str, Dict[str, List[str]]]:
             category_name = category_dir.name
             debug_info.append(f"  📂 Category: {category_name}")
 
-            # まず、このレベルにz層フォルダがあるかチェック
-            z_dirs_here = []
-            for item in category_dir.iterdir():
-                if item.is_dir() and item.name.startswith('z'):
-                    z_dirs_here.append(item.name)
+            # Recursively find z-level directories
+            z_level_paths = find_z_levels(category_dir)
 
-            if z_dirs_here:
-                # このレベルにz層フォルダがある（構造1）
-                plots[domain_name][category_name] = sorted(z_dirs_here)
-                debug_info.append(f"    ✅ Found z-levels: {len(z_dirs_here)}")
-            else:
-                # サブカテゴリをスキャン（構造2）
-                subdirs = [d for d in category_dir.iterdir() if d.is_dir()]
-                debug_info.append(f"    Subcategories: {[d.name for d in subdirs[:5]]}")
+            for rel_path, z_dirs in z_level_paths.items():
+                if rel_path:
+                    full_category_name = f"{category_name}/{rel_path}"
+                else:
+                    full_category_name = category_name
 
-                for subcat_dir in subdirs:
-                    # サブカテゴリの下のz層フォルダをスキャン
-                    z_dirs_sub = []
-                    for item in subcat_dir.iterdir():
-                        if item.is_dir() and item.name.startswith('z'):
-                            z_dirs_sub.append(item.name)
+                plots[domain_name][full_category_name] = z_dirs
+                indent = "    " + "  " * rel_path.count('/')
+                debug_info.append(f"{indent}✅ {rel_path or '(root)'}: {len(z_dirs)} z-levels")
 
-                    if z_dirs_sub:
-                        # category/subcategory という形式で保存
-                        full_category_name = f"{category_name}/{subcat_dir.name}"
-                        plots[domain_name][full_category_name] = sorted(z_dirs_sub)
-                        debug_info.append(f"      ✅ {subcat_dir.name}: {len(z_dirs_sub)} z-levels")
+            if not z_level_paths:
+                debug_info.append(f"    ❌ No z-level directories found")
 
-    # デバッグ情報をセッションステートに保存
+    # Save debug info to session state
     st.session_state.debug_scan_info = "\n".join(debug_info)
 
     return plots
