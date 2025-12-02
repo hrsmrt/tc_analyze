@@ -141,12 +141,18 @@ else:
         FIG_DIR = PROJECT_ROOT / "fig"
 
 
-def scan_available_plots() -> Dict[str, Dict[str, List[str]]]:
+@st.cache_data(ttl=300)  # Cache for 5 minutes
+def scan_available_plots(fig_dir_str: str) -> Dict[str, Dict[str, List[str]]]:
     """
     Scan fig directory and find all available plots.
 
     Recursively searches for z-level directories (z00, z01, etc.)
     under each category, supporting arbitrary nesting depth.
+
+    Parameters
+    ----------
+    fig_dir_str : str
+        Figure directory path as string (for caching)
 
     Returns
     -------
@@ -154,6 +160,7 @@ def scan_available_plots() -> Dict[str, Dict[str, List[str]]]:
         Nested dictionary: {domain: {category_path: [z_levels]}}
         category_path preserves the full path from category to z-level parent
     """
+    fig_dir = Path(fig_dir_str)
     plots = {}
     debug_info = []
 
@@ -201,12 +208,12 @@ def scan_available_plots() -> Dict[str, Dict[str, List[str]]]:
 
         return results
 
-    if not FIG_DIR.exists():
-        st.warning(f"⚠️ FIG_DIR does not exist: {FIG_DIR}")
+    if not fig_dir.exists():
+        st.warning(f"⚠️ FIG_DIR does not exist: {fig_dir}")
         return plots
 
     # Scan domain directories
-    for domain_dir in FIG_DIR.iterdir():
+    for domain_dir in fig_dir.iterdir():
         if not domain_dir.is_dir():
             continue
 
@@ -280,12 +287,15 @@ def get_time_steps(domain: str, category: str, z_level: str) -> List[int]:
     return sorted(time_steps)
 
 
-def load_image(domain: str, category: str, z_level: str, time_step: int) -> Image.Image:
+@st.cache_data(ttl=600)  # Cache for 10 minutes
+def load_image(fig_dir_str: str, domain: str, category: str, z_level: str, time_step: int) -> Image.Image:
     """
     Load image for specified parameters.
 
     Parameters
     ----------
+    fig_dir_str : str
+        Figure directory path as string (for caching)
     domain : str
         Domain name
     category : str
@@ -300,7 +310,8 @@ def load_image(domain: str, category: str, z_level: str, time_step: int) -> Imag
     PIL.Image.Image
         Loaded image
     """
-    img_path = FIG_DIR / domain / category / z_level / f"t{time_step:03d}.png"
+    fig_dir = Path(fig_dir_str)
+    img_path = fig_dir / domain / category / z_level / f"t{time_step:03d}.png"
 
     if not img_path.exists():
         return None
@@ -318,8 +329,8 @@ def main():
 
     st.title("🌀 TC Analysis Interactive Viewer")
 
-    # スキャンして利用可能なプロットを取得
-    available_plots = scan_available_plots()
+    # スキャンして利用可能なプロットを取得（キャッシュあり）
+    available_plots = scan_available_plots(str(FIG_DIR))
 
     # プロジェクトルート情報を表示
     with st.expander("📂 Project Information", expanded=False):
@@ -463,7 +474,7 @@ def main():
         """)
 
     # メインエリア: 画像表示
-    img = load_image(domain, category, z_level, time_step)
+    img = load_image(str(FIG_DIR), domain, category, z_level, time_step)
 
     if img is not None:
         # 画像情報
