@@ -30,6 +30,7 @@
 - ✅ **多次元解析** - 3次元場、2次元場、鉛直プロファイル、方位角平均
 - ✅ **並列処理** - joblibによる高速な並列計算
 - ✅ **柔軟なプロット** - 複数のスタイルシートに対応した可視化
+- ✅ **インタラクティブビューア** - Streamlitベースの3Dデータビューア、アニメーション再生機能付き
 - ✅ **モジュール化** - 共通機能を`utils/`パッケージに集約し、保守性が高い
 - ✅ **物理定数の標準化** - 教科書・論文と一致した物理定数の命名規則
 - ✅ **充実したドキュメント** - 物理計算のリファレンス、アーキテクチャ設計書、コマンドリファレンスなど
@@ -42,6 +43,8 @@
 - **Matplotlib** - 可視化
 - **Joblib** - 並列処理
 - **Typer** - CLIフレームワーク
+- **Streamlit** - インタラクティブビューア（オプション）
+- **Pillow** - 画像処理（ビューア用、オプション）
 
 ---
 
@@ -389,7 +392,21 @@ tc-analyze config --help
 tc-analyze center --help
 ```
 
-詳細は[COMMAND_REFERENCE.md](./docs/COMMAND_REFERENCE.md)を参照してください。
+#### インタラクティブビューア
+
+```bash
+# プロジェクトルートから起動
+cd /path/to/tc_analyze
+bash viewer/run_viewer.sh
+
+# 図ディレクトリから直接起動
+cd /path/to/fig
+bash /path/to/tc_analyze/viewer/run_viewer.sh
+
+# ブラウザで http://localhost:8501 が自動的に開きます
+```
+
+詳細は[COMMAND_REFERENCE.md](./docs/COMMAND_REFERENCE.md)および[viewer/README.md](./viewer/README.md)を参照してください。
 
 ---
 
@@ -402,15 +419,17 @@ tc-analyze center --help
 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | **アーキテクチャ設計書** - システム構成、データフロー、モジュール設計、拡張ガイド |
 | [docs/CENTER_CONFIGURATION.md](./docs/CENTER_CONFIGURATION.md) | **中心座標設定ガイド** - TC中心座標の計算、設定、読み込み、メタデータ管理 |
 | [docs/UTILS_PHYSICS_REFERENCE.md](./docs/UTILS_PHYSICS_REFERENCE.md) | **物理計算リファレンス** - utils内の物理定数、熱力学計算、風速場計算など |
+| [viewer/README.md](./viewer/README.md) | **インタラクティブビューア** - Streamlitベースの3Dデータビューア、アニメーション再生、操作方法 |
 | [WORK_LOG.md](./WORK_LOG.md) | **作業履歴とコーディング規約** - 確立されたコーディングパターン、既知の問題と解決策 |
 
 ### 初めての方へ
 
 1. **環境構築**: このREADMEの[環境構築](#環境構築)セクション
 2. **コマンド実行**: [docs/COMMAND_REFERENCE.md](./docs/COMMAND_REFERENCE.md)
-3. **物理計算の理解**: [docs/UTILS_PHYSICS_REFERENCE.md](./docs/UTILS_PHYSICS_REFERENCE.md)
-4. **コード修正・追加**: [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)の拡張ガイド
-5. **コーディング規約**: [WORK_LOG.md](./WORK_LOG.md)の確立されたコーディングパターン
+3. **解析図の閲覧**: [viewer/README.md](./viewer/README.md) - インタラクティブビューアで簡単に可視化
+4. **物理計算の理解**: [docs/UTILS_PHYSICS_REFERENCE.md](./docs/UTILS_PHYSICS_REFERENCE.md)
+5. **コード修正・追加**: [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)の拡張ガイド
+6. **コーディング規約**: [WORK_LOG.md](./WORK_LOG.md)の確立されたコーディングパターン
 
 ### utilsモジュールの概要
 
