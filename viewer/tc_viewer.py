@@ -524,9 +524,9 @@ def main():
         with col1:
             play_speed = st.selectbox(
                 "Speed",
-                options=[0.1, 0.3, 0.5, 1.0, 2.0],
+                options=[0, 0.05, 0.1, 0.3, 0.5, 1.0],
                 index=2,
-                format_func=lambda x: f"{x}s/frame"
+                format_func=lambda x: "Max speed" if x == 0 else f"{x}s/frame"
             )
             # play_speedをsession_stateに保存
             st.session_state.play_speed = play_speed
