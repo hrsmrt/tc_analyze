@@ -16,8 +16,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import streamlit as st
+import streamlit.components.v1 as components
 from PIL import Image
-from st_keyup import st_keyup
 
 # プロジェクトのルートディレクトリを検出
 def find_project_root() -> Path:
@@ -331,26 +331,36 @@ def main():
 
     st.title("🌀 TC Analysis Interactive Viewer")
 
-    # キーボードリスナー用の初期化
-    if 'key_input_counter' not in st.session_state:
-        st.session_state.key_input_counter = 0
+    # 十字キーリスナー（JavaScriptコンポーネント）
+    keyboard_html = """
+    <script>
+    // Streamlitにキーイベントを送信する関数
+    function sendKey(key) {
+        window.parent.postMessage({
+            isStreamlitMessage: true,
+            type: "streamlit:setComponentValue",
+            value: key
+        }, "*");
+    }
 
-    # キーボードリスナー
-    # st_keyupは矢印キーをサポートしていないため、文字キーを使用（Vimライク）
-    with st.sidebar:
-        st.markdown("---")
-        st.markdown("**⌨️ Keyboard Navigation**")
-        st.markdown("Type: **h**/j/k/**l** then **Enter**")
-        st.markdown("- **h**: ⬅️ Prev time | **l**: ➡️ Next time")
-        st.markdown("- **j**: ⬇️ Z down | **k**: ⬆️ Z up")
+    // ページ全体でキーイベントをリッスン
+    document.addEventListener('keydown', function(event) {
+        // 矢印キーのみ処理
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight' ||
+            event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+            event.preventDefault();  // ページスクロールを防ぐ
+            sendKey(event.key);
+        }
+    }, true);  // trueでキャプチャフェーズ使用
 
-        # key_input_counterを使って入力フィールドを強制的にリセット
-        key_pressed = st_keyup(
-            "",
-            key=f"keyboard_listener_{st.session_state.key_input_counter}",
-            debounce=100,
-            placeholder="Type h/j/k/l"
-        )
+    // 初期化メッセージ
+    sendKey(null);
+    </script>
+    <div style="height: 0px; width: 0px;"></div>
+    """
+
+    # キーボードリスナーを配置（非表示）
+    key_pressed = components.html(keyboard_html, height=0)
 
     # スキャンして利用可能なプロットを取得（キャッシュあり）
     available_plots = scan_available_plots(str(FIG_DIR))
@@ -657,59 +667,50 @@ def main():
     else:
         st.info("Select domain, category, and z-level from the sidebar to display images.")
 
-    # キーボードイベント処理（Vimライクな文字キー: h/j/k/l）
-    if key_pressed and len(key_pressed) > 0:
-        # 最後に押されたキーを取得（入力フィールドの最後の文字）
-        last_key = key_pressed[-1].lower()
-        handled = False
-
-        if last_key == "h":
-            # h: 前のtime step (←)
+    # キーボードイベント処理（矢印キー）
+    if key_pressed and key_pressed != 'null':
+        if key_pressed == "ArrowLeft":
+            # 左矢印: 前のtime step
             if 'time_steps' in st.session_state and '_time_step' in st.session_state:
                 time_steps = st.session_state.time_steps
                 current_idx = time_steps.index(st.session_state._time_step) if st.session_state._time_step in time_steps else 0
                 if current_idx > 0:
                     st.session_state._time_step = time_steps[current_idx - 1]
-                    handled = True
+                    st.rerun()
 
-        elif last_key == "l":
-            # l: 次のtime step (→)
+        elif key_pressed == "ArrowRight":
+            # 右矢印: 次のtime step
             if 'time_steps' in st.session_state and '_time_step' in st.session_state:
                 time_steps = st.session_state.time_steps
                 current_idx = time_steps.index(st.session_state._time_step) if st.session_state._time_step in time_steps else 0
                 if current_idx < len(time_steps) - 1:
                     st.session_state._time_step = time_steps[current_idx + 1]
-                    handled = True
+                    st.rerun()
 
-        elif last_key == "j":
-            # j: Z level Down (↓)
+        elif key_pressed == "ArrowDown":
+            # 下矢印: Z level Down
             if 'z_indices' in st.session_state and '_z_index' in st.session_state:
                 z_indices = st.session_state.z_indices
                 current_idx = z_indices.index(st.session_state._z_index) if st.session_state._z_index in z_indices else 0
                 if current_idx > 0:
                     st.session_state._z_index = z_indices[current_idx - 1]
-                    handled = True
+                    st.rerun()
 
-        elif last_key == "k":
-            # k: Z level Up (↑)
+        elif key_pressed == "ArrowUp":
+            # 上矢印: Z level Up
             if 'z_indices' in st.session_state and '_z_index' in st.session_state:
                 z_indices = st.session_state.z_indices
                 current_idx = z_indices.index(st.session_state._z_index) if st.session_state._z_index in z_indices else 0
                 if current_idx < len(z_indices) - 1:
                     st.session_state._z_index = z_indices[current_idx + 1]
-                    handled = True
-
-        # キーが処理された場合、入力フィールドをクリアするためカウンターを増やす
-        if handled:
-            st.session_state.key_input_counter += 1
-            st.rerun()
+                    st.rerun()
 
     # フッター
     st.markdown("---")
     st.markdown(
         "**TC Analysis Viewer** | "
         "Use sidebar to navigate through time steps and vertical levels | "
-        "**Keyboard**: h/l Time | j/k Z Level"
+        "**Keyboard**: ⬅️➡️ Time / ⬆️⬇️ Z Level"
     )
 
 
