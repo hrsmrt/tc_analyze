@@ -389,6 +389,8 @@ def main():
             domain_names,
             help="Select analysis domain (whole domain or TC-centric)"
         )
+        # Session stateに保存
+        st.session_state.domain = domain
 
         # Category selection
         if domain and domain in available_plots:
@@ -398,6 +400,8 @@ def main():
                 category_names,
                 help="Select analysis category"
             )
+            # Session stateに保存
+            st.session_state.category = category
         else:
             st.warning("No categories available")
             return
@@ -448,6 +452,8 @@ def main():
 
             # 選択されたインデックスに対応するz層名
             z_level = f"z{st.session_state._z_index:02d}"
+            # Session stateに保存
+            st.session_state.z_level = z_level
         else:
             st.warning("No z levels available")
             return
@@ -562,26 +568,34 @@ def main():
                 st.session_state.playing = False
                 st.rerun()
 
-    # メインエリア: 画像表示
-    img = load_image(str(FIG_DIR), domain, category, z_level, st.session_state._time_step)
+    # メインエリア: 画像表示（session_stateから変数を取得）
+    if all(key in st.session_state for key in ['domain', 'category', 'z_level', '_time_step']):
+        domain = st.session_state.domain
+        category = st.session_state.category
+        z_level = st.session_state.z_level
+        time_step = st.session_state._time_step
 
-    if img is not None:
-        # 画像情報
-        st.subheader(f"{domain} / {category} / {z_level} / t={st.session_state._time_step:03d}")
+        img = load_image(str(FIG_DIR), domain, category, z_level, time_step)
 
-        # 画像表示（幅を調整可能に）
-        col1, col2, col3 = st.columns([1, 3, 1])
+        if img is not None:
+            # 画像情報
+            st.subheader(f"{domain} / {category} / {z_level} / t={time_step:03d}")
 
-        with col2:
-            st.image(img, use_container_width=True)
+            # 画像表示（幅を調整可能に）
+            col1, col2, col3 = st.columns([1, 3, 1])
 
-        # 画像サイズ情報
-        with st.expander("🔍 Image Details"):
-            st.write(f"**Size:** {img.size[0]} x {img.size[1]} pixels")
-            st.write(f"**Mode:** {img.mode}")
-            st.write(f"**Path:** `fig/{domain}/{category}/{z_level}/t{st.session_state._time_step:03d}.png`")
+            with col2:
+                st.image(img, use_container_width=True)
+
+            # 画像サイズ情報
+            with st.expander("🔍 Image Details"):
+                st.write(f"**Size:** {img.size[0]} x {img.size[1]} pixels")
+                st.write(f"**Mode:** {img.mode}")
+                st.write(f"**Path:** `fig/{domain}/{category}/{z_level}/t{time_step:03d}.png`")
+        else:
+            st.error(f"Image not found: {domain}/{category}/{z_level}/t{time_step:03d}.png")
     else:
-        st.error(f"Image not found: {domain}/{category}/{z_level}/t{st.session_state._time_step:03d}.png")
+        st.info("Select domain, category, and z-level from the sidebar to display images.")
 
     # フッター
     st.markdown("---")
