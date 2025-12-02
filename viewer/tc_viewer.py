@@ -115,10 +115,15 @@ def scan_available_plots() -> Dict[str, Dict[str, List[str]]]:
     """
     Scan fig directory and find all available plots.
 
+    Supports two directory structures:
+    1. fig/{domain}/{category}/{z_level}/t*.png
+    2. fig/{domain}/{category}/{subcategory}/{z_level}/t*.png
+
     Returns
     -------
     dict
-        Nested dictionary: {domain: {category: [z_levels]}}
+        Nested dictionary: {domain: {category_path: [z_levels]}}
+        category_path can be "category" or "category/subcategory"
     """
     plots = {}
     debug_info = []
@@ -144,20 +149,33 @@ def scan_available_plots() -> Dict[str, Dict[str, List[str]]]:
             category_name = category_dir.name
             debug_info.append(f"  📂 Category: {category_name}")
 
-            # z層別フォルダをスキャン
-            z_dirs = []
-            subdirs = list(category_dir.iterdir())
-            debug_info.append(f"    Contents: {[d.name for d in subdirs[:5]]}")  # 最初の5個を表示
+            # まず、このレベルにz層フォルダがあるかチェック
+            z_dirs_here = []
+            for item in category_dir.iterdir():
+                if item.is_dir() and item.name.startswith('z'):
+                    z_dirs_here.append(item.name)
 
-            for z_dir in category_dir.iterdir():
-                if z_dir.is_dir() and z_dir.name.startswith('z'):
-                    z_dirs.append(z_dir.name)
-
-            if z_dirs:
-                plots[domain_name][category_name] = sorted(z_dirs)
-                debug_info.append(f"    ✅ Found z-levels: {len(z_dirs)}")
+            if z_dirs_here:
+                # このレベルにz層フォルダがある（構造1）
+                plots[domain_name][category_name] = sorted(z_dirs_here)
+                debug_info.append(f"    ✅ Found z-levels: {len(z_dirs_here)}")
             else:
-                debug_info.append(f"    ❌ No z-level directories found")
+                # サブカテゴリをスキャン（構造2）
+                subdirs = [d for d in category_dir.iterdir() if d.is_dir()]
+                debug_info.append(f"    Subcategories: {[d.name for d in subdirs[:5]]}")
+
+                for subcat_dir in subdirs:
+                    # サブカテゴリの下のz層フォルダをスキャン
+                    z_dirs_sub = []
+                    for item in subcat_dir.iterdir():
+                        if item.is_dir() and item.name.startswith('z'):
+                            z_dirs_sub.append(item.name)
+
+                    if z_dirs_sub:
+                        # category/subcategory という形式で保存
+                        full_category_name = f"{category_name}/{subcat_dir.name}"
+                        plots[domain_name][full_category_name] = sorted(z_dirs_sub)
+                        debug_info.append(f"      ✅ {subcat_dir.name}: {len(z_dirs_sub)} z-levels")
 
     # デバッグ情報をセッションステートに保存
     st.session_state.debug_scan_info = "\n".join(debug_info)
@@ -174,7 +192,8 @@ def get_time_steps(domain: str, category: str, z_level: str) -> List[int]:
     domain : str
         Domain name (e.g., 'domain', 'tc-centric')
     category : str
-        Category name (e.g., 'energy', 'vortex_region')
+        Category path (e.g., 'energy/total_energy', 'vortex_region')
+        Can be 'category' or 'category/subcategory'
     z_level : str
         Z level (e.g., 'z00', 'z09')
 
@@ -209,7 +228,7 @@ def load_image(domain: str, category: str, z_level: str, time_step: int) -> Imag
     domain : str
         Domain name
     category : str
-        Category name
+        Category path (can be 'category' or 'category/subcategory')
     z_level : str
         Z level
     time_step : int

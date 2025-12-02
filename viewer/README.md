@@ -85,28 +85,43 @@ bash /path/to/tc_analyze/viewer/run_viewer.sh
 
 ## ディレクトリ構造
 
-ビューアは以下のディレクトリ構造を想定しています（`fig_dir`で指定された場所）：
+ビューアは以下の2つのディレクトリ構造に対応しています（`fig_dir`で指定された場所）：
 
+**構造1: カテゴリ直下にz層フォルダ**
+```
+{fig_dir}/
+└── domain/
+    └── vortex_region/
+        ├── z00/
+        │   ├── t000.png
+        │   ├── t001.png
+        │   └── ...
+        ├── z09/
+        └── ...
+```
+
+**構造2: サブカテゴリを経由してz層フォルダ**
 ```
 {fig_dir}/
 ├── domain/
-│   ├── energy/
-│   │   ├── internal_energy/
-│   │   │   ├── z00/
-│   │   │   │   ├── t000.png
-│   │   │   │   ├── t001.png
-│   │   │   │   └── ...
-│   │   │   ├── z09/
-│   │   │   └── ...
-│   │   ├── kinetic_energy/
-│   │   └── ...
-│   ├── energy_density/
-│   └── ...
-└── tc-centric/
-    ├── energy/
-    ├── energy_density/
-    └── ...
+│   └── energy/
+│       ├── total_energy/
+│       │   ├── z00/
+│       │   │   ├── t000.png
+│       │   │   ├── t001.png
+│       │   │   └── ...
+│       │   ├── z09/
+│       │   └── ...
+│       ├── kinetic_energy/
+│       │   ├── z00/
+│       │   └── ...
+│       └── ...
+└── tc_centric/
+    └── energy_density/
+        └── ...
 ```
+
+どちらの構造でも自動的に検出して表示します。
 
 ## キーボードショートカット
 
