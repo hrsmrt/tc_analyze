@@ -2,7 +2,7 @@
 
 このプロジェクトは修士課程の研究で使用している熱帯低気圧の解析コード群です。
 
-**プロジェクト規模**: 228ファイル、22,500+行（Python）
+**プロジェクト規模**: 229ファイル、22,700+行（Python）
 
 ---
 
@@ -40,12 +40,18 @@
    - グリッド生成、ビニング方法の統一
    - ディレクトリ構造とパス生成
 
+7. **インタラクティブビューア（NEW! 2025-12-02）**
+   @./viewer/README.md
+   - Streamlitベースの3Dデータビューア
+   - アニメーション再生、Z層/時間ナビゲーション
+   - ドメイン/カテゴリ選択機能
+
 ### 補足ドキュメント
 
-7. **リファクタリング概要**
+8. **リファクタリング概要**
    @./archive/docs/REFACTORING_SUMMARY.md
 
-8. **マイグレーション完了報告**
+9. **マイグレーション完了報告**
    @./archive/docs/MIGRATION_COMPLETE.md
 
 ---
@@ -68,6 +74,13 @@ sh $WORK/tc_analyze/run/analyze.sh center 3d azim
 
 # カテゴリ一覧表示
 sh $WORK/tc_analyze/run/analyze.sh --list
+
+# インタラクティブビューアの起動
+cd /path/to/tc_analyze
+bash viewer/run_viewer.sh
+# または図ディレクトリから直接起動
+cd /path/to/fig
+bash /path/to/tc_analyze/viewer/run_viewer.sh
 ```
 
 ### utilsモジュール（15ファイル、2,900+行）
@@ -173,6 +186,11 @@ tc_analyze/
 │   ├── WORK_LOG.md  # 作業履歴とコーディング規約
 │   ├── UTILS_PHYSICS_REFERENCE.md  # 物理計算リファレンス
 │   └── DIRECTORY_REORGANIZATION_COMPLETE.md  # ディレクトリ再編成完了報告
+├── viewer/         # インタラクティブビューア（NEW! 2025-12-02）
+│   ├── tc_viewer.py       # Streamlitアプリケーション（200+行）
+│   ├── run_viewer.sh      # 起動スクリプト
+│   ├── requirements.txt   # 依存パッケージ（streamlit, Pillow）
+│   └── README.md          # ビューアの詳細ドキュメント
 ├── run/            # 実行スクリプト（analyze.sh）
 ├── script/         # 設定ファイル（setting.json）
 └── archive/        # アーカイブ
@@ -201,6 +219,26 @@ tc_analyze/
 - **ディレクトリ構造**: 解析タイプ別 + calc/plot分離
 
 ### 最近の主要変更
+
+#### 2025-12-02
+- ✅ **インタラクティブビューアの実装**（`viewer/`ディレクトリ新規作成）
+  - **Streamlitベースの3Dデータビューア** (`tc_viewer.py`)
+    - ドメイン選択（domain/tc-centric/center）
+    - カテゴリ選択（任意の階層構造に対応）
+    - Z層選択（Down/Upボタン + スライダー）
+    - 時間ステップ選択（Prev/Nextボタン + スライダー）
+    - アニメーション再生（Play/Stop + 速度調整：Max speed～1.0s/frame）
+  - **st.empty()を使用したスムーズなアニメーション**
+    - プレースホルダ更新でフレーム間遷移を最適化
+    - st.rerun()を最小限に抑えた高速表示
+  - **session_stateによる状態管理**
+    - ボタンとスライダーの完全同期
+    - アニメーション中の状態保持
+  - **起動スクリプト** (`run_viewer.sh`)
+    - 任意のディレクトリから起動可能
+    - setting.jsonから自動的にfig_dirを読み込み
+  - **依存パッケージ**: streamlit>=1.28.0, Pillow>=10.0.0
+  - **詳細**: `viewer/README.md`を参照
 
 #### 2025-11-28
 - ✅ **ディレクトリ再編成の完了**（全170ファイルマイグレーション）
@@ -358,19 +396,22 @@ center_x = config.center_x[t, z]  # shape: (nt, nz)
 | **方位角平均を計算したい** | [docs/UTILS_PHYSICS_REFERENCE.md](./docs/UTILS_PHYSICS_REFERENCE.md) の方位角平均計算 |
 | **ディレクトリ構造を理解したい** | [DIRECTORY_REORGANIZATION_COMPLETE.md](./DIRECTORY_REORGANIZATION_COMPLETE.md) 参照 |
 | **新しいパスメソッドを使いたい** | このページの「新しいパスメソッド」セクション |
+| **解析図をインタラクティブに閲覧したい** | [viewer/README.md](./viewer/README.md)、または `bash viewer/run_viewer.sh` |
+| **アニメーションで時系列変化を見たい** | [viewer/README.md](./viewer/README.md) のAnimation機能 |
 
 ## 📈 プロジェクト統計
 
-- **総Pythonファイル数**: 228ファイル
-- **総コード行数**: 22,500+行
+- **総Pythonファイル数**: 229ファイル
+- **総コード行数**: 22,700+行
 - **utils**: 15ファイル、2,900+行（vorticity.py追加）
 - **analysis**: 174ファイル、14,100+行
   - calc: 58ファイル（center計算のメソッド別分離により増加）
   - plot: 82ファイル
   - その他: 34ファイル
+- **viewer**: 1ファイル、200+行（tc_viewer.py）
 - **解析カテゴリ**: 7カテゴリ（whole_domain, vortex_region, azimuthal, vertical, center, diagnostics）
 - **データ出力構造**: 3カテゴリ（domain, center, tc_centric）
 
 ---
 
-**最終更新**: 2025-11-29
+**最終更新**: 2025-12-02

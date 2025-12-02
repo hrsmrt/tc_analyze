@@ -481,6 +481,12 @@ tc_analyze/
 ├── script/                   # 設定ファイル
 │   └── setting.json         # 設定ファイル（サンプル）
 │
+├── viewer/                   # インタラクティブビューア
+│   ├── tc_viewer.py         # Streamlitベースのビューアアプリ
+│   ├── run_viewer.sh        # ビューア起動スクリプト
+│   ├── requirements.txt     # ビューア用依存パッケージ
+│   └── README.md            # ビューアの詳細ドキュメント
+│
 ├── analysis/                 # 解析スクリプト群（169ファイル、13,349行）
 │   ├── whole_domain/        # 領域全体の解析（31ファイル、中心位置非依存）
 │   │   ├── 2d/             # 2次元全領域（12ファイル）
