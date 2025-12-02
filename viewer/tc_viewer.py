@@ -123,6 +123,7 @@ def scan_available_plots() -> Dict[str, Dict[str, List[str]]]:
     plots = {}
 
     if not FIG_DIR.exists():
+        st.warning(f"⚠️ FIG_DIR does not exist: {FIG_DIR}")
         return plots
 
     # domain と tc-centric をスキャン
@@ -225,6 +226,9 @@ def main():
 
     st.title("🌀 TC Analysis Interactive Viewer")
 
+    # スキャンして利用可能なプロットを取得
+    available_plots = scan_available_plots()
+
     # プロジェクトルート情報を表示
     with st.expander("📂 Project Information", expanded=False):
         # setting.json の場所を確認
@@ -246,12 +250,11 @@ def main():
         **Figure Directory:** `{FIG_DIR}` ({fig_source})
         **Current Working Directory:** `{Path.cwd()}`
         **FIG_DIR exists:** {'✅ Yes' if FIG_DIR.exists() else '❌ No'}
+        **Scanned domains:** {list(available_plots.keys())}
+        **Total categories found:** {sum(len(cats) for cats in available_plots.values())}
         """)
 
     st.markdown("---")
-
-    # スキャンして利用可能なプロットを取得
-    available_plots = scan_available_plots()
 
     if not available_plots:
         st.error(f"No plots found in {FIG_DIR}")

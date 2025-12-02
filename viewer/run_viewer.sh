@@ -32,13 +32,7 @@ echo "Current directory: $(pwd)"
 echo "Viewer will search for 'fig' directory or 'script/setting.json'"
 echo ""
 
-# Change to project root (parent of viewer directory)
-PROJECT_ROOT="$SCRIPT_DIR/.."
-cd "$PROJECT_ROOT"
-echo "Changed to project root: $(pwd)"
-echo ""
-
-# Launch Streamlit app from project root
+# Launch Streamlit app from current directory
 streamlit run "$VIEWER_SCRIPT"
 
 echo ""
