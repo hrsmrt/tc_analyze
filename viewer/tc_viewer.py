@@ -101,8 +101,32 @@ def load_fig_dir(project_root: Path) -> Optional[Path]:
     return None
 
 
-# カレントディレクトリがfigフォルダの場合、それを直接使用
-if Path.cwd().name == "fig":
+def is_fig_directory(path: Path) -> bool:
+    """
+    Check if a directory contains domain folders (domain, tc_centric, center).
+
+    Parameters
+    ----------
+    path : Path
+        Directory to check
+
+    Returns
+    -------
+    bool
+        True if the directory contains at least one domain folder
+    """
+    if not path.exists() or not path.is_dir():
+        return False
+
+    domain_names = ['domain', 'tc_centric', 'tc-centric', 'center']
+    for name in domain_names:
+        if (path / name).is_dir():
+            return True
+    return False
+
+
+# カレントディレクトリに domain, tc_centric, center などがあれば、それをFIG_DIRとして使用
+if is_fig_directory(Path.cwd()):
     FIG_DIR = Path.cwd()
     PROJECT_ROOT = Path.cwd().parent
 else:
@@ -307,8 +331,8 @@ def main():
         setting_status = "✅ Found" if setting_file.exists() else "❌ Not found"
 
         # fig_dir のソースを表示
-        if Path.cwd().name == "fig":
-            fig_source = "Current directory (fig/)"
+        if is_fig_directory(Path.cwd()):
+            fig_source = "Current directory (auto-detected domain folders)"
         elif FIG_DIR == PROJECT_ROOT / "fig":
             fig_source = "Default (fig/)"
         else:

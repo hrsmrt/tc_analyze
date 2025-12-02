@@ -22,11 +22,11 @@ pip install streamlit pillow
 
 ビューアは、`run_viewer.sh`を使えば**どのディレクトリからでも**起動できます。
 
-**方法1: figフォルダの中から起動（最も簡単）**
+**方法1: 図ディレクトリの中から起動（最も簡単・推奨）**
 ```bash
-cd /path/to/fig
+cd /path/to/fig     # fig, fig2, output, results など任意の名前
 bash /path/to/tc_analyze/viewer/run_viewer.sh
-# カレントディレクトリ (fig/) を自動的に使用
+# domain, tc_centric, center フォルダが検出されれば自動的に使用
 ```
 
 **方法2: プロジェクトルートから**
@@ -49,6 +49,11 @@ cd /any/directory
 bash /path/to/tc_analyze/viewer/run_viewer.sh
 # プロジェクトルートを検出し、setting.jsonからfig_dirを読み取る
 ```
+
+**自動検出の仕組み:**
+- カレントディレクトリに `domain/`, `tc_centric/`, `center/` フォルダがあれば、カレントディレクトリを図ディレクトリとして使用
+- フォルダ名は問わない（`fig`, `fig2`, `output`, `results` など何でもOK）
+- 検出されない場合は、プロジェクトルートを探して `setting.json` から読み取る
 
 ### 2. ブラウザで開く
 
