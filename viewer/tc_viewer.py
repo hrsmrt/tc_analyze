@@ -499,8 +499,9 @@ def main():
             help="Select time step"
         )
 
-        # スライダーの値を内部状態に同期
-        st.session_state._time_step = time_step
+        # スライダーの値を内部状態に同期（アニメーション中は同期しない）
+        if not st.session_state.get('playing', False):
+            st.session_state._time_step = time_step
 
         # アニメーション
         st.markdown("---")
@@ -531,13 +532,16 @@ def main():
         # 情報表示
         st.markdown("---")
         st.header("ℹ️ Info")
+        playing_status = st.session_state.get('playing', False)
+        current_time_step = st.session_state.get('_time_step', 'Not set')
         st.info(f"""
         **Domain:** {domain}
         **Category:** {category}
         **Z Level:** {z_level}
-        **Time Step:** {st.session_state._time_step}
+        **Time Step:** {current_time_step}
         **Available Steps:** {len(time_steps)}
-        **Playing:** {'▶️ Yes' if st.session_state.playing else '⏸️ No'}
+        **Playing:** {'▶️ Yes' if playing_status else '⏸️ No'}
+        **Debug - Current Index:** {time_steps.index(st.session_state._time_step) if st.session_state._time_step in time_steps else 'N/A'}
         """)
 
     # アニメーション処理（サイドバーで変数が設定された後に実行）
