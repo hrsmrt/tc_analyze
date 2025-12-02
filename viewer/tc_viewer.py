@@ -433,7 +433,7 @@ def main():
             current_z_idx = z_indices.index(st.session_state._z_index) if st.session_state._z_index in z_indices else 0
 
             # Z level前後ボタン
-            col1, col2, col3 = st.columns([1, 2, 1])
+            col1, col2 = st.columns(2)
 
             with col1:
                 if st.button("⬇️ Down", key="z_down", use_container_width=True):
@@ -441,7 +441,7 @@ def main():
                         st.session_state._z_index = z_indices[current_z_idx - 1]
                         st.rerun()
 
-            with col3:
+            with col2:
                 if st.button("Up ⬆️", key="z_up", use_container_width=True):
                     if current_z_idx < len(z_indices) - 1:
                         st.session_state._z_index = z_indices[current_z_idx + 1]
