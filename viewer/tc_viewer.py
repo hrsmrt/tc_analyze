@@ -420,11 +420,10 @@ def main():
             # Z level control header
             st.header("🔢 Z Level Control")
 
-            # ボタンで値が変更された場合の処理
-            current_z_idx = z_indices.index(st.session_state._z_index) if st.session_state._z_index in z_indices else 0
-
             # Z level前後ボタン
             col1, col2 = st.columns(2)
+
+            current_z_idx = z_indices.index(st.session_state._z_index) if st.session_state._z_index in z_indices else 0
 
             with col1:
                 if st.button("⬇️ Down", key="z_down", use_container_width=True):
@@ -438,12 +437,11 @@ def main():
                         st.session_state._z_index = z_indices[current_z_idx + 1]
                         st.rerun()
 
-            # Z levelスライダー
+            # Z levelスライダー（keyを削除してvalueだけで制御）
             z_index = st.select_slider(
                 "Z Level Index",
                 options=z_indices,
-                value=st.session_state._z_index,
-                key="z_index_slider",
+                value=st.session_state._z_index if st.session_state._z_index in z_indices else z_indices[0],
                 help="Select vertical level"
             )
 
@@ -496,12 +494,11 @@ def main():
                     st.session_state._time_step = time_steps[current_idx + 1]
                     st.rerun()
 
-        # 時間ステップスライダー
+        # 時間ステップスライダー（keyを削除してvalueだけで制御）
         time_step = st.select_slider(
             "Time Step",
             options=time_steps,
-            value=st.session_state._time_step,
-            key="time_step_slider",
+            value=st.session_state._time_step if st.session_state._time_step in time_steps else time_steps[0],
             help="Select time step"
         )
 
