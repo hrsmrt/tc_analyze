@@ -8,9 +8,11 @@ Navigate through time steps and vertical levels interactively.
 Usage:
     streamlit run viewer/tc_viewer.py
 """
+import json
 import os
+import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import streamlit as st
 from PIL import Image
@@ -33,15 +35,21 @@ def find_project_root() -> Path:
     # 1. カレントディレクトリから探す
     cwd = Path.cwd()
 
-    # fig ディレクトリまたは setting.json があればそこをルートとする
-    if (cwd / "fig").exists() or (cwd / "script" / "setting.json").exists():
+    # script/setting.json があればそこをルートとする
+    if (cwd / "script" / "setting.json").exists():
+        return cwd
+
+    # fig ディレクトリがあればそこをルートとする
+    if (cwd / "fig").exists():
         return cwd
 
     # 2. 親ディレクトリを最大3階層まで探す
     current = cwd
     for _ in range(3):
         current = current.parent
-        if (current / "fig").exists() or (current / "script" / "setting.json").exists():
+        if (current / "script" / "setting.json").exists():
+            return current
+        if (current / "fig").exists():
             return current
 
     # 3. フォールバック: スクリプトの親ディレクトリ
@@ -49,8 +57,58 @@ def find_project_root() -> Path:
     return script_dir
 
 
+def load_fig_dir(project_root: Path) -> Optional[Path]:
+    """
+    Load fig_dir from setting.json.
+
+    Parameters
+    ----------
+    project_root : Path
+        Project root directory
+
+    Returns
+    -------
+    Path or None
+        Figure directory path from setting.json, or None if not found
+    """
+    # まず script/setting.json を探す
+    setting_file = project_root / "script" / "setting.json"
+
+    if not setting_file.exists():
+        # フォールバック: プロジェクトルート直下のsetting.json
+        setting_file = project_root / "setting.json"
+
+    if not setting_file.exists():
+        return None
+
+    try:
+        with open(setting_file, 'r', encoding='utf-8') as f:
+            settings = json.load(f)
+
+        # fig_dir を取得
+        fig_dir = settings.get('fig_dir')
+
+        if fig_dir:
+            fig_path = Path(fig_dir)
+            # 絶対パスでなければ、プロジェクトルートからの相対パスとして解釈
+            if not fig_path.is_absolute():
+                fig_path = project_root / fig_path
+            return fig_path
+
+    except (json.JSONDecodeError, KeyError, OSError) as e:
+        st.warning(f"Error reading setting.json: {e}")
+
+    return None
+
+
 PROJECT_ROOT = find_project_root()
-FIG_DIR = PROJECT_ROOT / "fig"
+
+# setting.json から fig_dir を読み込む
+FIG_DIR = load_fig_dir(PROJECT_ROOT)
+
+# フォールバック: setting.json がない場合は fig/ を使用
+if FIG_DIR is None:
+    FIG_DIR = PROJECT_ROOT / "fig"
 
 
 def scan_available_plots() -> Dict[str, Dict[str, List[str]]]:
@@ -169,10 +227,25 @@ def main():
 
     # プロジェクトルート情報を表示
     with st.expander("📂 Project Information", expanded=False):
+        # setting.json の場所を確認
+        setting_file = PROJECT_ROOT / "script" / "setting.json"
+        if not setting_file.exists():
+            setting_file = PROJECT_ROOT / "setting.json"
+
+        setting_status = "✅ Found" if setting_file.exists() else "❌ Not found"
+
+        # fig_dir のソースを表示
+        if FIG_DIR == PROJECT_ROOT / "fig":
+            fig_source = "Default (fig/)"
+        else:
+            fig_source = f"From setting.json: fig_dir"
+
         st.info(f"""
         **Project Root:** `{PROJECT_ROOT}`
-        **Figure Directory:** `{FIG_DIR}`
+        **Setting File:** {setting_status} - `{setting_file if setting_file.exists() else 'N/A'}`
+        **Figure Directory:** `{FIG_DIR}` ({fig_source})
         **Current Working Directory:** `{Path.cwd()}`
+        **FIG_DIR exists:** {'✅ Yes' if FIG_DIR.exists() else '❌ No'}
         """)
 
     st.markdown("---")

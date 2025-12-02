@@ -60,12 +60,34 @@ bash /path/to/tc_analyze/viewer/run_viewer.sh
 - 選択した図が表示されます
 - 画像をクリックして拡大表示可能
 
+## 図ディレクトリの設定
+
+ビューアは**setting.jsonの`fig_dir`**を読み取ります。
+
+### 設定の読み込み順序
+
+1. **script/setting.json** から `fig_dir` を読み取る（推奨）
+2. 見つからない場合: **setting.json**（プロジェクトルート直下）
+3. 見つからない場合: デフォルト値 `fig/` を使用
+
+### setting.json の例
+
+```json
+{
+  "fig_dir": "./fig",
+  "glevel": 11,
+  ...
+}
+```
+
+`fig_dir`は絶対パスまたは相対パス（プロジェクトルートからの）で指定できます。
+
 ## ディレクトリ構造
 
-ビューアは以下のディレクトリ構造を想定しています：
+ビューアは以下のディレクトリ構造を想定しています（`fig_dir`で指定された場所）：
 
 ```
-fig/
+{fig_dir}/
 ├── domain/
 │   ├── energy/
 │   │   ├── internal_energy/
