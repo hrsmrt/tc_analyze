@@ -328,6 +328,23 @@ def main():
         layout="wide"
     )
 
+    # アニメーション処理（最初に実行して、描画前にフレームを進める）
+    if st.session_state.get('playing', False):
+        if 'time_steps' in st.session_state and '_time_step' in st.session_state:
+            time_steps = st.session_state.time_steps
+            current_idx = time_steps.index(st.session_state._time_step)
+            if current_idx < len(time_steps) - 1:
+                # 待機時間
+                play_speed = st.session_state.get('play_speed', 0.1)
+                if play_speed > 0:
+                    time.sleep(play_speed)
+                # 次のフレームへ
+                st.session_state._time_step = time_steps[current_idx + 1]
+                st.rerun()
+            else:
+                # 最後のフレームに達したら停止
+                st.session_state.playing = False
+
     st.title("🌀 TC Analysis Interactive Viewer")
 
     # スキャンして利用可能なプロットを取得（キャッシュあり）
@@ -546,24 +563,6 @@ def main():
         **Playing:** {'▶️ Yes' if playing_status else '⏸️ No'}
         **Debug - Current Index:** {time_steps.index(st.session_state._time_step) if st.session_state._time_step in time_steps else 'N/A'}
         """)
-
-    # アニメーション処理（サイドバーで変数が設定された後に実行）
-    if st.session_state.get('playing', False):
-        if 'time_steps' in st.session_state and '_time_step' in st.session_state:
-            time_steps = st.session_state.time_steps
-            current_idx = time_steps.index(st.session_state._time_step)
-            if current_idx < len(time_steps) - 1:
-                # 待機時間
-                play_speed = st.session_state.get('play_speed', 0.1)
-                if play_speed > 0:
-                    time.sleep(play_speed)
-                # 次のフレームへ
-                st.session_state._time_step = time_steps[current_idx + 1]
-                st.rerun()
-            else:
-                # 最後のフレームに達したら停止
-                st.session_state.playing = False
-                st.rerun()
 
     # メインエリア: 画像表示（session_stateから変数を取得）
     if all(key in st.session_state for key in ['domain', 'category', 'z_level', '_time_step']):
