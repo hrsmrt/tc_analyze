@@ -11,6 +11,7 @@ Usage:
 import json
 import os
 import sys
+import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -327,6 +328,19 @@ def main():
         layout="wide"
     )
 
+    # アニメーション処理（最初に実行）
+    if 'playing' in st.session_state and st.session_state.playing:
+        if 'time_steps' in st.session_state and 'time_step' in st.session_state:
+            time_steps = st.session_state.time_steps
+            current_idx = time_steps.index(st.session_state.time_step)
+            if current_idx < len(time_steps) - 1:
+                time.sleep(st.session_state.get('play_speed', 0.5))
+                st.session_state.time_step = time_steps[current_idx + 1]
+                st.rerun()
+            else:
+                # 最後のフレームに達したら停止
+                st.session_state.playing = False
+
     st.title("🌀 TC Analysis Interactive Viewer")
 
     # スキャンして利用可能なプロットを取得（キャッシュあり）
@@ -408,11 +422,41 @@ def main():
             # z層の数値を抽出してスライダー用のインデックスに変換
             z_indices = [int(z[1:]) for z in z_levels]  # 'z00' -> 0
 
+            # Session state初期化
+            if 'z_index' not in st.session_state:
+                st.session_state.z_index = z_indices[0]
+
+            # Z level control header
+            st.header("🔢 Z Level Control")
+
+            # Z level前後ボタン
+            col1, col2, col3 = st.columns([1, 2, 1])
+
+            current_z_idx = z_indices.index(st.session_state.z_index) if st.session_state.z_index in z_indices else 0
+
+            with col1:
+                if st.button("⬇️ Down", key="z_down", use_container_width=True):
+                    if current_z_idx > 0:
+                        st.session_state.z_index = z_indices[current_z_idx - 1]
+                        st.rerun()
+
+            with col3:
+                if st.button("Up ⬆️", key="z_up", use_container_width=True):
+                    if current_z_idx < len(z_indices) - 1:
+                        st.session_state.z_index = z_indices[current_z_idx + 1]
+                        st.rerun()
+
+            # Z levelスライダー
             z_index = st.select_slider(
                 "Z Level Index",
                 options=z_indices,
+                value=st.session_state.z_index,
+                key="z_slider",
                 help="Select vertical level"
             )
+
+            # スライダーの値をsession_stateに同期
+            st.session_state.z_index = z_index
 
             # 選択されたインデックスに対応するz層名
             z_level = f"z{z_index:02d}"
@@ -429,14 +473,28 @@ def main():
             st.warning(f"No time steps found for {domain}/{category}/{z_level}")
             return
 
+        # time_stepsをsession_stateに保存（アニメーション用）
+        st.session_state.time_steps = time_steps
+
         st.header("⏱️ Time Control")
+
+        # Session state初期化
+        if 'time_step' not in st.session_state:
+            st.session_state.time_step = time_steps[0]
+        if 'playing' not in st.session_state:
+            st.session_state.playing = False
 
         # 時間ステップスライダー
         time_step = st.select_slider(
             "Time Step",
             options=time_steps,
+            value=st.session_state.time_step if st.session_state.time_step in time_steps else time_steps[0],
+            key="time_slider",
             help="Select time step"
         )
+
+        # スライダーの値をsession_stateに同期
+        st.session_state.time_step = time_step
 
         # 前後ボタン
         col1, col2 = st.columns(2)
@@ -444,23 +502,42 @@ def main():
         current_idx = time_steps.index(time_step)
 
         with col1:
-            if st.button("⬅️ Prev", use_container_width=True):
+            if st.button("⬅️ Prev", key="time_prev", use_container_width=True):
                 if current_idx > 0:
                     st.session_state.time_step = time_steps[current_idx - 1]
                     st.rerun()
 
         with col2:
-            if st.button("Next ➡️", use_container_width=True):
+            if st.button("Next ➡️", key="time_next", use_container_width=True):
                 if current_idx < len(time_steps) - 1:
                     st.session_state.time_step = time_steps[current_idx + 1]
                     st.rerun()
 
-        # アニメーション（オプション）
+        # アニメーション
         st.markdown("---")
         st.header("🎬 Animation")
 
-        if st.button("▶️ Play Animation", use_container_width=True):
-            st.info("Animation feature coming soon!")
+        col1, col2, col3 = st.columns([2, 1, 1])
+
+        with col1:
+            play_speed = st.selectbox(
+                "Speed",
+                options=[0.1, 0.3, 0.5, 1.0, 2.0],
+                index=2,
+                format_func=lambda x: f"{x}s/frame"
+            )
+            # play_speedをsession_stateに保存
+            st.session_state.play_speed = play_speed
+
+        with col2:
+            if st.button("▶️ Play", key="play_btn", use_container_width=True):
+                st.session_state.playing = True
+                st.rerun()
+
+        with col3:
+            if st.button("⏸️ Stop", key="stop_btn", use_container_width=True):
+                st.session_state.playing = False
+                st.rerun()
 
         # 情報表示
         st.markdown("---")
