@@ -121,6 +121,7 @@ def scan_available_plots() -> Dict[str, Dict[str, List[str]]]:
         Nested dictionary: {domain: {category: [z_levels]}}
     """
     plots = {}
+    debug_info = []
 
     if not FIG_DIR.exists():
         st.warning(f"⚠️ FIG_DIR does not exist: {FIG_DIR}")
@@ -133,6 +134,7 @@ def scan_available_plots() -> Dict[str, Dict[str, List[str]]]:
 
         domain_name = domain_dir.name
         plots[domain_name] = {}
+        debug_info.append(f"📁 Domain: {domain_name}")
 
         # 各カテゴリをスキャン
         for category_dir in domain_dir.iterdir():
@@ -140,15 +142,25 @@ def scan_available_plots() -> Dict[str, Dict[str, List[str]]]:
                 continue
 
             category_name = category_dir.name
+            debug_info.append(f"  📂 Category: {category_name}")
 
             # z層別フォルダをスキャン
             z_dirs = []
+            subdirs = list(category_dir.iterdir())
+            debug_info.append(f"    Contents: {[d.name for d in subdirs[:5]]}")  # 最初の5個を表示
+
             for z_dir in category_dir.iterdir():
                 if z_dir.is_dir() and z_dir.name.startswith('z'):
                     z_dirs.append(z_dir.name)
 
             if z_dirs:
                 plots[domain_name][category_name] = sorted(z_dirs)
+                debug_info.append(f"    ✅ Found z-levels: {len(z_dirs)}")
+            else:
+                debug_info.append(f"    ❌ No z-level directories found")
+
+    # デバッグ情報をセッションステートに保存
+    st.session_state.debug_scan_info = "\n".join(debug_info)
 
     return plots
 
@@ -253,6 +265,11 @@ def main():
         **Scanned domains:** {list(available_plots.keys())}
         **Total categories found:** {sum(len(cats) for cats in available_plots.values())}
         """)
+
+        # デバッグ情報を表示
+        if hasattr(st.session_state, 'debug_scan_info'):
+            st.text("Directory scan details:")
+            st.code(st.session_state.debug_scan_info, language="text")
 
     st.markdown("---")
 
