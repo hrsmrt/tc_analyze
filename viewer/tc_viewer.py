@@ -446,20 +446,17 @@ def main():
                         st.session_state.z_index = z_indices[current_z_idx + 1]
                         st.rerun()
 
-            # Z levelスライダー
+            # Z levelスライダー（session_stateと自動バインド）
             z_index = st.select_slider(
                 "Z Level Index",
                 options=z_indices,
                 value=st.session_state.z_index,
-                key="z_slider",
+                key="z_index",  # session_stateと同じ名前にすることで自動バインド
                 help="Select vertical level"
             )
 
-            # スライダーの値をsession_stateに同期
-            st.session_state.z_index = z_index
-
             # 選択されたインデックスに対応するz層名
-            z_level = f"z{z_index:02d}"
+            z_level = f"z{st.session_state.z_index:02d}"
         else:
             st.warning("No z levels available")
             return
@@ -484,22 +481,19 @@ def main():
         if 'playing' not in st.session_state:
             st.session_state.playing = False
 
-        # 時間ステップスライダー
+        # 時間ステップスライダー（session_stateと自動バインド）
         time_step = st.select_slider(
             "Time Step",
             options=time_steps,
             value=st.session_state.time_step if st.session_state.time_step in time_steps else time_steps[0],
-            key="time_slider",
+            key="time_step",  # session_stateと同じ名前にすることで自動バインド
             help="Select time step"
         )
-
-        # スライダーの値をsession_stateに同期
-        st.session_state.time_step = time_step
 
         # 前後ボタン
         col1, col2 = st.columns(2)
 
-        current_idx = time_steps.index(time_step)
+        current_idx = time_steps.index(st.session_state.time_step)
 
         with col1:
             if st.button("⬅️ Prev", key="time_prev", use_container_width=True):
@@ -546,16 +540,16 @@ def main():
         **Domain:** {domain}
         **Category:** {category}
         **Z Level:** {z_level}
-        **Time Step:** {time_step}
+        **Time Step:** {st.session_state.time_step}
         **Available Steps:** {len(time_steps)}
         """)
 
     # メインエリア: 画像表示
-    img = load_image(str(FIG_DIR), domain, category, z_level, time_step)
+    img = load_image(str(FIG_DIR), domain, category, z_level, st.session_state.time_step)
 
     if img is not None:
         # 画像情報
-        st.subheader(f"{domain} / {category} / {z_level} / t={time_step:03d}")
+        st.subheader(f"{domain} / {category} / {z_level} / t={st.session_state.time_step:03d}")
 
         # 画像表示（幅を調整可能に）
         col1, col2, col3 = st.columns([1, 3, 1])
@@ -567,9 +561,9 @@ def main():
         with st.expander("🔍 Image Details"):
             st.write(f"**Size:** {img.size[0]} x {img.size[1]} pixels")
             st.write(f"**Mode:** {img.mode}")
-            st.write(f"**Path:** `fig/{domain}/{category}/{z_level}/t{time_step:03d}.png`")
+            st.write(f"**Path:** `fig/{domain}/{category}/{z_level}/t{st.session_state.time_step:03d}.png`")
     else:
-        st.error(f"Image not found: {domain}/{category}/{z_level}/t{time_step:03d}.png")
+        st.error(f"Image not found: {domain}/{category}/{z_level}/t{st.session_state.time_step:03d}.png")
 
     # フッター
     st.markdown("---")
