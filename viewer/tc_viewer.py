@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import streamlit as st
+import streamlit.components.v1 as components
 from PIL import Image
 
 # プロジェクトのルートディレクトリを検出
@@ -320,6 +321,42 @@ def load_image(fig_dir_str: str, domain: str, category: str, z_level: str, time_
     return Image.open(img_path)
 
 
+def keyboard_listener():
+    """
+    Create a keyboard listener component that captures arrow key events.
+
+    Returns
+    -------
+    str or None
+        Key pressed: 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', or None
+    """
+    keyboard_html = """
+    <script>
+    const doc = window.parent.document;
+
+    // キーボードイベントをキャプチャ
+    doc.addEventListener('keydown', function(e) {
+        // 矢印キーのみを処理
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            e.preventDefault(); // デフォルトのスクロール動作を防ぐ
+            window.parent.postMessage({
+                type: 'streamlit:setComponentValue',
+                key: e.key
+            }, '*');
+        }
+    });
+
+    // 初期化完了を通知
+    window.parent.postMessage({
+        type: 'streamlit:setComponentValue',
+        key: null
+    }, '*');
+    </script>
+    """
+
+    return components.html(keyboard_html, height=0, width=0)
+
+
 def main():
     """Main Streamlit app."""
     st.set_page_config(
@@ -329,6 +366,9 @@ def main():
     )
 
     st.title("🌀 TC Analysis Interactive Viewer")
+
+    # キーボードリスナーを起動（矢印キーイベントをキャプチャ）
+    key_pressed = keyboard_listener()
 
     # スキャンして利用可能なプロットを取得（キャッシュあり）
     available_plots = scan_available_plots(str(FIG_DIR))
@@ -412,6 +452,9 @@ def main():
 
             # z層の数値を抽出してスライダー用のインデックスに変換
             z_indices = [int(z[1:]) for z in z_levels]  # 'z00' -> 0
+
+            # z_indicesをsession_stateに保存（キーボード操作用）
+            st.session_state.z_indices = z_indices
 
             # Session state初期化（内部管理用の変数名を使用）
             if '_z_index' not in st.session_state:
@@ -631,11 +674,42 @@ def main():
     else:
         st.info("Select domain, category, and z-level from the sidebar to display images.")
 
+    # キーボードイベント処理
+    if key_pressed and key_pressed != 'null':
+        # z_indicesとtime_stepsがsession_stateに存在するか確認
+        if 'time_steps' in st.session_state and '_time_step' in st.session_state:
+            time_steps = st.session_state.time_steps
+            current_time_idx = time_steps.index(st.session_state._time_step) if st.session_state._time_step in time_steps else 0
+
+            if key_pressed == 'ArrowLeft' and current_time_idx > 0:
+                # 左矢印: 前の時間ステップ
+                st.session_state._time_step = time_steps[current_time_idx - 1]
+                st.rerun()
+            elif key_pressed == 'ArrowRight' and current_time_idx < len(time_steps) - 1:
+                # 右矢印: 次の時間ステップ
+                st.session_state._time_step = time_steps[current_time_idx + 1]
+                st.rerun()
+
+        # z_indicesの処理
+        if 'z_indices' in st.session_state and '_z_index' in st.session_state:
+            z_indices = st.session_state.z_indices
+            current_z_idx = z_indices.index(st.session_state._z_index) if st.session_state._z_index in z_indices else 0
+
+            if key_pressed == 'ArrowDown' and current_z_idx > 0:
+                # 下矢印: Z level Down
+                st.session_state._z_index = z_indices[current_z_idx - 1]
+                st.rerun()
+            elif key_pressed == 'ArrowUp' and current_z_idx < len(z_indices) - 1:
+                # 上矢印: Z level Up
+                st.session_state._z_index = z_indices[current_z_idx + 1]
+                st.rerun()
+
     # フッター
     st.markdown("---")
     st.markdown(
         "**TC Analysis Viewer** | "
-        "Use sidebar to navigate through time steps and vertical levels"
+        "Use sidebar to navigate through time steps and vertical levels | "
+        "**Keyboard**: ⬅️➡️ Time / ⬆️⬇️ Z Level"
     )
 
 
