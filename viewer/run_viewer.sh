@@ -4,18 +4,12 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+VIEWER_SCRIPT="$SCRIPT_DIR/tc_viewer.py"
 
 echo "================================================"
 echo "  TC Analysis Viewer"
 echo "================================================"
 echo ""
-echo "Starting Streamlit viewer..."
-echo "Project root: $PROJECT_ROOT"
-echo ""
-
-# Change to project root
-cd "$PROJECT_ROOT"
 
 # Check if streamlit is installed
 if ! command -v streamlit &> /dev/null; then
@@ -27,8 +21,19 @@ if ! command -v streamlit &> /dev/null; then
     exit 1
 fi
 
-# Launch Streamlit app
-streamlit run viewer/tc_viewer.py
+# Check if viewer script exists
+if [ ! -f "$VIEWER_SCRIPT" ]; then
+    echo "Error: Viewer script not found: $VIEWER_SCRIPT"
+    exit 1
+fi
+
+echo "Starting Streamlit viewer..."
+echo "Current directory: $(pwd)"
+echo "Viewer will search for 'fig' directory or 'script/setting.json'"
+echo ""
+
+# Launch Streamlit app from current directory
+streamlit run "$VIEWER_SCRIPT"
 
 echo ""
 echo "Viewer closed."

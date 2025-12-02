@@ -15,8 +15,41 @@ from typing import Dict, List, Tuple
 import streamlit as st
 from PIL import Image
 
-# プロジェクトのルートディレクトリ
-PROJECT_ROOT = Path(__file__).parent.parent
+# プロジェクトのルートディレクトリを検出
+def find_project_root() -> Path:
+    """
+    Find project root by searching for fig directory or setting.json.
+
+    Search order:
+    1. Current working directory
+    2. Parent directories up to 3 levels
+    3. Script's parent directory (fallback)
+
+    Returns
+    -------
+    Path
+        Project root directory
+    """
+    # 1. カレントディレクトリから探す
+    cwd = Path.cwd()
+
+    # fig ディレクトリまたは setting.json があればそこをルートとする
+    if (cwd / "fig").exists() or (cwd / "script" / "setting.json").exists():
+        return cwd
+
+    # 2. 親ディレクトリを最大3階層まで探す
+    current = cwd
+    for _ in range(3):
+        current = current.parent
+        if (current / "fig").exists() or (current / "script" / "setting.json").exists():
+            return current
+
+    # 3. フォールバック: スクリプトの親ディレクトリ
+    script_dir = Path(__file__).parent.parent
+    return script_dir
+
+
+PROJECT_ROOT = find_project_root()
 FIG_DIR = PROJECT_ROOT / "fig"
 
 
@@ -133,6 +166,15 @@ def main():
     )
 
     st.title("🌀 TC Analysis Interactive Viewer")
+
+    # プロジェクトルート情報を表示
+    with st.expander("📂 Project Information", expanded=False):
+        st.info(f"""
+        **Project Root:** `{PROJECT_ROOT}`
+        **Figure Directory:** `{FIG_DIR}`
+        **Current Working Directory:** `{Path.cwd()}`
+        """)
+
     st.markdown("---")
 
     # スキャンして利用可能なプロットを取得
@@ -141,6 +183,12 @@ def main():
     if not available_plots:
         st.error(f"No plots found in {FIG_DIR}")
         st.info("Run analysis scripts to generate plots first.")
+        st.warning(f"""
+        **Troubleshooting:**
+        1. Make sure you are in a directory with `fig` folder or `script/setting.json`
+        2. Check that plots have been generated
+        3. Current search location: `{PROJECT_ROOT}`
+        """)
         return
 
     # サイドバー: 選択パネル
