@@ -20,7 +20,8 @@ pip install streamlit pillow
 
 ### 1. 任意のディレクトリから起動
 
-ビューアは、`fig`ディレクトリまたは`script/setting.json`があるプロジェクトルートを自動検出します。
+ビューアは、`run_viewer.sh`を使えば**どのディレクトリからでも**起動できます。
+スクリプトが自動的にプロジェクトルート（`tc_analyze/`）に移動してから起動します。
 
 **方法1: プロジェクトルートから**
 ```bash
@@ -36,11 +37,11 @@ cd /path/to/tc_analyze/analysis/energy
 bash ../../viewer/run_viewer.sh
 ```
 
-**方法3: 絶対パスで指定**
+**方法3: 絶対パスで任意のディレクトリから起動**
 ```bash
 cd /any/directory
 bash /path/to/tc_analyze/viewer/run_viewer.sh
-# 現在のディレクトリから最大3階層上までfigディレクトリを探します
+# run_viewer.shが自動的にtc_analyze/に移動してから起動
 ```
 
 ### 2. ブラウザで開く
