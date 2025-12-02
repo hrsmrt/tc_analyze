@@ -101,14 +101,20 @@ def load_fig_dir(project_root: Path) -> Optional[Path]:
     return None
 
 
-PROJECT_ROOT = find_project_root()
+# カレントディレクトリがfigフォルダの場合、それを直接使用
+if Path.cwd().name == "fig":
+    FIG_DIR = Path.cwd()
+    PROJECT_ROOT = Path.cwd().parent
+else:
+    # 通常の動作: プロジェクトルートを検出
+    PROJECT_ROOT = find_project_root()
 
-# setting.json から fig_dir を読み込む
-FIG_DIR = load_fig_dir(PROJECT_ROOT)
+    # setting.json から fig_dir を読み込む
+    FIG_DIR = load_fig_dir(PROJECT_ROOT)
 
-# フォールバック: setting.json がない場合は fig/ を使用
-if FIG_DIR is None:
-    FIG_DIR = PROJECT_ROOT / "fig"
+    # フォールバック: setting.json がない場合は fig/ を使用
+    if FIG_DIR is None:
+        FIG_DIR = PROJECT_ROOT / "fig"
 
 
 def scan_available_plots() -> Dict[str, Dict[str, List[str]]]:
@@ -301,7 +307,9 @@ def main():
         setting_status = "✅ Found" if setting_file.exists() else "❌ Not found"
 
         # fig_dir のソースを表示
-        if FIG_DIR == PROJECT_ROOT / "fig":
+        if Path.cwd().name == "fig":
+            fig_source = "Current directory (fig/)"
+        elif FIG_DIR == PROJECT_ROOT / "fig":
             fig_source = "Default (fig/)"
         else:
             fig_source = f"From setting.json: fig_dir"
