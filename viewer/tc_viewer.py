@@ -328,23 +328,6 @@ def main():
         layout="wide"
     )
 
-    # アニメーション処理（最初に実行して、描画前にフレームを進める）
-    if st.session_state.get('playing', False):
-        if 'time_steps' in st.session_state and '_time_step' in st.session_state:
-            time_steps = st.session_state.time_steps
-            current_idx = time_steps.index(st.session_state._time_step)
-            if current_idx < len(time_steps) - 1:
-                # 待機時間
-                play_speed = st.session_state.get('play_speed', 0.1)
-                if play_speed > 0:
-                    time.sleep(play_speed)
-                # 次のフレームへ
-                st.session_state._time_step = time_steps[current_idx + 1]
-                st.rerun()
-            else:
-                # 最後のフレームに達したら停止
-                st.session_state.playing = False
-
     st.title("🌀 TC Analysis Interactive Viewer")
 
     # スキャンして利用可能なプロットを取得（キャッシュあり）
@@ -571,25 +554,80 @@ def main():
         z_level = st.session_state.z_level
         time_step = st.session_state._time_step
 
-        img = load_image(str(FIG_DIR), domain, category, z_level, time_step)
+        # アニメーション処理
+        if st.session_state.get('playing', False):
+            # アニメーション中は、空のコンテナを作成してループで更新
+            time_steps = st.session_state.time_steps
+            current_idx = time_steps.index(st.session_state._time_step) if st.session_state._time_step in time_steps else 0
 
-        if img is not None:
-            # 画像情報
-            st.subheader(f"{domain} / {category} / {z_level} / t={time_step:03d}")
+            # 画像情報ヘッダー用のプレースホルダー
+            header_placeholder = st.empty()
 
-            # 画像表示（幅を調整可能に）
+            # 画像表示用のプレースホルダー
             col1, col2, col3 = st.columns([1, 3, 1])
-
             with col2:
-                st.image(img, use_container_width=True)
+                image_placeholder = st.empty()
 
-            # 画像サイズ情報
-            with st.expander("🔍 Image Details"):
-                st.write(f"**Size:** {img.size[0]} x {img.size[1]} pixels")
-                st.write(f"**Mode:** {img.mode}")
-                st.write(f"**Path:** `fig/{domain}/{category}/{z_level}/t{time_step:03d}.png`")
+            # 画像詳細用のプレースホルダー
+            details_placeholder = st.empty()
+
+            # アニメーションループ
+            play_speed = st.session_state.get('play_speed', 0.1)
+            for i in range(current_idx, len(time_steps)):
+                t_step = time_steps[i]
+                img = load_image(str(FIG_DIR), domain, category, z_level, t_step)
+
+                if img is not None:
+                    # ヘッダーを更新
+                    header_placeholder.subheader(f"{domain} / {category} / {z_level} / t={t_step:03d}")
+
+                    # 画像を更新
+                    image_placeholder.image(img, use_container_width=True)
+
+                    # 詳細情報を更新
+                    with details_placeholder.expander("🔍 Image Details"):
+                        st.write(f"**Size:** {img.size[0]} x {img.size[1]} pixels")
+                        st.write(f"**Mode:** {img.mode}")
+                        st.write(f"**Path:** `fig/{domain}/{category}/{z_level}/t{t_step:03d}.png`")
+
+                    # 現在のtime_stepを更新
+                    st.session_state._time_step = t_step
+
+                    # プレイ速度に応じて待機
+                    if play_speed > 0:
+                        time.sleep(play_speed)
+                else:
+                    st.error(f"Image not found: {domain}/{category}/{z_level}/t{t_step:03d}.png")
+                    break
+
+                # 停止ボタンが押されたかチェック（session_stateの変更をチェック）
+                if not st.session_state.get('playing', False):
+                    break
+
+            # アニメーション終了: playingをFalseにしてリロード
+            st.session_state.playing = False
+            st.rerun()
         else:
-            st.error(f"Image not found: {domain}/{category}/{z_level}/t{time_step:03d}.png")
+            # 通常の静止画表示
+            img = load_image(str(FIG_DIR), domain, category, z_level, time_step)
+
+            if img is not None:
+                # 画像情報
+                st.subheader(f"{domain} / {category} / {z_level} / t={time_step:03d}")
+
+                # 画像表示（幅を調整可能に）
+                col1, col2, col3 = st.columns([1, 3, 1])
+
+                with col2:
+                    st.image(img, use_container_width=True)
+
+                # 画像サイズ情報
+                with st.expander("🔍 Image Details"):
+                    st.write(f"**Size:** {img.size[0]} x {img.size[1]} pixels")
+                    st.write(f"**Mode:** {img.mode}")
+                    st.write(f"**Path:** `fig/{domain}/{category}/{z_level}/t{time_step:03d}.png`")
+            else:
+                st.error(f"Image not found: {domain}/{category}/{z_level}/t{time_step:03d}.png")
     else:
         st.info("Select domain, category, and z-level from the sidebar to display images.")
 
