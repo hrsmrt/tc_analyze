@@ -331,36 +331,51 @@ def main():
 
     st.title("🌀 TC Analysis Interactive Viewer")
 
-    # 十字キーリスナー（JavaScriptコンポーネント）
-    keyboard_html = """
+    # キーボードナビゲーション初期化
+    if 'last_key' not in st.session_state:
+        st.session_state.last_key = None
+    if 'key_counter' not in st.session_state:
+        st.session_state.key_counter = 0
+
+    # 十字キーリスナー（session_state経由）
+    # JavaScriptでsession_stateを直接操作
+    keyboard_js = f"""
     <script>
-    // Streamlitにキーイベントを送信する関数
-    function sendKey(key) {
-        window.parent.postMessage({
-            isStreamlitMessage: true,
-            type: "streamlit:setComponentValue",
-            value: key
-        }, "*");
-    }
+    const sessionState = window.parent.document.querySelector('[data-testid="stApp"]');
+    let keyCounter = {st.session_state.key_counter};
 
-    // ページ全体でキーイベントをリッスン
-    document.addEventListener('keydown', function(event) {
-        // 矢印キーのみ処理
+    document.addEventListener('keydown', function(event) {{
         if (event.key === 'ArrowLeft' || event.key === 'ArrowRight' ||
-            event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-            event.preventDefault();  // ページスクロールを防ぐ
-            sendKey(event.key);
-        }
-    }, true);  // trueでキャプチャフェーズ使用
+            event.key === 'ArrowUp' || event.key === 'ArrowDown') {{
+            event.preventDefault();
 
-    // 初期化メッセージ
-    sendKey(null);
+            // Streamlit URLにクエリパラメータとして追加
+            const url = new URL(window.location);
+            url.searchParams.set('key', event.key);
+            url.searchParams.set('keyc', ++keyCounter);
+            window.history.pushState({{}}, '', url);
+
+            // ページをリロード
+            window.parent.postMessage({{
+                type: 'streamlit:rerequestPageLoad',
+            }}, '*');
+        }}
+    }}, true);
     </script>
-    <div style="height: 0px; width: 0px;"></div>
     """
 
-    # キーボードリスナーを配置（非表示）
-    key_pressed = components.html(keyboard_html, height=0)
+    st.markdown(keyboard_js, unsafe_allow_html=True)
+
+    # URLパラメータからキーを取得
+    try:
+        # Streamlit 1.22+ uses st.query_params
+        query_params = st.experimental_get_query_params()
+        key_pressed = query_params.get("key", [None])[0]
+        key_counter_param = query_params.get("keyc", [None])[0]
+    except AttributeError:
+        # Fallback
+        key_pressed = None
+        key_counter_param = None
 
     # スキャンして利用可能なプロットを取得（キャッシュあり）
     available_plots = scan_available_plots(str(FIG_DIR))
