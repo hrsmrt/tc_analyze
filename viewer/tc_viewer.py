@@ -368,11 +368,9 @@ def main():
 
     # URLパラメータからキーを取得
     try:
-        # Streamlit 1.22+ uses st.query_params
-        query_params = st.experimental_get_query_params()
-        key_pressed = query_params.get("key", [None])[0]
-        key_counter_param = query_params.get("keyc", [None])[0]
-    except AttributeError:
+        key_pressed = st.query_params.get("key", None)
+        key_counter_param = st.query_params.get("keyc", None)
+    except Exception:
         # Fallback
         key_pressed = None
         key_counter_param = None
